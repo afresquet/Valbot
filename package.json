@@ -1,0 +1,23 @@
+{
+  "name": "valbot",
+  "version": "1.0.0",
+  "description": "Personal Twitch and Discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afresquet/Valbot.git"
+  },
+  "author": "Alvaro Fresquet <alvarofresquet@gmail.com> (https://twitter.com/afresquet)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/afresquet/Valbot/issues"
+  },
+  "homepage": "https://github.com/afresquet/Valbot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.0.0"
+  }
+}
