@@ -112,7 +112,11 @@ client.on("messageReactionAdd", async (reaction, user) => {
 
 	await guildMember.addRole(serverRole);
 
-	await user.send(`I gave you the "${serverRole.name}" role.`);
+	await user.send(
+		`The role "${
+			serverRole.name
+		}" has been given to you! If you wish to remove it, remove your reaction on the same message.`
+	);
 });
 client.on("messageReactionRemove", async (reaction, user) => {
 	if (user.bot) return;
@@ -137,7 +141,11 @@ client.on("messageReactionRemove", async (reaction, user) => {
 
 	await guildMember.removeRole(serverRole);
 
-	await user.send(`I removed you from the "${serverRole.name}" role.`);
+	await user.send(
+		`The role "${
+			serverRole.name
+		}" has been removed from you! If you wish to add it back, react again on the same message.`
+	);
 });
 // Roles reaction updates
 const rolesReactions = async message => {
