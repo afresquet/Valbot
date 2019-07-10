@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+const production = process.env.ENV === "production";
+
 const client = new Discord.Client();
 
 client.on("ready", () => {
@@ -59,6 +61,8 @@ client.on("raw", packet => {
 
 // Suggestions reactions
 client.on("message", async message => {
+	if (!production) return;
+
 	if (message.author.bot) return;
 
 	if (message.channel.name !== "suggestions") return;
@@ -88,6 +92,8 @@ const roleExtractor = message => {
 	return roles;
 };
 client.on("messageReactionAdd", async (reaction, user) => {
+	if (!production) return;
+
 	if (user.bot) return;
 
 	if (reaction.message.channel.name !== "roles") return;
@@ -119,6 +125,8 @@ client.on("messageReactionAdd", async (reaction, user) => {
 	);
 });
 client.on("messageReactionRemove", async (reaction, user) => {
+	if (!production) return;
+
 	if (user.bot) return;
 
 	if (reaction.message.channel.name !== "roles") return;
@@ -149,6 +157,8 @@ client.on("messageReactionRemove", async (reaction, user) => {
 });
 // Roles reaction updates
 const rolesReactions = async message => {
+	if (!production) return;
+
 	if (message.author.bot) return;
 
 	if (message.channel.name !== "roles") return;
@@ -178,4 +188,5 @@ const rolesReactions = async message => {
 client.on("message", rolesReactions);
 client.on("messageUpdate", (_, message) => rolesReactions(message));
 
-client.login(process.env.DISCORD_TOKEN);
+const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
+client.login(production ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);
