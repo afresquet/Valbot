@@ -23,7 +23,7 @@ export default client => {
 	};
 
 	const onMessageReaction = (add = true) => async (reaction, user) => {
-		if (!isProduction) return;
+		// if (!isProduction) return;
 
 		if (user.bot) return;
 
@@ -54,15 +54,17 @@ export default client => {
 
 		const guildMember = reaction.message.guild.member(user);
 
-		if (guildMember.roles.find(r => r.name === serverRole.name)) return;
-
 		if (add) {
+			if (guildMember.roles.find(r => r.name === serverRole.name)) return;
+
 			await guildMember.addRole(serverRole);
 
 			await user.send(
 				`The role "${serverRole.name}" has been given to you! If you wish to remove it, remove your reaction on the same message.`
 			);
 		} else {
+			if (!guildMember.roles.find(r => r.name === serverRole.name)) return;
+
 			await guildMember.removeRole(serverRole);
 
 			await user.send(
