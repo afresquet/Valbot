@@ -23,7 +23,7 @@ export default client => {
 	};
 
 	const onMessageReaction = (add = true) => async (reaction, user) => {
-		// if (!isProduction) return;
+		if (!isProduction) return;
 
 		if (user.bot) return;
 
@@ -64,7 +64,7 @@ export default client => {
 			);
 		} else {
 			if (!guildMember.roles.find(r => r.name === serverRole.name)) return;
-
+      
 			await guildMember.removeRole(serverRole);
 
 			await user.send(
