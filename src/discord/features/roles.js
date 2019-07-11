@@ -64,7 +64,7 @@ export default client => {
 			);
 		} else {
 			if (!guildMember.roles.find(r => r.name === serverRole.name)) return;
-
+      
 			await guildMember.removeRole(serverRole);
 
 			await user.send(
