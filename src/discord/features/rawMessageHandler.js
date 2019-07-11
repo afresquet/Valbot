@@ -1,4 +1,4 @@
-module.exports = client => {
+export default client => {
 	client.on("raw", async packet => {
 		if (packet.t !== "MESSAGE_UPDATE") return;
 		// Grab the channel to check the message from

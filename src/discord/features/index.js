@@ -1,9 +1,3 @@
-const rawMessageHandler = require("./rawMessageHandler");
-const roles = require("./roles");
-const suggestions = require("./suggestions");
-
-module.exports = {
-	rawMessageHandler,
-	roles,
-	suggestions,
-};
+export { default as rawMessageHandler } from "./rawMessageHandler";
+export { default as roles } from "./roles";
+export { default as suggestions } from "./suggestions";

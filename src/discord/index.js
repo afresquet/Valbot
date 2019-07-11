@@ -1,7 +1,7 @@
-const Discord = require("discord.js");
-const features = require("./features");
+import Discord from "discord.js";
+import * as features from "./features";
 
-module.exports = function createDiscordClient() {
+export default () => {
 	const client = new Discord.Client();
 
 	client.on("ready", () => {

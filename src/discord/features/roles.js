@@ -1,6 +1,6 @@
-const isProduction = require("../../helpers/isProduction");
+import isProduction from "../../helpers/isProduction";
 
-module.exports = client => {
+export default client => {
 	const regex = /^\s*([^\s]+)\s+(\w+)\s+\|\s+(.+)/;
 
 	const roleExtractor = message => {
@@ -13,7 +13,7 @@ module.exports = client => {
 			let emoji = emojiRaw;
 
 			if (/<:.+:(\d+)>/.test(emojiRaw)) {
-				emoji = message.guild.emojis.get(/<:.+:(\d+)>/.exec(emoji)[1]);
+				emoji = message.guild.emojis.get(/<:.+:(\d+)>/.exec(emojiRaw)[1]);
 			}
 
 			return { name, description, emoji };
@@ -42,6 +42,7 @@ module.exports = client => {
 		);
 
 		if (!serverRole) {
+			// eslint-disable-next-line require-atomic-updates
 			serverRole = await reaction.message.guild.createRole({ name: role.name });
 		}
 
@@ -52,9 +53,7 @@ module.exports = client => {
 		await guildMember.addRole(serverRole);
 
 		await user.send(
-			`The role "${
-				serverRole.name
-			}" has been given to you! If you wish to remove it, remove your reaction on the same message.`
+			`The role "${serverRole.name}" has been given to you! If you wish to remove it, remove your reaction on the same message.`
 		);
 	});
 
@@ -86,9 +85,7 @@ module.exports = client => {
 		await guildMember.removeRole(serverRole);
 
 		await user.send(
-			`The role "${
-				serverRole.name
-			}" has been removed from you! If you wish to add it back, react again on the same message.`
+			`The role "${serverRole.name}" has been removed from you! If you wish to add it back, react again on the same message.`
 		);
 	});
 

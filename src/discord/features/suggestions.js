@@ -1,6 +1,6 @@
-const isProduction = require("../../helpers/isProduction");
+import isProduction from "../../helpers/isProduction";
 
-module.exports = client => {
+export default client => {
 	client.on("message", async message => {
 		if (!isProduction) return;
 

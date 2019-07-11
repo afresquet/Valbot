@@ -1,7 +1,5 @@
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const isProduction = process.env.ENV === "production";
-
-module.exports = isProduction;
+export default process.env.ENV === "production";

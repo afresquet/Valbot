@@ -1,6 +1,6 @@
-const dotenv = require("dotenv");
-const createDiscordClient = require("./discord");
-const isProduction = require("./helpers/isProduction");
+import dotenv from "dotenv";
+import createDiscordClient from "./discord";
+import isProduction from "./helpers/isProduction";
 
 dotenv.config();
 
