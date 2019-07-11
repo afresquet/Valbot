@@ -23,7 +23,7 @@ export default client => {
 	};
 
 	const onMessageReaction = (add = true) => async (reaction, user) => {
-		// if (!isProduction) return;
+		if (!isProduction) return;
 
 		if (user.bot) return;
 
