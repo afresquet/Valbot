@@ -22,7 +22,7 @@ export default client => {
 		return roles;
 	};
 
-	client.on("messageReactionAdd", async (reaction, user) => {
+	const onMessageReaction = (add = true) => async (reaction, user) => {
 		if (!isProduction) return;
 
 		if (user.bot) return;
@@ -42,55 +42,39 @@ export default client => {
 		);
 
 		if (!serverRole) {
-			// eslint-disable-next-line require-atomic-updates
-			serverRole = await reaction.message.guild.createRole({ name: role.name });
+			if (add) {
+				// eslint-disable-next-line require-atomic-updates
+				serverRole = await reaction.message.guild.createRole({
+					name: role.name
+				});
+			} else if (!add) {
+				return;
+			}
 		}
 
 		const guildMember = reaction.message.guild.member(user);
 
 		if (guildMember.roles.find(r => r.name === serverRole.name)) return;
 
-		await guildMember.addRole(serverRole);
+		if (add) {
+			await guildMember.addRole(serverRole);
 
-		await user.send(
-			`The role "${serverRole.name}" has been given to you! If you wish to remove it, remove your reaction on the same message.`
-		);
-	});
+			await user.send(
+				`The role "${serverRole.name}" has been given to you! If you wish to remove it, remove your reaction on the same message.`
+			);
+		} else {
+			await guildMember.removeRole(serverRole);
 
-	client.on("messageReactionRemove", async (reaction, user) => {
-		if (!isProduction) return;
-
-		if (user.bot) return;
-
-		if (reaction.message.channel.name !== "roles") return;
-
-		const roles = roleExtractor(reaction.message);
-
-		const role = roles.find(
-			({ emoji }) => (emoji.name || emoji) === reaction.emoji.name
-		);
-
-		if (!role) return;
-
-		let serverRole = reaction.message.guild.roles.find(
-			r => r.name === role.name
-		);
-
-		if (!serverRole) return;
-
-		const guildMember = reaction.message.guild.member(user);
-
-		if (!guildMember.roles.find(r => r.name === serverRole.name)) return;
-
-		await guildMember.removeRole(serverRole);
-
-		await user.send(
-			`The role "${serverRole.name}" has been removed from you! If you wish to add it back, react again on the same message.`
-		);
-	});
+			await user.send(
+				`The role "${serverRole.name}" has been removed from you! If you wish to add it back, react again on the same message.`
+			);
+		}
+	};
+	client.on("messageReactionAdd", onMessageReaction(true));
+	client.on("messageReactionRemove", onMessageReaction(false));
 
 	// Roles reaction updates
-	const rolesReactions = async message => {
+	const onMessage = async message => {
 		if (!isProduction) return;
 
 		if (message.author.bot) return;
@@ -119,6 +103,6 @@ export default client => {
 			users.forEach(user => reaction.remove(user.id));
 		});
 	};
-	client.on("message", rolesReactions);
-	client.on("messageUpdate", (_, message) => rolesReactions(message));
+	client.on("message", onMessage);
+	client.on("messageUpdate", (_, message) => onMessage(message));
 };
