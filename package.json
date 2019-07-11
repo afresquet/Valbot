@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "babel-node src/index.js",
 		"clean": "rm -rf build && mkdir build",
-		"build": "babel -d build src -s",
+		"compile": "babel -d build src -s",
+		"build": "npm run clean && npm run compile",
 		"start": "node build/index"
 	},
 	"repository": {
