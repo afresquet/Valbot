@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 import createDiscordClient from "./discord";
-import isProduction from "./helpers/isProduction";
 
 dotenv.config();
 
-const client = createDiscordClient();
+const prod = process.env.ENV === "production";
+
+const client = createDiscordClient(prod);
 
 const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
-client.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);
+client.login(prod ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);

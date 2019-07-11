@@ -1,11 +1,9 @@
-import isProduction from "../../helpers/isProduction";
-
 export default client => {
 	const yes = "✅";
 	const no = "❌";
 
 	client.on("message", async message => {
-		if (!isProduction) return;
+		if (!client.prod) return;
 
 		if (message.author.bot) return;
 
@@ -16,7 +14,7 @@ export default client => {
 	});
 
 	client.on("messageReactionAdd", (reaction, user) => {
-		if (!isProduction) return;
+		if (!client.prod) return;
 
 		if (user.bot) return;
 

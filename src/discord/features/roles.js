@@ -1,5 +1,3 @@
-import isProduction from "../../helpers/isProduction";
-
 export default client => {
 	const regex = /^\s*([^\s]+)\s+(\w+)\s+\|\s+(.+)/;
 
@@ -23,7 +21,7 @@ export default client => {
 	};
 
 	const onMessageReaction = (add = true) => async (reaction, user) => {
-		if (!isProduction) return;
+		if (!client.prod) return;
 
 		if (user.bot) return;
 
@@ -64,7 +62,7 @@ export default client => {
 			);
 		} else {
 			if (!guildMember.roles.find(r => r.name === serverRole.name)) return;
-      
+
 			await guildMember.removeRole(serverRole);
 
 			await user.send(
@@ -77,7 +75,7 @@ export default client => {
 
 	// Roles reaction updates
 	const onMessage = async message => {
-		if (!isProduction) return;
+		if (!client.prod) return;
 
 		if (message.author.bot) return;
 
