@@ -1,23 +1,37 @@
 {
-  "name": "valbot",
-  "version": "1.0.0",
-  "description": "Personal Twitch and Discord bot",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/afresquet/Valbot.git"
-  },
-  "author": "Alvaro Fresquet <alvarofresquet@gmail.com> (https://twitter.com/afresquet)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/afresquet/Valbot/issues"
-  },
-  "homepage": "https://github.com/afresquet/Valbot#readme",
-  "dependencies": {
-    "discord.js": "^11.5.1",
-    "dotenv": "^8.0.0"
-  }
+	"name": "valbot",
+	"version": "1.0.0",
+	"description": "Personal Twitch and Discord bot",
+	"main": "build/index.js",
+	"scripts": {
+		"dev": "babel-node src/index.js",
+		"clean": "rm -rf build && mkdir build",
+		"compile": "babel src -d build",
+		"build": "npm run clean && npm run compile",
+		"start": "node build/index"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/afresquet/Valbot.git"
+	},
+	"author": "Alvaro Fresquet <alvarofresquet@gmail.com> (https://twitter.com/afresquet)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/afresquet/Valbot/issues"
+	},
+	"homepage": "https://github.com/afresquet/Valbot#readme",
+	"dependencies": {
+		"discord.js": "^11.5.1",
+		"dotenv": "^8.0.0"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.5.0",
+		"@babel/core": "^7.5.4",
+		"@babel/node": "^7.5.0",
+		"@babel/preset-env": "^7.5.4",
+		"eslint": "^6.0.1",
+		"eslint-config-prettier": "^6.0.0",
+		"eslint-plugin-prettier": "^3.1.0",
+		"prettier": "^1.18.2"
+	}
 }
