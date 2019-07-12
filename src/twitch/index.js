@@ -1,4 +1,5 @@
 import TMI from "tmi.js";
+import * as features from "./features";
 
 const fetchChannels = async db => {
 	const channelsDoc = await db
@@ -50,6 +51,10 @@ export default async (db, logger, prod, credentials) => {
 		});
 
 		client.logToDiscord({ description: "I logged in to Twitch!" });
+	});
+
+	Object.values(features).forEach(feature => {
+		feature(client);
 	});
 
 	return client;
