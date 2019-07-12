@@ -1,4 +1,5 @@
 import TMI from "tmi.js";
+import * as features from "./features";
 
 export default (prod, logger, TWITCH_BOT_PASSWORD) => {
 	const client = new TMI.client({
@@ -36,6 +37,10 @@ export default (prod, logger, TWITCH_BOT_PASSWORD) => {
 		client.action(client.opts.channels[0], "is online! valaxoSmile");
 
 		client.logToDiscord({ description: "I logged in to Twitch!" });
+	});
+
+	Object.values(features).forEach(feature => {
+		feature(client);
 	});
 
 	return client;
