@@ -22,7 +22,8 @@
 	"homepage": "https://github.com/afresquet/Valbot#readme",
 	"dependencies": {
 		"discord.js": "^11.5.1",
-		"dotenv": "^8.0.0"
+		"dotenv": "^8.0.0",
+		"tmi.js": "^1.4.5"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.5.0",
