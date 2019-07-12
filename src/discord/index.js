@@ -7,6 +7,8 @@ export default prod => {
 
 	client.prod = prod;
 
+	client.log = tools.logger(client);
+
 	client.on("ready", () => {
 		console.log(`Logged in as ${client.user.tag}!`);
 	});
