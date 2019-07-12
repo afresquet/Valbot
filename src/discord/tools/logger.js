@@ -5,33 +5,32 @@ export default client => {
 		const {
 			author = {
 				name: "Discord",
-				icon_url: "https://cdn.discordapp.com/embed/avatars/0.png"
+				icon_url: "https://cdn.discordapp.com/embed/avatars/0.png",
+				url: ""
 			},
-			title,
-			url,
-			description,
-			color = 0x6b82cd,
+			title = "",
+			url = "",
+			description = "",
+			color = "#36b82cd",
 			thumbnail = "https://cdn.discordapp.com/embed/avatars/0.png",
-			image,
+			image = "",
 			fields = [],
-			footer,
-			timestamp = Date.now()
+			footer = { text: "", icon_url: "" },
+			timestamp
 		} = content;
 
 		const logsChannel = client.channels.find(c => c.name === "bot-logs");
 
-		const richEmbed = new RichEmbed({
-			author,
-			title,
-			url,
-			description,
-			color: error ? 0xff0000 : color,
-			thumbnail: { url: thumbnail },
-			image: { url: image },
-			fields,
-			footer,
-			timestamp
-		});
+		const richEmbed = new RichEmbed({ fields })
+			.setAuthor(author.name, author.icon_url, author.url)
+			.setTitle(title)
+			.setURL(url)
+			.setDescription(description)
+			.setColor(error ? "#ff0000" : color)
+			.setThumbnail(thumbnail)
+			.setImage(image)
+			.setFooter(footer.text, footer.icon_url)
+			.setTimestamp(timestamp);
 
 		logsChannel.send(richEmbed);
 	};
