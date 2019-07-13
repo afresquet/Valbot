@@ -12,14 +12,23 @@ async function main() {
 	const {
 		FIREBASE_CLIENT_EMAIL,
 		FIREBASE_PRIVATE_KEY,
-		FIREBASE_PROJECT_ID
+		FIREBASE_PROJECT_ID,
+		FIREBASE_DEV_CLIENT_EMAIL,
+		FIREBASE_DEV_PRIVATE_KEY,
+		FIREBASE_DEV_PROJECT_ID
 	} = process.env;
+
+	const firebaseCredentials = {
+		clientEmail: prod ? FIREBASE_CLIENT_EMAIL : FIREBASE_DEV_CLIENT_EMAIL,
+		privateKey: prod ? FIREBASE_PRIVATE_KEY : FIREBASE_DEV_PRIVATE_KEY,
+		projectId: prod ? FIREBASE_PROJECT_ID : FIREBASE_DEV_PROJECT_ID
+	};
 
 	firebase.initializeApp({
 		credential: firebase.credential.cert({
-			clientEmail: FIREBASE_CLIENT_EMAIL,
-			privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-			projectId: FIREBASE_PROJECT_ID
+			clientEmail: firebaseCredentials.clientEmail,
+			privateKey: firebaseCredentials.privateKey.replace(/\\n/g, "\n"),
+			projectId: firebaseCredentials.projectId
 		}),
 		databaseURL: `https://${FIREBASE_PROJECT_ID}.firebaseio.com`
 	});
@@ -41,11 +50,17 @@ async function main() {
 		TWITCH_BOT_DEV_PASSWORD
 	} = process.env;
 
-	const credentials = prod
-		? { username: TWITCH_BOT_USERNAME, password: TWITCH_BOT_PASSWORD }
-		: { username: TWITCH_BOT_DEV_USERNAME, password: TWITCH_BOT_DEV_PASSWORD };
+	const twitchCredentials = {
+		username: prod ? TWITCH_BOT_USERNAME : TWITCH_BOT_DEV_USERNAME,
+		password: prod ? TWITCH_BOT_PASSWORD : TWITCH_BOT_DEV_PASSWORD
+	};
 
-	const twitch = await createTwitchClient(db, discord.log, prod, credentials);
+	const twitch = await createTwitchClient(
+		db,
+		discord.log,
+		prod,
+		twitchCredentials
+	);
 
 	twitch.connect();
 }
