@@ -16,7 +16,7 @@ export default client => {
 
 		state.messageCount += 1;
 
-		if (state.messageCount < 3) return;
+		if (state.messageCount < 15) return;
 
 		if (Date.now() - state.lastTrigger < 15 * 1000 * 60) return;
 
