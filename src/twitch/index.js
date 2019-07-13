@@ -1,6 +1,17 @@
 import TMI from "tmi.js";
 
-export default (prod, logger, TWITCH_BOT_PASSWORD) => {
+const fetchChannels = async db => {
+	const channelsDoc = await db
+		.collection("settings")
+		.doc("twitch-channels")
+		.get();
+
+	return channelsDoc.data().channels;
+};
+
+export default async (db, logger, prod, credentials) => {
+	const channels = await fetchChannels(db);
+
 	const client = new TMI.client({
 		options: { debug: false },
 		connection: {
@@ -8,12 +19,13 @@ export default (prod, logger, TWITCH_BOT_PASSWORD) => {
 			reconnect: true
 		},
 		identity: {
-			username: "valaxor_bot",
-			password: `oauth:${TWITCH_BOT_PASSWORD}`
+			username: credentials.username,
+			password: credentials.password
 		},
-		channels: ["valaxor_"]
+		channels
 	});
 
+	client.db = db;
 	client.prod = prod;
 
 	client.logToDiscord = (content, error) =>
@@ -33,7 +45,9 @@ export default (prod, logger, TWITCH_BOT_PASSWORD) => {
 		);
 
 	client.on("connected", () => {
-		client.action(client.opts.channels[0], "is online! valaxoSmile");
+		client.opts.channels.forEach(channel => {
+			client.action(channel, "is online! valaxoSmile");
+		});
 
 		client.logToDiscord({ description: "I logged in to Twitch!" });
 	});
