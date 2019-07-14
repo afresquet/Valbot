@@ -1,6 +1,6 @@
 export default discord => {
 	return (content, error) =>
-		discord.logger(
+		discord.log(
 			{
 				author: {
 					name: "Twitch",

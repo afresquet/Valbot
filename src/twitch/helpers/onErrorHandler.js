@@ -1,8 +1,8 @@
 export default client => {
 	return (event, callback) => {
-		client.on(event, (...args) => {
+		client.on(event, async (...args) => {
 			try {
-				callback(...args);
+				await callback(...args);
 			} catch (error) {
 				client.logToDiscord(
 					{
