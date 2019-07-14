@@ -1,4 +1,4 @@
-const fetchCommandMessage = async (db, command) => {
+const fetchCommand = async (db, command) => {
 	const ref = db.collection("commands").doc(command);
 
 	const document = await ref.get();
@@ -70,7 +70,7 @@ export default client => {
 
 		if (command === "!commands") return;
 
-		const commandMessage = await fetchCommandMessage(client.db, command);
+		const commandMessage = await fetchCommand(client.db, command);
 
 		if (!commandMessage) return;
 
