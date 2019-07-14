@@ -1,34 +1,63 @@
 const fetchCommandMessage = async (db, command) => {
-	switch (command) {
-		case "!twitter":
-			return "You can follow me on Twitter at http://twitter.valaxor.com/ valaxoSmile";
-		case "!discord":
-			return "You can join my Discord server by clicking this link: http://discord.valaxor.com/ valaxoSmile";
-		case "!amazing":
-			return "This is amazing... I think you can do better, you got a lot of missclicks buttons!! Could you try again better?!";
-		default:
-			return;
+	const ref = db.collection("commands").doc(command);
+
+	const document = await ref.get();
+
+	if (!document.exists) {
+		return null;
 	}
+
+	return document.data().message;
 };
 
 const addCommand = async (db, command, message) => {
 	if (!command || !message)
 		return { error: 'missing arguments, use "!commands help".' };
 
-	return {};
+	const ref = db.collection("commands").doc(command);
+
+	const document = await ref.get();
+
+	if (document.exists) {
+		return { error: `command "${command}" already exists!` };
+	}
+
+	const snapshot = await ref.set({ message });
+
+	return { snapshot };
 };
 
 const editCommand = async (db, command, message) => {
 	if (!command || !message)
 		return { error: 'missing arguments, use "!commands help".' };
 
-	return {};
+	const ref = db.collection("commands").doc(command);
+
+	const document = await ref.get();
+
+	if (!document.exists) {
+		return { error: `command "${command}" doesn't exist!` };
+	}
+
+	const snapshot = await ref.update({ message });
+
+	return { snapshot };
 };
 
 const removeCommand = async (db, command) => {
 	if (!command) return { error: 'missing arguments, use "!commands help".' };
 
-	return {};
+	const ref = db.collection("commands").doc(command);
+
+	const document = await ref.get();
+
+	if (!document.exists) {
+		return { error: `command "${command}" doesn't exist!` };
+	}
+
+	const snapshot = await ref.delete();
+
+	return { snapshot };
 };
 
 export default client => {
@@ -58,11 +87,13 @@ export default client => {
 		const [
 			command,
 			action,
-			commandName,
+			cmdName,
 			commandMessage
 		] = client.tools.messageSplitter(message, 3);
 
 		if (command !== "!commands") return;
+
+		const commandName = cmdName.startsWith("!") ? cmdName : `!${cmdName}`;
 
 		switch (action) {
 			case "create":
