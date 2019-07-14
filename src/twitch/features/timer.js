@@ -29,7 +29,7 @@ const addMessage = async (db, { id, message }) => {
 
 	const snapshot = await ref.set({ message });
 
-	return snapshot;
+	return { snapshot };
 };
 
 const editMessage = async (db, { id, message }) => {
@@ -47,7 +47,7 @@ const editMessage = async (db, { id, message }) => {
 
 	const snapshot = await ref.update({ message });
 
-	return snapshot;
+	return { snapshot };
 };
 
 const deleteMessage = async (db, id) => {
@@ -65,7 +65,7 @@ const deleteMessage = async (db, id) => {
 
 	const snapshot = await ref.delete();
 
-	return snapshot;
+	return { snapshot };
 };
 
 const updateSettings = async (db, setting, value) => {
@@ -73,36 +73,26 @@ const updateSettings = async (db, setting, value) => {
 		return { error: 'missing arguments, use "!timer help".' };
 	}
 
-	const parsedValue = parseInt(value);
+	if (!["minutes", "messages"].includes(setting)) {
+		return {
+			error: 'invalid setting, possible settings are "minutes" and "messages".'
+		};
+	}
 
-	if (Number.isNaN(parsedValue)) {
+	if (Number.isNaN(value)) {
 		return { error: "invalid value provided, it must be a number." };
 	}
 
 	const ref = db.collection("settings").doc("timer");
 
-	const snapshot = await ref.get();
+	const snapshot = await ref.update({ [setting]: value });
 
-	const settings = snapshot.data();
-
-	if (!Object.keys(settings).includes(setting)) {
-		const settingsString = Object.keys(settings).reduce(
-			(prev, cur) => `${prev}, ${cur}`
-		);
-
-		return {
-			error: `invalid setting, possible settings are: ${settingsString}.`
-		};
-	}
-
-	const updateSnapshot = await ref.update({ [setting]: parsedValue });
-
-	return updateSnapshot;
+	return { snapshot };
 };
 
 export default async client => {
 	let messages = await fetchMessages(client.db);
-	const settings = await fetchSettings(client.db);
+	let settings = await fetchSettings(client.db);
 
 	const state = {
 		lastTrigger: 0,
@@ -212,13 +202,20 @@ export default async client => {
 			case "set": {
 				const [, , setting, value] = client.tools.messageSplitter(message, 4);
 
-				const { error } = await updateSettings(client.db, setting, value);
+				const parsedValue = parseInt(value);
+
+				const { error } = await updateSettings(client.db, setting, parsedValue);
 
 				if (error) {
 					client.say(channel, `@${userstate.username}, ${error}`);
 
 					break;
 				}
+
+				settings = {
+					...settings,
+					[setting]: parsedValue
+				};
 
 				client.say(
 					channel,
