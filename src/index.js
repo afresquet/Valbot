@@ -55,12 +55,7 @@ async function main() {
 		password: prod ? TWITCH_BOT_PASSWORD : TWITCH_BOT_DEV_PASSWORD
 	};
 
-	const twitch = await createTwitchClient(
-		db,
-		discord.log,
-		prod,
-		twitchCredentials
-	);
+	const twitch = await createTwitchClient(db, discord, prod, twitchCredentials);
 
 	twitch.connect();
 }

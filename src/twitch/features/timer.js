@@ -110,7 +110,7 @@ export default async client => {
 		messageIndex: 0
 	};
 
-	client.on("chat", (channel, userstate, message, self) => {
+	client.onEvent("chat", (channel, userstate, message, self) => {
 		if (self) return;
 
 		if (!messages || messages.length === 0) return;
@@ -131,7 +131,7 @@ export default async client => {
 			state.messageIndex + 1 >= messages.length ? 0 : state.messageIndex + 1;
 	});
 
-	client.on("chat", async (channel, userstate, message, self) => {
+	client.onEvent("chat", async (channel, userstate, message, self) => {
 		try {
 			if (self) return;
 
