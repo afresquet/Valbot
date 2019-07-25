@@ -40,9 +40,9 @@ export default async (db, discord, prod, credentials) => {
 			client.action(channel, "is online! valaxoSmile");
 		});
 
-		if (client.prod) {
-			client.logToDiscord({ description: "I logged in to Twitch!" });
-		}
+		//	if (client.prod) {
+		//		client.logToDiscord({ description: "I logged in to Twitch!" });
+		//	}
 	});
 
 	Object.values(features).forEach(feature => {
