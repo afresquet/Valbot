@@ -3,9 +3,10 @@ import { createCommand } from "../../firebase/commands/create";
 import { editCommand } from "../../firebase/commands/edit";
 import { fetchCommand } from "../../firebase/commands/fetch";
 import { removeCommand } from "../../firebase/commands/remove";
+import { TwitchFeature } from "../../types/Feature";
 import messageSplitter from "../tools/messageSplitter";
 
-export const commands = (twitch: tmi.Client) => {
+export const commands: TwitchFeature = (twitch: tmi.Client) => {
 	twitch.on("chat", async (channel, _, message, self) => {
 		if (self) return;
 

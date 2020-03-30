@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { discord } from "./discord";
+import { applyDiscordFeatures } from "./discord/features";
 import { fetchChannels } from "./firebase/fetchChannels";
 import { isProduction } from "./helpers/isProduction";
 import { twitch } from "./twitch";
@@ -14,11 +15,13 @@ async function main() {
 		});
 	});
 
-	applyTwitchFeatures(twitch);
+	applyTwitchFeatures(twitch, discord);
 
 	discord.on("ready", () => {
 		console.log(`Logged to Discord as ${discord.user?.tag}!`);
 	});
+
+	applyDiscordFeatures(discord, twitch);
 
 	const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
 	await discord.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);
