@@ -1,14 +1,14 @@
 import { firebase } from ".";
 
 export const fetchChannels = async (): Promise<string[]> => {
-	const document = await firebase
+	const snapshot = await firebase
 		.collection("settings")
 		.doc("twitch-channels")
 		.get();
 
-	if (!document.exists) {
+	if (!snapshot.exists) {
 		throw new Error("No channels in database '/settings/twitch-channels'");
 	}
 
-	return document.data()!.channels;
+	return snapshot.data()!.channels;
 };

@@ -3,6 +3,7 @@ import { discord } from "./discord";
 import { fetchChannels } from "./firebase/fetchChannels";
 import { isProduction } from "./helpers/isProduction";
 import { twitch } from "./twitch";
+import { applyTwitchFeatures } from "./twitch/features";
 
 async function main() {
 	(twitch as any).opts.channels = await fetchChannels();
@@ -12,6 +13,8 @@ async function main() {
 			twitch.action(channel, `is online!`);
 		});
 	});
+
+	applyTwitchFeatures(twitch);
 
 	discord.on("ready", () => {
 		console.log(`Logged to Discord as ${discord.user?.tag}!`);
