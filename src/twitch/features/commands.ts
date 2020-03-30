@@ -1,8 +1,8 @@
 import tmi from "tmi.js";
-import { createCommand } from "../../firebase/commands/create";
-import { editCommand } from "../../firebase/commands/edit";
-import { fetchCommand } from "../../firebase/commands/fetch";
-import { removeCommand } from "../../firebase/commands/remove";
+import { createCommand } from "../../firebase/commands/createCommand";
+import { editCommand } from "../../firebase/commands/editCommand";
+import { fetchCommand } from "../../firebase/commands/fetchCommand";
+import { removeCommand } from "../../firebase/commands/removeCommand";
 import { TwitchFeature } from "../../types/Feature";
 import messageSplitter from "../tools/messageSplitter";
 
