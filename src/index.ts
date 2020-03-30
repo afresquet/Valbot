@@ -7,6 +7,10 @@ import { twitch } from "./twitch";
 import { applyTwitchFeatures } from "./twitch/features";
 
 async function main() {
+	discord.on("ready", () => {
+		console.log(`Logged to Discord as ${discord.user?.tag}!`);
+	});
+
 	(twitch as any).opts.channels = await fetchChannels();
 
 	twitch.on("connected", () => {
@@ -15,13 +19,10 @@ async function main() {
 		});
 	});
 
-	applyTwitchFeatures(twitch, discord);
-
-	discord.on("ready", () => {
-		console.log(`Logged to Discord as ${discord.user?.tag}!`);
-	});
-
-	applyDiscordFeatures(discord, twitch);
+	await Promise.all([
+		applyDiscordFeatures(discord, twitch),
+		applyTwitchFeatures(twitch, discord),
+	]);
 
 	const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
 	await discord.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);

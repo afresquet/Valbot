@@ -7,7 +7,5 @@ export const removeCommand = async (name: string) => {
 		throw new Error(`command ${name} doesn't exist!`);
 	}
 
-	const snapshot = await ref.delete();
-
-	return snapshot;
+	return ref.delete();
 };

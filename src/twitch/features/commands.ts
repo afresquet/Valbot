@@ -28,9 +28,9 @@ export const commands: TwitchFeature = (twitch: tmi.Client) => {
 
 		if (!userstate.mod) return;
 
-		if (!message.startsWith("!commands")) return;
+		const [command, action, name, text] = messageSplitter(message, 3);
 
-		const [, action, command, text] = messageSplitter(message, 3);
+		if (command !== "!commands") return;
 
 		try {
 			const missingError = new Error(
@@ -39,47 +39,50 @@ export const commands: TwitchFeature = (twitch: tmi.Client) => {
 
 			if (!action) throw missingError;
 
-			const name = command.startsWith("!") ? command : `!${command}`;
+			const commandName = name.startsWith("!") ? name : `!${name}`;
 
 			switch (action) {
 				case "add":
-				case "create":
-					if (!command || !text) throw missingError;
+				case "create": {
+					if (!name || !text) throw missingError;
 
-					await createCommand(name, text);
+					await createCommand(commandName, text);
 
 					twitch.say(
 						channel,
-						`@${userstate.username}, command ${name} was added!`
+						`@${userstate.username}, command ${commandName} was added!`
 					);
 
 					break;
+				}
 
 				case "edit":
-				case "update":
-					if (!command || !text) throw missingError;
+				case "update": {
+					if (!name || !text) throw missingError;
 
-					await editCommand(name, text);
+					await editCommand(commandName, text);
 
 					twitch.say(
 						channel,
-						`@${userstate.username}, command ${name} was edited!`
+						`@${userstate.username}, command ${commandName} was edited!`
 					);
 
 					break;
+				}
 
 				case "delete":
-				case "remove":
-					if (!command) throw missingError;
+				case "remove": {
+					if (!name) throw missingError;
 
-					await removeCommand(name);
+					await removeCommand(commandName);
 
 					twitch.say(
 						channel,
-						`@${userstate.username}, command "${name}" was removed!`
+						`@${userstate.username}, command "${commandName}" was removed!`
 					);
 
 					break;
+				}
 
 				case "help": {
 					twitch.say(

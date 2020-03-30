@@ -7,7 +7,5 @@ export const createCommand = async (name: string, message: string) => {
 		throw new Error(`command ${name} already exists!`);
 	}
 
-	const snapshot = await ref.set({ message });
-
-	return snapshot;
+	return ref.set({ message });
 };

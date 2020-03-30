@@ -8,5 +8,5 @@ export const applyDiscordFeatures = (
 	discord: Discord.Client,
 	twitch: tmi.Client
 ) => {
-	features.forEach(feature => feature(discord, twitch));
+	return Promise.all(features.map(feature => feature(discord, twitch)));
 };
