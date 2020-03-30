@@ -7,6 +7,7 @@ import { fetchTimerSettings } from "../../firebase/timer/fetchTimerSettings";
 import { removeTimer } from "../../firebase/timer/removeTimer";
 import { useState } from "../../helpers/useState";
 import { TwitchFeature } from "../../types/Feature";
+import { isMod } from "../tools/isMod";
 import messageSplitter from "../tools/messageSplitter";
 
 export const timer: TwitchFeature = async (twitch: tmi.Client) => {
@@ -56,7 +57,7 @@ export const timer: TwitchFeature = async (twitch: tmi.Client) => {
 	twitch.on("chat", async (channel, userstate, message, self) => {
 		if (self) return;
 
-		if (!userstate.mod || !message.startsWith("!")) return;
+		if (!isMod(userstate) || !message.startsWith("!")) return;
 
 		const [command, action, name, text] = messageSplitter(message, 3);
 

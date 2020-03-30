@@ -4,6 +4,7 @@ import { editCommand } from "../../firebase/commands/editCommand";
 import { fetchCommand } from "../../firebase/commands/fetchCommand";
 import { removeCommand } from "../../firebase/commands/removeCommand";
 import { TwitchFeature } from "../../types/Feature";
+import { isMod } from "../tools/isMod";
 import messageSplitter from "../tools/messageSplitter";
 
 export const commands: TwitchFeature = (twitch: tmi.Client) => {
@@ -26,7 +27,7 @@ export const commands: TwitchFeature = (twitch: tmi.Client) => {
 	twitch.on("chat", async (channel, userstate, message, self) => {
 		if (self) return;
 
-		if (!userstate.mod) return;
+		if (!isMod(userstate)) return;
 
 		const [command, action, name, text] = messageSplitter(message, 3);
 
