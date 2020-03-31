@@ -11,50 +11,65 @@ import { isMod } from "../tools/isMod";
 import messageSplitter from "../tools/messageSplitter";
 import { withErrorHandler } from "../tools/withErrorHandler";
 
+interface State {
+	[channel: string]: {
+		lastTrigger: number;
+		messageCount: number;
+		messageIndex: number;
+	};
+}
+
 export const timer: TwitchFeature = async (twitch: tmi.Client) => {
 	const [initialMessages, initialSettings] = await Promise.all([
 		fetchTimerMessages(),
 		fetchTimerSettings(),
 	] as const);
 
-	const [_state, setState] = useState({
-		lastTrigger: 0,
-		messageCount: 0,
-		messageIndex: 0,
-	});
-	const [_messages, setMessages] = useState(initialMessages);
-	const [_settings, setSettings] = useState(initialSettings);
+	const [state, setState] = useState<State>({});
+	const [messages, setMessages] = useState(initialMessages);
+	const [settings, setSettings] = useState(initialSettings);
 
 	twitch.on(
 		...withErrorHandler("chat", (channel, _, message, self) => {
 			if (self) return;
 
-			const [state, messages, settings] = [_state(), _messages(), _settings()];
-
-			if (messages.length === 0) return;
+			if (messages().length === 0) return;
 
 			if (message.startsWith("!")) return;
 
 			setState(prev => ({
 				...prev,
-				messageCount: prev.messageCount + 1,
+				[channel]: prev[channel]
+					? {
+							...prev[channel],
+							messageCount: prev[channel].messageCount + 1,
+					  }
+					: { lastTrigger: 0, messageCount: 1, messageIndex: 0 },
 			}));
 
-			if (state.messageCount + 1 < settings!.messages) return;
+			if (state()[channel].messageCount < settings()!.messages) return;
 
-			if (Date.now() - state.lastTrigger < settings!.minutes * 1000 * 60)
+			if (
+				Date.now() - state()[channel].lastTrigger <
+				settings()!.minutes * 1000 * 60
+			)
 				return;
 
 			setState(prev => ({
-				lastTrigger: Date.now(),
-				messageCount: 0,
-				messageIndex:
-					prev.messageIndex + 1 >= messages.length ? 0 : prev.messageIndex + 1,
+				...prev,
+				[channel]: {
+					lastTrigger: Date.now(),
+					messageCount: 0,
+					messageIndex:
+						prev[channel].messageIndex + 1 >= messages().length
+							? 0
+							: prev[channel].messageIndex + 1,
+				},
 			}));
 
 			setTimeout(() => {
-				twitch.say(channel, messages[state.messageIndex].message);
-			}, settings!.delay * 1000);
+				twitch.say(channel, messages()[state()[channel].messageIndex].message);
+			}, settings()!.delay * 1000);
 		})
 	);
 
