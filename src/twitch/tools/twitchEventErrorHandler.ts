@@ -1,4 +1,4 @@
-import { Client, Events } from "tmi.js";
+import tmi from "tmi.js";
 import { logFromTwitch } from "../../discord/tools/logToDiscord";
 
 type ListenerType<T> = [T] extends [(...args: infer U) => any]
@@ -7,13 +7,12 @@ type ListenerType<T> = [T] extends [(...args: infer U) => any]
 	? []
 	: [T];
 
-type TwitchOnEvent = <P extends keyof Events, T>(
-	this: T,
-	event: P,
-	listener: (...args: ListenerType<Events[P]>) => void
+type TwitchOnEvent = <T extends keyof tmi.Events>(
+	event: T,
+	listener: (...args: ListenerType<tmi.Events[T]>) => void
 ) => void;
 
-export const twitchEventErrorHandler = (twitch: Client): TwitchOnEvent => {
+export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 	const originalOn: TwitchOnEvent = twitch.on.bind(twitch);
 
 	return (event, listener) => {
@@ -25,7 +24,7 @@ export const twitchEventErrorHandler = (twitch: Client): TwitchOnEvent => {
 					{
 						title: `Event: ${event}`,
 						description: error.toString(),
-						fields: (args as ListenerType<Events>[]).map((arg, i) => ({
+						fields: (args as ListenerType<tmi.Events>[]).map((arg, i) => ({
 							name: `Argument ${i + 1}`,
 							value: `\`\`\`json\n${JSON.stringify(arg, null, 2)}\n\`\`\``,
 						})),
