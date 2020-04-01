@@ -122,4 +122,7 @@ typings/
 
 # End of https://www.gitignore.io/api/node,macos
 
-build/
+dist/
+
+valbot-b45cf-firebase-cert.json
+valbot-beta-firebase-cert.json
