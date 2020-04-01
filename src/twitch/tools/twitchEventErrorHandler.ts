@@ -1,5 +1,4 @@
-import { Events } from "tmi.js";
-import { twitch } from "..";
+import { Client, Events } from "tmi.js";
 import { logFromTwitch } from "../../discord/tools/logToDiscord";
 
 type ListenerType<T> = [T] extends [(...args: infer U) => any]
@@ -8,25 +7,25 @@ type ListenerType<T> = [T] extends [(...args: infer U) => any]
 	? []
 	: [T];
 
-type ListenerArgs<T extends keyof Events> = ListenerType<Events[T]>;
+type TwitchOnEvent = <P extends keyof Events, T>(
+	this: T,
+	event: P,
+	listener: (...args: ListenerType<Events[P]>) => void
+) => void;
 
-type Listener<T extends keyof Events> = (...args: ListenerArgs<T>) => void;
+export const twitchEventErrorHandler = (twitch: Client): TwitchOnEvent => {
+	const originalOn: TwitchOnEvent = twitch.on.bind(twitch);
 
-export const withErrorHandler = <T extends keyof Events>(
-	event: T,
-	listener: Listener<T>
-): [T, Listener<T>] => {
-	return [
-		event,
-		async (...args: ListenerArgs<T>) => {
+	return (event, listener) => {
+		originalOn(event, async (...args) => {
 			try {
-				await listener(...args);
+				await listener.call(twitch, ...args);
 			} catch (error) {
 				logFromTwitch(
 					{
 						title: `Event: ${event}`,
 						description: error.toString(),
-						fields: (args as ListenerArgs<T>[]).map((arg, i) => ({
+						fields: (args as ListenerType<Events>[]).map((arg, i) => ({
 							name: `Argument ${i + 1}`,
 							value: `\`\`\`json\n${JSON.stringify(arg, null, 2)}\n\`\`\``,
 						})),
@@ -38,6 +37,6 @@ export const withErrorHandler = <T extends keyof Events>(
 					twitch.say(channel, "An error ocurred, check the logs on Discord!");
 				});
 			}
-		},
-	];
+		});
+	};
 };

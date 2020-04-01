@@ -1,5 +1,6 @@
 import tmi from "tmi.js";
 import { isProduction } from "../helpers/isProduction";
+import { twitchEventErrorHandler } from "./tools/twitchEventErrorHandler";
 
 const identity = isProduction
 	? {
@@ -11,7 +12,7 @@ const identity = isProduction
 			password: process.env.TWITCH_BOT_DEV_PASSWORD,
 	  };
 
-export const twitch = tmi.client({
+const client = tmi.client({
 	options: { debug: false },
 	connection: {
 		secure: true,
@@ -19,3 +20,7 @@ export const twitch = tmi.client({
 	},
 	identity,
 });
+
+client.on = twitchEventErrorHandler(client);
+
+export const twitch = client;
