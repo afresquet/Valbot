@@ -17,8 +17,9 @@ const extractRoles = (message: Discord.Message): Role[] => {
 	return roleLines.map(line => {
 		const [emojiRaw, name] = roleLineRegex.exec(line)!.splice(1, 2);
 
-		const emoji =
-			message.guild!.emojis.resolve(emojiRegex.exec(emojiRaw)![1]) || emojiRaw;
+		const emoji = emojiRegex.test(emojiRaw)
+			? message.guild!.emojis.resolve(emojiRegex.exec(emojiRaw)![1])
+			: emojiRaw;
 
 		return { name, emoji };
 	});
