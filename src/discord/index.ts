@@ -1,3 +1,8 @@
 import Discord from "discord.js";
+import { discordEventErrorHandler } from "./tools/discordEventErrorHandler";
 
-export const discord = new Discord.Client();
+const client = new Discord.Client();
+
+client.on = discordEventErrorHandler(client);
+
+export const discord = client;

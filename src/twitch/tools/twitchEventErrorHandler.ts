@@ -10,7 +10,7 @@ type ListenerType<T> = [T] extends [(...args: infer U) => any]
 type TwitchOnEvent = <T extends keyof tmi.Events>(
 	event: T,
 	listener: (...args: ListenerType<tmi.Events[T]>) => void
-) => void;
+) => tmi.Client;
 
 export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 	const originalOn: TwitchOnEvent = twitch.on.bind(twitch);
@@ -37,5 +37,7 @@ export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 				});
 			}
 		});
+
+		return twitch;
 	};
 };
