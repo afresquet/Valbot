@@ -1,4 +1,3 @@
-import tmi from "tmi.js";
 import { editCommand } from "../../firebase/commands/editCommand";
 import { createTimer } from "../../firebase/timer/createTimer";
 import { editTimerSetting } from "../../firebase/timer/editTimerSetting";
@@ -8,7 +7,7 @@ import { removeTimer } from "../../firebase/timer/removeTimer";
 import { useState } from "../../helpers/useState";
 import { TwitchFeature } from "../../types/Feature";
 import { isMod } from "../tools/isMod";
-import messageSplitter from "../tools/messageSplitter";
+import { messageSplitter } from "../tools/messageSplitter";
 
 interface State {
 	[channel: string]: {
@@ -18,7 +17,7 @@ interface State {
 	};
 }
 
-export const timer: TwitchFeature = async (twitch: tmi.Client) => {
+export const timer: TwitchFeature = async twitch => {
 	const [initialMessages, initialSettings] = await Promise.all([
 		fetchTimerMessages(),
 		fetchTimerSettings(),

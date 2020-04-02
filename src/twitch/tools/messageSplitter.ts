@@ -1,4 +1,4 @@
-export default (message: string, amount?: number) => {
+export const messageSplitter = (message: string, amount?: number) => {
 	const words = message.split(/\s+/g);
 
 	if (!amount) {

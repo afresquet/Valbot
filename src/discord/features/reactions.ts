@@ -2,7 +2,7 @@ import Discord from "discord.js";
 import { fetchReactions } from "../../firebase/fetchReactions";
 import { DiscordFeature } from "../../types/Feature";
 
-export const reactions: DiscordFeature = async (discord: Discord.Client) => {
+export const reactions: DiscordFeature = async discord => {
 	const channels = await fetchReactions();
 
 	discord.on("message", async message => {

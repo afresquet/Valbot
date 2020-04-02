@@ -21,7 +21,7 @@ const guildMemberIsSteraming = (member: Discord.GuildMember): boolean => {
 	);
 };
 
-export const live: DiscordFeature = (discord: Discord.Client) => {
+export const live: DiscordFeature = discord => {
 	discord.on("ready", () => {
 		for (const guild of discord.guilds.cache.array()) {
 			const liveRole = findGuildRole(guild, "live");

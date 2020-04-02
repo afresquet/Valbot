@@ -85,7 +85,7 @@ const onMessage = async (message: Discord.Message | Discord.PartialMessage) => {
 	}
 };
 
-export const roles: DiscordFeature = (discord: Discord.Client) => {
+export const roles: DiscordFeature = discord => {
 	discord.on("ready", () => {
 		const rolesChannel = discord.channels.cache.find(
 			channel =>

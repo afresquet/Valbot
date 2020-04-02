@@ -1,13 +1,12 @@
-import tmi from "tmi.js";
 import { createCommand } from "../../firebase/commands/createCommand";
 import { editCommand } from "../../firebase/commands/editCommand";
 import { fetchCommand } from "../../firebase/commands/fetchCommand";
 import { removeCommand } from "../../firebase/commands/removeCommand";
 import { TwitchFeature } from "../../types/Feature";
 import { isMod } from "../tools/isMod";
-import messageSplitter from "../tools/messageSplitter";
+import { messageSplitter } from "../tools/messageSplitter";
 
-export const commands: TwitchFeature = (twitch: tmi.Client) => {
+export const commands: TwitchFeature = twitch => {
 	twitch.on("chat", async (channel, _, message, self) => {
 		if (self) return;
 
