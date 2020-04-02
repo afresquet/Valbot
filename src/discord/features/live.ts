@@ -1,18 +1,13 @@
 import Discord from "discord.js";
 import { DiscordFeature } from "../../types/Feature";
-
-const findGuildRole = (
-	guild: Discord.Guild,
-	name: string
-): Discord.Role | undefined => {
-	return guild.roles.cache.find(role => role.name === name);
-};
+import { findGuildRole } from "../tools/findGuildRole";
+import { prefixChannel } from "../tools/prefixChannel";
 
 const guildMemberHasRole = (
 	member: Discord.GuildMember,
-	name: string
+	role: Discord.Role
 ): boolean => {
-	return !!member.roles.cache.find(role => role.name === name);
+	return !!member.roles.cache.find(r => r === role);
 };
 
 const guildMemberIsSteraming = (member: Discord.GuildMember): boolean => {
@@ -24,12 +19,12 @@ const guildMemberIsSteraming = (member: Discord.GuildMember): boolean => {
 export const live: DiscordFeature = discord => {
 	discord.on("ready", () => {
 		for (const guild of discord.guilds.cache.array()) {
-			const liveRole = findGuildRole(guild, "live");
+			const liveRole = findGuildRole(guild, prefixChannel("live"));
 
 			if (!liveRole) continue;
 
 			for (const member of guild.members.cache.array()) {
-				const hasLiveRole = guildMemberHasRole(member, "live");
+				const hasLiveRole = guildMemberHasRole(member, liveRole);
 				const isStreaming = guildMemberIsSteraming(member);
 
 				if (!hasLiveRole && isStreaming) {
@@ -42,11 +37,11 @@ export const live: DiscordFeature = discord => {
 	});
 
 	discord.on("presenceUpdate", (_, newPresence) => {
-		const liveRole = findGuildRole(newPresence.guild!, "live");
+		const liveRole = findGuildRole(newPresence.guild!, prefixChannel("live"));
 
 		if (!liveRole) return;
 
-		const hasLiveRole = guildMemberHasRole(newPresence.member!, "live");
+		const hasLiveRole = guildMemberHasRole(newPresence.member!, liveRole);
 		const isStreaming = guildMemberIsSteraming(newPresence.member!);
 
 		if (!hasLiveRole && isStreaming) {
