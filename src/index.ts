@@ -8,23 +8,25 @@ import { pubsub, setupTwitchClient } from "./twitch/api";
 import { applyTwitchFeatures } from "./twitch/features";
 
 async function main() {
+	// PubSub hardcoded to my channel, maybe use channels array in the future?
+	const [channels] = await Promise.all([
+		fetchChannels(),
+		applyDiscordFeatures(discord, twitch),
+		applyTwitchFeatures(twitch, discord),
+		setupTwitchClient().then(twitchClient =>
+			pubsub.registerUserListener(twitchClient, "valaxor_")
+		),
+	]);
+
 	discord.on("ready", () => {
 		console.log(`Logged to Discord as ${discord.user?.tag}!`);
 	});
 
-	(twitch as any).opts.channels = await fetchChannels();
+	(twitch as any).opts.channels = channels;
 
 	twitch.on("join", channel => {
 		twitch.action(channel, `is online!`);
 	});
-
-	const twitchClient = await setupTwitchClient();
-
-	await Promise.all([
-		applyDiscordFeatures(discord, twitch),
-		applyTwitchFeatures(twitch, discord),
-		pubsub.registerUserListener(twitchClient, "valaxor_"),
-	]);
 
 	pubsub.onRedemption("valaxor_", message => {
 		twitch.emit("pubsub" as any, message);
