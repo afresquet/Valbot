@@ -1,9 +1,9 @@
 import Discord from "discord.js";
 import { prefixChannel } from "../../helpers/prefixString";
 import { DiscordFeature } from "../../types/Feature";
+import { emojiRegex } from "../helpers/regex";
 
 const roleLineRegex = /^\s*([^\s]+)\s+(\w+)\s+\|\s+(.+)/;
-const emojiRegex = /<:.+:(\d+)>/;
 
 interface Role {
 	name: string;
