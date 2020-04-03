@@ -1,4 +1,4 @@
 import tmi from "tmi.js";
 
-export const isMod = (userstate: tmi.ChatUserstate) =>
-	userstate.mod || !!userstate.badges?.broadcaster;
+export const isMod = (channel: string, userstate: tmi.ChatUserstate) =>
+	channel === `#${userstate.username}` || userstate.mod;

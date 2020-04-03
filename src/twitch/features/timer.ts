@@ -72,7 +72,7 @@ export const timer: TwitchFeature = async twitch => {
 	twitch.on("chat", async (channel, userstate, message, self) => {
 		if (self) return;
 
-		if (!isMod(userstate) || !message.startsWith("!")) return;
+		if (!isMod(channel, userstate) || !message.startsWith("!")) return;
 
 		const [command, action, name, text] = messageSplitter(message, 3);
 

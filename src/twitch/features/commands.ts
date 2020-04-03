@@ -26,7 +26,7 @@ export const commands: TwitchFeature = twitch => {
 	twitch.on("chat", async (channel, userstate, message, self) => {
 		if (self) return;
 
-		if (!isMod(userstate)) return;
+		if (!isMod(channel, userstate)) return;
 
 		const [command, action, name, text] = messageSplitter(message, 3);
 
