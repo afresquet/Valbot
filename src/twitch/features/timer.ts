@@ -18,14 +18,9 @@ interface State {
 }
 
 export const timer: TwitchFeature = async twitch => {
-	const [initialMessages, initialSettings] = await Promise.all([
-		fetchTimerMessages(),
-		fetchTimerSettings(),
-	] as const);
-
 	const [state, setState] = useState<State>({});
-	const [messages, setMessages] = useState(initialMessages);
-	const [settings, setSettings] = useState(initialSettings);
+	const [messages, setMessages] = useState(await fetchTimerMessages());
+	const [settings, setSettings] = useState(await fetchTimerSettings());
 
 	twitch.on("chat", (channel, _, message, self) => {
 		if (self) return;
