@@ -45,9 +45,9 @@ export const live: DiscordFeature = discord => {
 		const isStreaming = guildMemberIsSteraming(newPresence.member!);
 
 		if (!hasLiveRole && isStreaming) {
-			newPresence.member!.roles.add(liveRole);
+			newPresence.member?.roles.add(liveRole);
 		} else if (hasLiveRole && !isStreaming) {
-			newPresence.member!.roles.remove(liveRole);
+			newPresence.member?.roles.remove(liveRole);
 		}
 	});
 };
