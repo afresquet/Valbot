@@ -14,10 +14,8 @@ async function main() {
 
 	(twitch as any).opts.channels = await fetchChannels();
 
-	twitch.on("connected", () => {
-		twitch.getOptions().channels?.forEach(channel => {
-			twitch.action(channel, `is online!`);
-		});
+	twitch.on("join", channel => {
+		twitch.action(channel, `is online!`);
 	});
 
 	const twitchClient = await setupTwitchClient();
