@@ -1,5 +1,5 @@
 import { firebase } from ".";
-import { prefixChannel } from "../discord/tools/prefixChannel";
+import { prefixChannel } from "../helpers/prefixString";
 
 interface ReactionChannels {
 	[channel: string]: {

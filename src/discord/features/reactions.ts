@@ -12,7 +12,7 @@ export const reactions: DiscordFeature = async discord => {
 
 		if (!channels[channel.name]) return;
 
-		for (let emote of channels[channel.name].emotes) {
+		for (const emote of channels[channel.name].emotes) {
 			await message.react(emote);
 		}
 	});
