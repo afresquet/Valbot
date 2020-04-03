@@ -4,6 +4,7 @@ import { applyDiscordFeatures } from "./discord/features";
 import { fetchChannels } from "./firebase/fetchChannels";
 import { isProduction } from "./helpers/isProduction";
 import { twitch } from "./twitch";
+import { pubsub, setupTwitchClient } from "./twitch/api";
 import { applyTwitchFeatures } from "./twitch/features";
 
 async function main() {
@@ -19,10 +20,17 @@ async function main() {
 		});
 	});
 
+	const twitchClient = await setupTwitchClient();
+
 	await Promise.all([
 		applyDiscordFeatures(discord, twitch),
 		applyTwitchFeatures(twitch, discord),
+		pubsub.registerUserListener(twitchClient, "valaxor_"),
 	]);
+
+	pubsub.onRedemption("valaxor_", message => {
+		twitch.emit("pubsub" as any, message);
+	});
 
 	const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
 	await discord.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);

@@ -33,6 +33,8 @@
 		"discord.js": "^12.1.1",
 		"dotenv": "^8.2.0",
 		"firebase-admin": "^8.10.0",
-		"tmi.js": "^1.5.0"
+		"tmi.js": "^1.5.0",
+		"twitch": "^4.0.8",
+		"twitch-pubsub-client": "^4.0.8"
 	}
 }
