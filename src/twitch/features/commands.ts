@@ -32,78 +32,88 @@ export const commands: TwitchFeature = twitch => {
 
 		if (command !== "!commands") return;
 
-		try {
-			const missingError = new Error(
-				'missing arguments, use "!commands help".'
-			);
+		const missingArgumentsMessage = `@${userstate.username}, missing arguments, use "!commands help".`;
 
-			if (!action) throw missingError;
+		if (!action) {
+			twitch.say(channel, missingArgumentsMessage);
 
-			const commandName = name.startsWith("!") ? name : `!${name}`;
+			return;
+		}
 
-			switch (action) {
-				case "add":
-				case "create": {
-					if (!name || !text) throw missingError;
+		const commandName = name.startsWith("!") ? name : `!${name}`;
 
-					await createCommand(commandName, text);
-
-					twitch.say(
-						channel,
-						`@${userstate.username}, command ${commandName} was added!`
-					);
+		switch (action) {
+			case "add":
+			case "create": {
+				if (!name || !text) {
+					twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
 
-				case "edit":
-				case "update": {
-					if (!name || !text) throw missingError;
+				await createCommand(commandName, text);
 
-					await editCommand(commandName, text);
+				twitch.say(
+					channel,
+					`@${userstate.username}, command ${commandName} was added!`
+				);
 
-					twitch.say(
-						channel,
-						`@${userstate.username}, command ${commandName} was edited!`
-					);
-
-					break;
-				}
-
-				case "delete":
-				case "remove": {
-					if (!name) throw missingError;
-
-					await removeCommand(commandName);
-
-					twitch.say(
-						channel,
-						`@${userstate.username}, command "${commandName}" was removed!`
-					);
-
-					break;
-				}
-
-				case "help": {
-					twitch.say(
-						channel,
-						`@${userstate.username}, !commands <action> <name> <message> - Available <actions> are "add", "edit" and "remove".`
-					);
-
-					break;
-				}
-
-				default: {
-					twitch.say(
-						channel,
-						`@${userstate.username}, invalid action, use "!commands help".`
-					);
-
-					break;
-				}
+				break;
 			}
-		} catch (error) {
-			twitch.say(channel, `@${userstate.username}, ${error.message}`);
+
+			case "edit":
+			case "update": {
+				if (!name || !text) {
+					twitch.say(channel, missingArgumentsMessage);
+
+					break;
+				}
+
+				await editCommand(commandName, text);
+
+				twitch.say(
+					channel,
+					`@${userstate.username}, command ${commandName} was edited!`
+				);
+
+				break;
+			}
+
+			case "delete":
+			case "remove": {
+				if (!name) {
+					twitch.say(channel, missingArgumentsMessage);
+
+					break;
+				}
+
+				await removeCommand(commandName);
+
+				twitch.say(
+					channel,
+					`@${userstate.username}, command "${commandName}" was removed!`
+				);
+
+				break;
+			}
+
+			case "help": {
+				twitch.say(
+					channel,
+					`@${userstate.username}, !commands <action> <name> <message> - Available <actions> are "add", "edit" and "remove".`
+				);
+
+				break;
+			}
+
+			default: {
+				twitch.say(
+					channel,
+					`@${userstate.username}, invalid action, use "!commands help".`
+				);
+
+				break;
+			}
 		}
 	});
 };
