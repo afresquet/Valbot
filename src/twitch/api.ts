@@ -1,5 +1,7 @@
+import tmi from "tmi.js";
 import TwitchClient from "twitch";
 import PubSubClient from "twitch-pubsub-client";
+import PubSubRedemptionMessage from "twitch-pubsub-client/lib/Messages/PubSubRedemptionMessage";
 import {
 	fetchTwitchClientCredentials,
 	setTwitchClientCredentials,
@@ -26,3 +28,12 @@ export const setupTwitchClient = async () => {
 };
 
 export const pubsub = new PubSubClient();
+
+export const pubsubOnRedemption = (twitch: tmi.Client) => async (
+	message: PubSubRedemptionMessage
+) => {
+	const channel = await message.getChannel();
+	const userstate = await message.getUser();
+
+	twitch.emit("pubsub" as any, `#${channel?.name}`, userstate, message, false);
+};
