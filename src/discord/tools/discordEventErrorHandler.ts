@@ -6,6 +6,23 @@ type DiscordOnEvent = <T extends keyof Discord.ClientEvents>(
 	listener: (...args: Discord.ClientEvents[T]) => void
 ) => Discord.Client;
 
+export const logDiscordError = (error: any, event: string, args: any[]) => {
+	logFromDiscord(
+		{
+			title: `Event: ${event}`,
+			description: error.toString(),
+			fields: (args as Discord.ClientEvents[]).map((arg, i) => ({
+				name: `Argument ${i + 1}`,
+				value: `\`\`\`json\n${JSON.stringify(arg, null, 2).substring(
+					0,
+					1000
+				)}\n\`\`\``,
+			})),
+		},
+		true
+	);
+};
+
 export const discordEventErrorHandler = (
 	discord: Discord.Client
 ): DiscordOnEvent => {
@@ -16,20 +33,7 @@ export const discordEventErrorHandler = (
 			try {
 				await listener(...args);
 			} catch (error) {
-				logFromDiscord(
-					{
-						title: `Event: ${event}`,
-						description: error.toString(),
-						fields: (args as Discord.ClientEvents[]).map((arg, i) => ({
-							name: `Argument ${i + 1}`,
-							value: `\`\`\`json\n${JSON.stringify(arg, null, 2).substring(
-								0,
-								1000
-							)}\n\`\`\``,
-						})),
-					},
-					true
-				);
+				logDiscordError(error, event, args);
 			}
 		});
 
