@@ -60,7 +60,11 @@ export const timer: TwitchFeature = async twitch => {
 		}));
 
 		setTimeout(() => {
-			twitch.say(channel, messages()[state()[channel].messageIndex].message);
+			const timer = messages()[state()[channel].messageIndex];
+
+			if (!timer) return;
+
+			twitch.say(channel, timer.message);
 		}, settings()!.delay * 1000);
 	});
 
