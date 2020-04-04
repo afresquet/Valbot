@@ -22,7 +22,10 @@ export const discordEventErrorHandler = (
 						description: error.toString(),
 						fields: (args as Discord.ClientEvents[]).map((arg, i) => ({
 							name: `Argument ${i + 1}`,
-							value: `\`\`\`json\n${JSON.stringify(arg, null, 2)}\n\`\`\``,
+							value: `\`\`\`json\n${JSON.stringify(arg, null, 2).substring(
+								0,
+								1000
+							)}\n\`\`\``,
 						})),
 					},
 					true

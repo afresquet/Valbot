@@ -26,7 +26,10 @@ export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 						description: error.toString(),
 						fields: (args as ListenerType<tmi.Events>[]).map((arg, i) => ({
 							name: `Argument ${i + 1}`,
-							value: `\`\`\`json\n${JSON.stringify(arg, null, 2)}\n\`\`\``,
+							value: `\`\`\`json\n${JSON.stringify(arg, null, 2).substring(
+								0,
+								1000
+							)}\n\`\`\``,
 						})),
 					},
 					true
