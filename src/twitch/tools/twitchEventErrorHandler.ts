@@ -39,7 +39,7 @@ export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 			} catch (error) {
 				logTwitchError(error, event, args);
 
-				twitch.getChannels().forEach(channel => {
+				twitch.getOptions().channels!.forEach(channel => {
 					twitch.say(channel, "An error ocurred, check the logs on Discord!");
 				});
 			}

@@ -24,8 +24,8 @@ async function main() {
 
 	(twitch as any).opts.channels = channels;
 
-	twitch.on("join", channel => {
-		twitch.action(channel, `is online!`);
+	twitch.on("connected", () => {
+		console.log(`Logged to Twitch as ${twitch.getUsername()}!`);
 	});
 
 	pubsub.onRedemption("valaxor_", pubsubOnRedemption(twitch));
