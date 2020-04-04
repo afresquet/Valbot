@@ -4,5 +4,6 @@ import PubSubRedemptionMessage from "twitch-pubsub-client/lib/Messages/PubSubRed
 export type PubSubListener = (
 	channel: string,
 	userstate: HelixUser,
-	message: PubSubRedemptionMessage
+	redemption: PubSubRedemptionMessage,
+	self: boolean
 ) => void;

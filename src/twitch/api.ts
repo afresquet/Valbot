@@ -30,10 +30,12 @@ export const setupTwitchClient = async () => {
 export const pubsub = new PubSubClient();
 
 export const pubsubOnRedemption = (twitch: tmi.Client) => async (
-	message: PubSubRedemptionMessage
+	redemption: PubSubRedemptionMessage
 ) => {
-	const channel = await message.getChannel();
-	const userstate = await message.getUser();
+	const channel = await redemption.getChannel();
+	const channelName = `#${channel?.name}`;
+	const userstate = await redemption.getUser();
+	const self = redemption.userName === twitch.getUsername();
 
-	twitch.emit("pubsub" as any, `#${channel?.name}`, userstate, message, false);
+	twitch.emit("pubsub" as any, channelName, userstate, redemption, self);
 };
