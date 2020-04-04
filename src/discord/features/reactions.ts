@@ -1,8 +1,9 @@
 import Discord from "discord.js";
 import { fetchReactions } from "../../firebase/fetchReactions";
 import { DiscordFeature } from "../../types/Feature";
+import { emojiRegex } from "../helpers/regex";
 
-export const reactions: DiscordFeature = async (discord: Discord.Client) => {
+export const reactions: DiscordFeature = async discord => {
 	const channels = await fetchReactions();
 
 	discord.on("message", async message => {
@@ -12,8 +13,12 @@ export const reactions: DiscordFeature = async (discord: Discord.Client) => {
 
 		if (!channels[channel.name]) return;
 
-		for (let emote of channels[channel.name].emotes) {
-			await message.react(emote);
+		for (const emote of channels[channel.name].emotes) {
+			const emoji = emojiRegex.test(emote)
+				? message.guild!.emojis.resolve(emojiRegex.exec(emote)![1])!
+				: emote;
+
+			await message.react(emoji);
 		}
 	});
 };

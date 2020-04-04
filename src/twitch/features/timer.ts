@@ -1,4 +1,3 @@
-import tmi from "tmi.js";
 import { editCommand } from "../../firebase/commands/editCommand";
 import { createTimer } from "../../firebase/timer/createTimer";
 import { editTimerSetting } from "../../firebase/timer/editTimerSetting";
@@ -8,7 +7,7 @@ import { removeTimer } from "../../firebase/timer/removeTimer";
 import { useState } from "../../helpers/useState";
 import { TwitchFeature } from "../../types/Feature";
 import { isMod } from "../tools/isMod";
-import messageSplitter from "../tools/messageSplitter";
+import { messageSplitter } from "../tools/messageSplitter";
 
 interface State {
 	[channel: string]: {
@@ -18,15 +17,10 @@ interface State {
 	};
 }
 
-export const timer: TwitchFeature = async (twitch: tmi.Client) => {
-	const [initialMessages, initialSettings] = await Promise.all([
-		fetchTimerMessages(),
-		fetchTimerSettings(),
-	] as const);
-
+export const timer: TwitchFeature = async twitch => {
 	const [state, setState] = useState<State>({});
-	const [messages, setMessages] = useState(initialMessages);
-	const [settings, setSettings] = useState(initialSettings);
+	const [messages, setMessages] = useState(await fetchTimerMessages());
+	const [settings, setSettings] = useState(await fetchTimerSettings());
 
 	twitch.on("chat", (channel, _, message, self) => {
 		if (self) return;
@@ -66,114 +60,132 @@ export const timer: TwitchFeature = async (twitch: tmi.Client) => {
 		}));
 
 		setTimeout(() => {
-			twitch.say(channel, messages()[state()[channel].messageIndex].message);
+			const timer = messages()[state()[channel].messageIndex];
+
+			if (!timer) return;
+
+			twitch.say(channel, timer.message);
 		}, settings()!.delay * 1000);
 	});
 
 	twitch.on("chat", async (channel, userstate, message, self) => {
 		if (self) return;
 
-		if (!isMod(userstate) || !message.startsWith("!")) return;
+		if (!isMod(channel, userstate) || !message.startsWith("!")) return;
 
 		const [command, action, name, text] = messageSplitter(message, 3);
 
 		if (command !== "!timer") return;
 
-		try {
-			const missingError = new Error('missing arguments, use "!timer help".');
+		const missingArgumentsMessage = `@${userstate.username}, 'missing arguments, use "!timer help".'`;
 
-			if (!action) throw missingError;
+		if (!action) {
+			twitch.say(channel, missingArgumentsMessage);
 
-			switch (action) {
-				case "add":
-				case "create": {
-					if (!name || !text) throw missingError;
+			return;
+		}
 
-					await createTimer(name, text);
-
-					setMessages(prev => [...prev, { id: name, message: text }]);
-
-					twitch.say(
-						channel,
-						`@${userstate.username}, new message "${name}" was added to the timer!`
-					);
+		switch (action) {
+			case "add":
+			case "create": {
+				if (!name || !text) {
+					twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
 
-				case "edit":
-				case "update": {
-					if (!name || !text) throw missingError;
+				await createTimer(name, text);
 
-					await editCommand(name, text);
+				setMessages(prev => [...prev, { id: name, message: text }]);
 
-					setMessages(prev =>
-						prev.map(msg =>
-							msg.id === name ? { id: name, message: text } : msg
-						)
-					);
+				twitch.say(
+					channel,
+					`@${userstate.username}, new message "${name}" was added to the timer!`
+				);
 
-					twitch.say(
-						channel,
-						`@${userstate.username}, timer message "${name}" was updated!`
-					);
-
-					break;
-				}
-
-				case "delete":
-				case "remove": {
-					if (!name) throw missingError;
-
-					await removeTimer(name);
-
-					setMessages(prev => prev.filter(msg => msg.id !== name));
-
-					twitch.say(
-						channel,
-						`@${userstate.username}, message "${name}" was deleted from the timer!`
-					);
-
-					break;
-				}
-
-				case "set": {
-					const [, , setting, value] = messageSplitter(message, 4);
-
-					if (!setting || !value) throw missingError;
-
-					await editTimerSetting(setting, parseInt(value, 10));
-
-					setSettings(prev => ({ ...prev, [setting]: parseInt(value, 10) }));
-
-					twitch.say(
-						channel,
-						`@${userstate.username}, timer setting "${setting}" was set to ${value}!`
-					);
-
-					break;
-				}
-
-				case "help": {
-					twitch.say(
-						channel,
-						`@${userstate.username}, !timer <action> <name> <message> - Available <actions> are "add", "edit" and "remove"; !timer set <setting> <value> - Available settings are "messages" and "minutes".`
-					);
-
-					break;
-				}
-
-				default: {
-					twitch.say(
-						channel,
-						`@${userstate.username}, invalid action, use "!timer help".`
-					);
-
-					break;
-				}
+				break;
 			}
-		} catch (error) {
-			twitch.say(channel, `@${userstate.username}, ${error.message}`);
+
+			case "edit":
+			case "update": {
+				if (!name || !text) {
+					twitch.say(channel, missingArgumentsMessage);
+
+					break;
+				}
+
+				await editCommand(name, text);
+
+				setMessages(prev =>
+					prev.map(msg => (msg.id === name ? { id: name, message: text } : msg))
+				);
+
+				twitch.say(
+					channel,
+					`@${userstate.username}, timer message "${name}" was updated!`
+				);
+
+				break;
+			}
+
+			case "delete":
+			case "remove": {
+				if (!name) {
+					twitch.say(channel, missingArgumentsMessage);
+
+					break;
+				}
+
+				await removeTimer(name);
+
+				setMessages(prev => prev.filter(msg => msg.id !== name));
+
+				twitch.say(
+					channel,
+					`@${userstate.username}, message "${name}" was deleted from the timer!`
+				);
+
+				break;
+			}
+
+			case "set": {
+				const [, , setting, value] = messageSplitter(message, 4);
+
+				if (!setting || !value) {
+					twitch.say(channel, missingArgumentsMessage);
+
+					break;
+				}
+
+				await editTimerSetting(setting, parseInt(value, 10));
+
+				setSettings(prev => ({ ...prev, [setting]: parseInt(value, 10) }));
+
+				twitch.say(
+					channel,
+					`@${userstate.username}, timer setting "${setting}" was set to ${value}!`
+				);
+
+				break;
+			}
+
+			case "help": {
+				twitch.say(
+					channel,
+					`@${userstate.username}, !timer <action> <name> <message> - Available <actions> are "add", "edit" and "remove"; !timer set <setting> <value> - Available settings are "messages" and "minutes".`
+				);
+
+				break;
+			}
+
+			default: {
+				twitch.say(
+					channel,
+					`@${userstate.username}, invalid action, use "!timer help".`
+				);
+
+				break;
+			}
 		}
 	});
 };

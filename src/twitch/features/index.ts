@@ -1,10 +1,15 @@
 import Discord from "discord.js";
 import tmi from "tmi.js";
 import { TwitchFeature } from "../../types/Feature";
+import { channelPointRewards } from "./channel-point-rewards";
 import { commands } from "./commands";
 import { timer } from "./timer";
 
-export const features: TwitchFeature[] = [commands, timer];
+export const features: TwitchFeature[] = [
+	...channelPointRewards,
+	commands,
+	timer,
+];
 
 export const applyTwitchFeatures = (
 	twitch: tmi.Client,

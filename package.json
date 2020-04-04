@@ -8,7 +8,8 @@
 		"dev": "ts-node-dev --no-notify src/index.ts",
 		"clean": "rm -rf dist",
 		"compile": "tsc",
-		"build": "npm run clean && npm run compile"
+		"build": "npm run clean && npm run compile",
+		"debug": "ts-node-dev --inspect --respawn --no-notify src/index.ts"
 	},
 	"repository": {
 		"type": "git",
@@ -33,6 +34,8 @@
 		"discord.js": "^12.1.1",
 		"dotenv": "^8.2.0",
 		"firebase-admin": "^8.10.0",
-		"tmi.js": "^1.5.0"
+		"tmi.js": "^1.5.0",
+		"twitch": "^4.0.8",
+		"twitch-pubsub-client": "^4.0.8"
 	}
 }

@@ -1,9 +1,9 @@
 import Discord from "discord.js";
+import { prefixChannel } from "../../helpers/prefixString";
 import { DiscordFeature } from "../../types/Feature";
-import { prefixChannel } from "../tools/prefixChannel";
+import { emojiRegex } from "../helpers/regex";
 
 const roleLineRegex = /^\s*([^\s]+)\s+(\w+)\s+\|\s+(.+)/;
-const emojiRegex = /<:.+:(\d+)>/;
 
 interface Role {
 	name: string;
@@ -69,11 +69,11 @@ const onMessage = async (message: Discord.Message | Discord.PartialMessage) => {
 
 	const roles = extractRoles(message as Discord.Message);
 
-	for (let role of roles) {
+	for (const role of roles) {
 		await message.react(role.emoji);
 	}
 
-	for (let reaction of message.reactions.cache.array()) {
+	for (const reaction of message.reactions.cache.array()) {
 		const shouldNotRemoveRole = roles.find(r => {
 			const name = (r.emoji as Discord.GuildEmoji).name || r.emoji;
 			return name === reaction.emoji.name;
@@ -85,7 +85,7 @@ const onMessage = async (message: Discord.Message | Discord.PartialMessage) => {
 	}
 };
 
-export const roles: DiscordFeature = (discord: Discord.Client) => {
+export const roles: DiscordFeature = discord => {
 	discord.on("ready", () => {
 		const rolesChannel = discord.channels.cache.find(
 			channel =>
