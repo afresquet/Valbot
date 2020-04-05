@@ -1,6 +1,6 @@
 import tmi from "tmi.js";
 import { isProduction } from "../helpers/isProduction";
-import { twitchEventErrorHandler } from "./tools/twitchEventErrorHandler";
+import { twitchEventErrorHandler } from "./helpers/twitchEventErrorHandler";
 
 const identity = isProduction
 	? {

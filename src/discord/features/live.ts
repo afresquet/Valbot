@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import { prefixChannel } from "../../helpers/prefixString";
 import { DiscordFeature } from "../../types/Feature";
-import { findGuildRole } from "../tools/findGuildRole";
+import { findGuildRole } from "../helpers/findGuildRole";
 
 const guildMemberHasRole = (
 	member: Discord.GuildMember,

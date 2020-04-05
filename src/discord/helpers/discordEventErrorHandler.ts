@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import { logFromDiscord } from "./logToDiscord";
+import { logFromDiscord } from "../../helpers/logging/logFromDiscord";
 
 type DiscordOnEvent = <T extends keyof Discord.ClientEvents>(
 	event: T,

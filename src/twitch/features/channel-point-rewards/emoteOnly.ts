@@ -2,7 +2,7 @@ import { prefixChannelReward } from "../../../helpers/prefixString";
 import { useState } from "../../../helpers/useState";
 import { TwitchFeature } from "../../../types/Feature";
 import { PubSubListener } from "../../../types/PubSubListener";
-import { logTwitchError } from "../../tools/twitchEventErrorHandler";
+import { logTwitchError } from "../../helpers/twitchEventErrorHandler";
 
 export const emoteOnly: TwitchFeature = twitch => {
 	const [active, setActive] = useState(false);

@@ -1,5 +1,5 @@
 import tmi from "tmi.js";
-import { logFromTwitch } from "../../discord/tools/logToDiscord";
+import { logFromTwitch } from "../../helpers/logging/logFromTwitch";
 
 type ListenerType<T> = [T] extends [(...args: infer U) => any]
 	? U

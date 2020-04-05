@@ -1,9 +1,9 @@
 import "dotenv/config";
 import { discord } from "./discord";
 import { applyDiscordFeatures } from "./discord/features";
-import { logToDiscord } from "./discord/tools/logToDiscord";
 import { fetchChannels } from "./firebase/fetchChannels";
 import { isProduction } from "./helpers/isProduction";
+import { logError } from "./helpers/logging/logError";
 import { twitch } from "./twitch";
 import { pubsub, pubsubOnRedemption, setupTwitchClient } from "./twitch/api";
 import { applyTwitchFeatures } from "./twitch/features";
@@ -31,18 +31,7 @@ async function main() {
 
 	pubsub
 		.onRedemption("valaxor_", pubsubOnRedemption(twitch))
-		.catch(async error => {
-			if (discord.readyAt === null) {
-				console.log(error);
-
-				return;
-			}
-
-			await logToDiscord({
-				title: "Error: PubSub.onRedemption failed",
-				description: error.toString(),
-			});
-		});
+		.catch(logError("Error: PubSub.onRedemption"));
 
 	const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
 	await discord.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);
@@ -50,15 +39,4 @@ async function main() {
 	await twitch.connect();
 }
 
-main().catch(async error => {
-	if (discord.readyAt === null) {
-		console.log(error);
-
-		return;
-	}
-
-	await logToDiscord({
-		title: "Error",
-		description: error.toString(),
-	});
-});
+main().catch(logError("Error"));

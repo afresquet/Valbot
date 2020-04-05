@@ -6,8 +6,8 @@ import { fetchTimerSettings } from "../../firebase/timer/fetchTimerSettings";
 import { removeTimer } from "../../firebase/timer/removeTimer";
 import { useState } from "../../helpers/useState";
 import { TwitchFeature } from "../../types/Feature";
-import { isMod } from "../tools/isMod";
-import { messageSplitter } from "../tools/messageSplitter";
+import { isMod } from "../helpers/isMod";
+import { messageSplitter } from "../helpers/messageSplitter";
 
 interface State {
 	[channel: string]: {
