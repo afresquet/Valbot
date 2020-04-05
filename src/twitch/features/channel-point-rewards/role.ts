@@ -1,8 +1,7 @@
 import { usernameRegex } from "../../../discord/helpers/regex";
 import { TwitchFeature } from "../../../types/Feature";
 import { PubSubListener } from "../../../types/PubSubListener";
-
-const rewardNameRegex = /^(.+\S)\s*role in my Discord server/;
+import { rewardNameRegex } from "../../helpers/regex";
 
 export const role: TwitchFeature = (twitch, discord) => {
 	const listener: PubSubListener = async (channel, userstate, redemption) => {

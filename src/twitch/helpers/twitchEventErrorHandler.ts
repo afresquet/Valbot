@@ -1,5 +1,5 @@
 import tmi from "tmi.js";
-import { logFromTwitch } from "../../discord/tools/logToDiscord";
+import { logFromTwitch } from "../../helpers/logging/logFromTwitch";
 
 type ListenerType<T> = [T] extends [(...args: infer U) => any]
 	? U
@@ -12,8 +12,12 @@ type TwitchOnEvent = <T extends keyof tmi.Events>(
 	listener: (...args: ListenerType<tmi.Events[T]>) => void
 ) => tmi.Client;
 
-export const logTwitchError = (error: any, event: string, args: any[]) => {
-	logFromTwitch(
+export const logTwitchError = async (
+	error: any,
+	event: string,
+	args: any[]
+) => {
+	await logFromTwitch(
 		{
 			title: `Event: ${event}`,
 			description: error.toString(),
@@ -37,11 +41,14 @@ export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 			try {
 				await listener.call(twitch, ...args);
 			} catch (error) {
-				logTwitchError(error, event, args);
+				await logTwitchError(error, event, args);
 
-				twitch.getOptions().channels!.forEach(channel => {
-					twitch.say(channel, "An error ocurred, check the logs on Discord!");
-				});
+				for (const channel of twitch.getOptions().channels!) {
+					await twitch.say(
+						channel,
+						"An error ocurred, check the logs on Discord!"
+					);
+				}
 			}
 		});
 

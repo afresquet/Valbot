@@ -3,6 +3,7 @@ import { discord } from "./discord";
 import { applyDiscordFeatures } from "./discord/features";
 import { fetchChannels } from "./firebase/fetchChannels";
 import { isProduction } from "./helpers/isProduction";
+import { logError } from "./helpers/logging/logError";
 import { twitch } from "./twitch";
 import { pubsub, pubsubOnRedemption, setupTwitchClient } from "./twitch/api";
 import { applyTwitchFeatures } from "./twitch/features";
@@ -28,7 +29,9 @@ async function main() {
 		console.log(`Logged to Twitch as ${twitch.getUsername()}!`);
 	});
 
-	pubsub.onRedemption("valaxor_", pubsubOnRedemption(twitch));
+	pubsub
+		.onRedemption("valaxor_", pubsubOnRedemption(twitch))
+		.catch(logError("Error: PubSub.onRedemption"));
 
 	const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
 	await discord.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);
@@ -36,4 +39,4 @@ async function main() {
 	await twitch.connect();
 }
 
-main().catch(console.log);
+main().catch(logError("Error"));
