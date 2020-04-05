@@ -59,12 +59,12 @@ export const timer: TwitchFeature = async twitch => {
 			},
 		}));
 
-		setTimeout(() => {
+		setTimeout(async () => {
 			const timer = messages()[state()[channel].messageIndex];
 
 			if (!timer) return;
 
-			twitch.say(channel, timer.message);
+			await twitch.say(channel, timer.message);
 		}, settings()!.delay * 1000);
 	});
 
@@ -80,7 +80,7 @@ export const timer: TwitchFeature = async twitch => {
 		const missingArgumentsMessage = `@${userstate.username}, 'missing arguments, use "!timer help".'`;
 
 		if (!action) {
-			twitch.say(channel, missingArgumentsMessage);
+			await twitch.say(channel, missingArgumentsMessage);
 
 			return;
 		}
@@ -89,7 +89,7 @@ export const timer: TwitchFeature = async twitch => {
 			case "add":
 			case "create": {
 				if (!name || !text) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
@@ -98,7 +98,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				setMessages(prev => [...prev, { id: name, message: text }]);
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, new message "${name}" was added to the timer!`
 				);
@@ -109,7 +109,7 @@ export const timer: TwitchFeature = async twitch => {
 			case "edit":
 			case "update": {
 				if (!name || !text) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
@@ -120,7 +120,7 @@ export const timer: TwitchFeature = async twitch => {
 					prev.map(msg => (msg.id === name ? { id: name, message: text } : msg))
 				);
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, timer message "${name}" was updated!`
 				);
@@ -131,7 +131,7 @@ export const timer: TwitchFeature = async twitch => {
 			case "delete":
 			case "remove": {
 				if (!name) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
@@ -140,7 +140,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				setMessages(prev => prev.filter(msg => msg.id !== name));
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, message "${name}" was deleted from the timer!`
 				);
@@ -152,7 +152,7 @@ export const timer: TwitchFeature = async twitch => {
 				const [, , setting, value] = messageSplitter(message, 4);
 
 				if (!setting || !value) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
@@ -161,7 +161,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				setSettings(prev => ({ ...prev, [setting]: parseInt(value, 10) }));
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, timer setting "${setting}" was set to ${value}!`
 				);
@@ -170,7 +170,7 @@ export const timer: TwitchFeature = async twitch => {
 			}
 
 			case "help": {
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, !timer <action> <name> <message> - Available <actions> are "add", "edit" and "remove"; !timer set <setting> <value> - Available settings are "messages" and "minutes".`
 				);
@@ -179,7 +179,7 @@ export const timer: TwitchFeature = async twitch => {
 			}
 
 			default: {
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, invalid action, use "!timer help".`
 				);

@@ -26,7 +26,7 @@ export const emoteOnly: TwitchFeature = twitch => {
 			await twitch.emoteonly(channel);
 		} catch (error) {
 			if (error === "already_emote_only_on") {
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.name}, emote only mode is already enabled, you fool!`
 				);
@@ -66,7 +66,10 @@ export const emoteOnly: TwitchFeature = twitch => {
 						self,
 					]);
 
-					twitch.say(channel, "An error ocurred, check the logs on Discord!");
+					await twitch.say(
+						channel,
+						"An error ocurred, check the logs on Discord!"
+					);
 				}
 			}
 		}, 60 * 1000);

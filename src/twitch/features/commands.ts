@@ -20,7 +20,7 @@ export const commands: TwitchFeature = twitch => {
 
 		if (!content) return;
 
-		twitch.say(channel, content);
+		await twitch.say(channel, content);
 	});
 
 	twitch.on("chat", async (channel, userstate, message, self) => {
@@ -35,7 +35,7 @@ export const commands: TwitchFeature = twitch => {
 		const missingArgumentsMessage = `@${userstate.username}, missing arguments, use "!commands help".`;
 
 		if (!action) {
-			twitch.say(channel, missingArgumentsMessage);
+			await twitch.say(channel, missingArgumentsMessage);
 
 			return;
 		}
@@ -46,14 +46,14 @@ export const commands: TwitchFeature = twitch => {
 			case "add":
 			case "create": {
 				if (!name || !text) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
 
 				await createCommand(commandName, text);
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, command ${commandName} was added!`
 				);
@@ -64,14 +64,14 @@ export const commands: TwitchFeature = twitch => {
 			case "edit":
 			case "update": {
 				if (!name || !text) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
 
 				await editCommand(commandName, text);
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, command ${commandName} was edited!`
 				);
@@ -82,14 +82,14 @@ export const commands: TwitchFeature = twitch => {
 			case "delete":
 			case "remove": {
 				if (!name) {
-					twitch.say(channel, missingArgumentsMessage);
+					await twitch.say(channel, missingArgumentsMessage);
 
 					break;
 				}
 
 				await removeCommand(commandName);
 
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, command "${commandName}" was removed!`
 				);
@@ -98,7 +98,7 @@ export const commands: TwitchFeature = twitch => {
 			}
 
 			case "help": {
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, !commands <action> <name> <message> - Available <actions> are "add", "edit" and "remove".`
 				);
@@ -107,7 +107,7 @@ export const commands: TwitchFeature = twitch => {
 			}
 
 			default: {
-				twitch.say(
+				await twitch.say(
 					channel,
 					`@${userstate.username}, invalid action, use "!commands help".`
 				);
