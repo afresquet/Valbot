@@ -1,3 +1,4 @@
+import { fetchPyramid } from "../../../firebase/fetchPyramid";
 import { prefixChannelReward } from "../../../helpers/prefixString";
 import { useState } from "../../../helpers/useState";
 import { TwitchFeature } from "../../../types/Feature";
@@ -7,6 +8,20 @@ import { logTwitchError } from "../../helpers/twitchEventErrorHandler";
 export const emoteOnly: TwitchFeature = twitch => {
 	const [active, setActive] = useState(false);
 	const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+	const makePyramid = async (channel: string) => {
+		const pyramid = await fetchPyramid();
+
+		if (!pyramid) return;
+
+		const { emote, length } = pyramid;
+
+		for (let i = 1; i <= length + length - 1; i++) {
+			const times = i - (i > length ? (i % length) * 2 : 0);
+
+			await twitch.say(channel, `${emote} `.repeat(times));
+		}
+	};
 
 	const listener: PubSubListener = async (
 		channel,
@@ -24,6 +39,8 @@ export const emoteOnly: TwitchFeature = twitch => {
 			if (active()) throw "already_emote_only_on";
 
 			await twitch.emoteonly(channel);
+
+			await makePyramid(channel);
 		} catch (error) {
 			if (error === "already_emote_only_on") {
 				await twitch.say(
@@ -40,6 +57,7 @@ export const emoteOnly: TwitchFeature = twitch => {
 			} else if (error === "No response from Twitch.") {
 				// For whatever reason this error means
 				// "it worked, but we are going to complain about repeated calls" 🤷🏻‍♂️
+				await makePyramid(channel);
 			} else {
 				throw error;
 			}
@@ -50,6 +68,8 @@ export const emoteOnly: TwitchFeature = twitch => {
 				setTimeoutId(() => null);
 
 				await twitch.emoteonlyoff(channel);
+
+				await twitch.say(channel, "FREEDOM! widepeepoHappy");
 			} catch (error) {
 				if (error === "already_emote_only_off") {
 					if (active()) {
@@ -58,6 +78,7 @@ export const emoteOnly: TwitchFeature = twitch => {
 				} else if (error === "No response from Twitch.") {
 					// For whatever reason this error means
 					// "it worked, but we are going to complain about repeated calls" 🤷🏻‍♂️
+					await twitch.say(channel, "FREEDOM! widepeepoHappy");
 				} else {
 					await logTwitchError(error, "pubsub", [
 						channel,
