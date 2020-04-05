@@ -59,7 +59,7 @@ export const emoteOnly: TwitchFeature = twitch => {
 					// For whatever reason this error means
 					// "it worked, but we are going to complain about repeated calls" 🤷🏻‍♂️
 				} else {
-					logTwitchError(error, "pubsub", [
+					await logTwitchError(error, "pubsub", [
 						channel,
 						userstate,
 						redemption,

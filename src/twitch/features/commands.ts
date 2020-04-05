@@ -10,11 +10,9 @@ export const commands: TwitchFeature = twitch => {
 	twitch.on("chat", async (channel, _, message, self) => {
 		if (self) return;
 
-		if (!message.startsWith("!")) return;
+		if (!message.startsWith("!") || message.startsWith("!commands")) return;
 
 		const [command] = messageSplitter(message);
-
-		if (command === "!commands") return;
 
 		const content = await fetchCommand(command);
 

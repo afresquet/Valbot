@@ -12,8 +12,12 @@ type TwitchOnEvent = <T extends keyof tmi.Events>(
 	listener: (...args: ListenerType<tmi.Events[T]>) => void
 ) => tmi.Client;
 
-export const logTwitchError = (error: any, event: string, args: any[]) => {
-	logFromTwitch(
+export const logTwitchError = async (
+	error: any,
+	event: string,
+	args: any[]
+) => {
+	await logFromTwitch(
 		{
 			title: `Event: ${event}`,
 			description: error.toString(),
@@ -37,7 +41,7 @@ export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
 			try {
 				await listener.call(twitch, ...args);
 			} catch (error) {
-				logTwitchError(error, event, args);
+				await logTwitchError(error, event, args);
 
 				for (const channel of twitch.getOptions().channels!) {
 					await twitch.say(

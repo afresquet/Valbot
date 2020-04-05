@@ -17,7 +17,7 @@ const guildMemberIsSteraming = (member: Discord.GuildMember): boolean => {
 };
 
 export const live: DiscordFeature = discord => {
-	discord.on("ready", () => {
+	discord.on("ready", async () => {
 		for (const guild of discord.guilds.cache.array()) {
 			const liveRole = findGuildRole(guild, prefixChannel("live"));
 
@@ -28,15 +28,15 @@ export const live: DiscordFeature = discord => {
 				const isStreaming = guildMemberIsSteraming(member);
 
 				if (!hasLiveRole && isStreaming) {
-					member.roles.add(liveRole);
+					await member.roles.add(liveRole);
 				} else if (hasLiveRole && !isStreaming) {
-					member.roles.remove(liveRole);
+					await member.roles.remove(liveRole);
 				}
 			}
 		}
 	});
 
-	discord.on("presenceUpdate", (_, newPresence) => {
+	discord.on("presenceUpdate", async (_, newPresence) => {
 		const liveRole = findGuildRole(newPresence.guild!, prefixChannel("live"));
 
 		if (!liveRole) return;
@@ -45,9 +45,9 @@ export const live: DiscordFeature = discord => {
 		const isStreaming = guildMemberIsSteraming(newPresence.member!);
 
 		if (!hasLiveRole && isStreaming) {
-			newPresence.member?.roles.add(liveRole);
+			await newPresence.member?.roles.add(liveRole);
 		} else if (hasLiveRole && !isStreaming) {
-			newPresence.member?.roles.remove(liveRole);
+			await newPresence.member?.roles.remove(liveRole);
 		}
 	});
 };

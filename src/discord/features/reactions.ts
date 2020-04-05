@@ -11,7 +11,7 @@ export const reactions: DiscordFeature = async discord => {
 
 		const channel = message.channel as Discord.TextChannel;
 
-		if (!channels[channel.name]) return;
+		if (!channels.hasOwnProperty(channel.name)) return;
 
 		for (const emote of channels[channel.name].emotes) {
 			const emoji = emojiRegex.test(emote)

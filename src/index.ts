@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { discord } from "./discord";
 import { applyDiscordFeatures } from "./discord/features";
+import { logToDiscord } from "./discord/tools/logToDiscord";
 import { fetchChannels } from "./firebase/fetchChannels";
 import { isProduction } from "./helpers/isProduction";
 import { twitch } from "./twitch";
@@ -28,7 +29,20 @@ async function main() {
 		console.log(`Logged to Twitch as ${twitch.getUsername()}!`);
 	});
 
-	pubsub.onRedemption("valaxor_", pubsubOnRedemption(twitch));
+	pubsub
+		.onRedemption("valaxor_", pubsubOnRedemption(twitch))
+		.catch(async error => {
+			if (discord.readyAt === null) {
+				console.log(error);
+
+				return;
+			}
+
+			await logToDiscord({
+				title: "Error: PubSub.onRedemption failed",
+				description: error.toString(),
+			});
+		});
 
 	const { DISCORD_TOKEN, DISCORD_DEV_TOKEN } = process.env;
 	await discord.login(isProduction ? DISCORD_TOKEN : DISCORD_DEV_TOKEN);
@@ -36,4 +50,15 @@ async function main() {
 	await twitch.connect();
 }
 
-main().catch(console.log);
+main().catch(async error => {
+	if (discord.readyAt === null) {
+		console.log(error);
+
+		return;
+	}
+
+	await logToDiscord({
+		title: "Error",
+		description: error.toString(),
+	});
+});

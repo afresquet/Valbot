@@ -4,9 +4,9 @@ import tmi from "tmi.js";
 export type TwitchFeature = (
 	twitch: tmi.Client,
 	discord: Discord.Client
-) => void;
+) => void | Promise<void>;
 
 export type DiscordFeature = (
 	discord: Discord.Client,
 	twitch: tmi.Client
-) => void;
+) => void | Promise<void>;

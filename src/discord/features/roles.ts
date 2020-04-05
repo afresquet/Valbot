@@ -25,7 +25,7 @@ const extractRoles = (message: Discord.Message): Role[] => {
 	});
 };
 
-const onMessageReaction = (add: boolean = true) => (
+const onMessageReaction = (add: boolean = true) => async (
 	reaction: Discord.MessageReaction,
 	user: Discord.User | Discord.PartialUser
 ) => {
@@ -50,14 +50,10 @@ const onMessageReaction = (add: boolean = true) => (
 
 	if (!role) return;
 
-	const guildUser = reaction.message.guild?.member(user.id);
-
-	if (!guildUser) return;
-
 	if (add) {
-		guildUser.roles.add(role);
+		await reaction.message.member?.roles.add(role);
 	} else {
-		guildUser.roles.remove(role);
+		await reaction.message.member?.roles.remove(role);
 	}
 };
 
@@ -81,18 +77,18 @@ const onMessage = async (message: Discord.Message | Discord.PartialMessage) => {
 
 		if (shouldNotRemoveRole) return;
 
-		reaction.remove();
+		await reaction.remove();
 	}
 };
 
 export const roles: DiscordFeature = discord => {
-	discord.on("ready", () => {
+	discord.on("ready", async () => {
 		const rolesChannel = discord.channels.cache.find(
 			channel =>
 				(channel as Discord.TextChannel).name === prefixChannel("roles")
 		) as Discord.TextChannel;
 
-		rolesChannel.messages.fetch();
+		await rolesChannel.messages.fetch();
 	});
 
 	discord.on("messageReactionAdd", onMessageReaction(true));

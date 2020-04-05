@@ -1,21 +1,21 @@
 import Discord from "discord.js";
 import { discord } from "..";
 
-export const logToDiscord = (content: Discord.MessageEmbedOptions) => {
+export const logToDiscord = async (content: Discord.MessageEmbedOptions) => {
 	const channel = discord.channels.cache.find(
 		c => (c as Discord.TextChannel).name === "bot-logs"
 	) as Discord.TextChannel;
 
 	const embed = new Discord.MessageEmbed(content);
 
-	channel.send(embed);
+	await channel.send(embed);
 };
 
-export const logFromDiscord = (
+export const logFromDiscord = async (
 	content: Discord.MessageEmbedOptions,
 	error: boolean = false
 ) =>
-	logToDiscord({
+	await logToDiscord({
 		...content,
 		author: {
 			...content.author,
@@ -29,11 +29,11 @@ export const logFromDiscord = (
 		},
 	});
 
-export const logFromTwitch = (
+export const logFromTwitch = async (
 	content: Discord.MessageEmbedOptions,
 	error: boolean = false
 ) =>
-	logToDiscord({
+	await logToDiscord({
 		...content,
 		author: {
 			name: "Twitch",
