@@ -1,13 +1,11 @@
-type GetState<T> = () => T;
+type State<T> = [() => T, (callback: (currentState: T) => T) => void];
 
-type SetState<T> = (callback: (previousState: T) => T) => void;
-
-export const useState = <T>(initalState: T): [GetState<T>, SetState<T>] => {
+export const useState = <T>(initalState: T): State<T> => {
 	let state = initalState;
 
-	const getState: GetState<T> = () => state;
+	const getState = () => state;
 
-	const setState: SetState<T> = callback => {
+	const setState = (callback: (currentState: T) => T) => {
 		state = callback(state);
 	};
 
