@@ -29,12 +29,12 @@ export const timer: TwitchFeature = async twitch => {
 
 		if (message.startsWith("!")) return;
 
-		setState(prev => ({
-			...prev,
-			[channel]: prev[channel]
+		setState(curr => ({
+			...curr,
+			[channel]: curr[channel]
 				? {
-						...prev[channel],
-						messageCount: prev[channel].messageCount + 1,
+						...curr[channel],
+						messageCount: curr[channel].messageCount + 1,
 				  }
 				: { lastTrigger: 0, messageCount: 1, messageIndex: 0 },
 		}));
@@ -47,15 +47,15 @@ export const timer: TwitchFeature = async twitch => {
 		)
 			return;
 
-		setState(prev => ({
-			...prev,
+		setState(curr => ({
+			...curr,
 			[channel]: {
 				lastTrigger: Date.now(),
 				messageCount: 0,
 				messageIndex:
-					prev[channel].messageIndex + 1 >= messages().length
+					curr[channel].messageIndex + 1 >= messages().length
 						? 0
-						: prev[channel].messageIndex + 1,
+						: curr[channel].messageIndex + 1,
 			},
 		}));
 
@@ -96,7 +96,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await createTimer(name, text);
 
-				setMessages(prev => [...prev, { id: name, message: text }]);
+				setMessages(curr => [...curr, { id: name, message: text }]);
 
 				await twitch.say(
 					channel,
@@ -116,8 +116,8 @@ export const timer: TwitchFeature = async twitch => {
 
 				await editCommand(name, text);
 
-				setMessages(prev =>
-					prev.map(msg => (msg.id === name ? { id: name, message: text } : msg))
+				setMessages(curr =>
+					curr.map(msg => (msg.id === name ? { id: name, message: text } : msg))
 				);
 
 				await twitch.say(
@@ -138,7 +138,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await removeTimer(name);
 
-				setMessages(prev => prev.filter(msg => msg.id !== name));
+				setMessages(curr => curr.filter(msg => msg.id !== name));
 
 				await twitch.say(
 					channel,
@@ -159,7 +159,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await editTimerSetting(setting, parseInt(value, 10));
 
-				setSettings(prev => ({ ...prev, [setting]: parseInt(value, 10) }));
+				setSettings(curr => ({ ...curr, [setting]: parseInt(value, 10) }));
 
 				await twitch.say(
 					channel,
