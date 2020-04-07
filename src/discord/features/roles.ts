@@ -50,10 +50,14 @@ const onMessageReaction = (add: boolean = true) => async (
 
 	if (!role) return;
 
+	const member = reaction.message.guild?.members.cache.find(
+		m => m.id === user.id
+	);
+
 	if (add) {
-		await reaction.message.member?.roles.add(role);
+		await member?.roles.add(role);
 	} else {
-		await reaction.message.member?.roles.remove(role);
+		await member?.roles.remove(role);
 	}
 };
 
