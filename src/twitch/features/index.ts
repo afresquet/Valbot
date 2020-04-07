@@ -5,6 +5,7 @@ import { channelPointRewards } from "./channel-point-rewards";
 import { commands } from "./commands";
 import { magic8Ball } from "./magic8Ball";
 import { quotes } from "./quotes";
+import { songRequest } from "./songRequest";
 import { timer } from "./timer";
 
 export const features: TwitchFeature[] = [
@@ -12,6 +13,7 @@ export const features: TwitchFeature[] = [
 	commands,
 	magic8Ball,
 	quotes,
+	songRequest,
 	timer,
 ];
 
