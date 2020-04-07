@@ -1,5 +1,5 @@
 import Discord from "discord.js";
-import { songRequestManager } from "../../common/SongRequestManager";
+import { songRequestManager } from "../../common/songRequestManager";
 import { prefixChannel } from "../../helpers/prefixString";
 import { messageSplitter } from "../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../types/Feature";
