@@ -22,9 +22,7 @@ export const songRequest: DiscordFeature = discord => {
 			) as Discord.VoiceChannel;
 
 			if (!voiceChannel) {
-				await message.reply(`there's no #${voiceChannelName} voice channel!`);
-
-				return;
+				throw new Error(`There's no #${voiceChannelName} voice channel!`);
 			}
 
 			songRequestManager.setVoiceChannel(voiceChannel);
@@ -92,7 +90,7 @@ export const songRequest: DiscordFeature = discord => {
 					const volume = parseInt(value, 10);
 
 					if (Number.isNaN(volume)) {
-						message.reply(`volume "${value}" is not a valid number.`);
+						await message.reply(`volume "${value}" is not a valid number.`);
 
 						return;
 					}
@@ -100,6 +98,14 @@ export const songRequest: DiscordFeature = discord => {
 					const newVolume = songRequestManager.volume(volume);
 
 					await message.reply(`volume was set to ${newVolume}%.`);
+
+					break;
+				}
+
+				case "!help": {
+					await message.reply(
+						"Available commands are: !sr <youtubeURL>; !play; !pause; !skip; !remove <position>; !clear; !volume <value>."
+					);
 
 					break;
 				}
