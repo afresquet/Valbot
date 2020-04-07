@@ -64,7 +64,7 @@ export class AudioManager {
 
 	protected play(
 		input: string | Readable | Discord.VoiceBroadcast,
-		options: Discord.StreamOptions = this.streamOptions.current
+		options: Discord.StreamOptions
 	) {
 		if (!this.voiceChannel) {
 			throw new Error(
@@ -112,7 +112,7 @@ export class AudioManager {
 
 		const url = this.queue.dequeue();
 
-		this.play(url);
+		this.play(url, this.streamOptions.current);
 	}
 
 	resume() {
