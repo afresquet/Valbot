@@ -4,12 +4,12 @@ import { editTimerSetting } from "../../firebase/timer/editTimerSetting";
 import { fetchTimerMessages } from "../../firebase/timer/fetchTimerMessages";
 import { fetchTimerSettings } from "../../firebase/timer/fetchTimerSettings";
 import { removeTimer } from "../../firebase/timer/removeTimer";
-import { useState } from "../../helpers/useState";
+import { State } from "../../helpers/State";
 import { TwitchFeature } from "../../types/Feature";
 import { isMod } from "../helpers/isMod";
 import { messageSplitter } from "../helpers/messageSplitter";
 
-interface State {
+interface IState {
 	[channel: string]: {
 		lastTrigger: number;
 		messageCount: number;
@@ -18,18 +18,18 @@ interface State {
 }
 
 export const timer: TwitchFeature = async twitch => {
-	const [state, setState] = useState<State>({});
-	const [messages, setMessages] = useState(await fetchTimerMessages());
-	const [settings, setSettings] = useState(await fetchTimerSettings());
+	const state = new State<IState>({});
+	const messages = new State(await fetchTimerMessages());
+	const settings = new State(await fetchTimerSettings());
 
 	twitch.on("chat", (channel, _, message, self) => {
 		if (self) return;
 
-		if (messages().length === 0) return;
+		if (messages.current.length === 0) return;
 
 		if (message.startsWith("!")) return;
 
-		setState(curr => ({
+		state.set(curr => ({
 			...curr,
 			[channel]: curr[channel]
 				? {
@@ -39,33 +39,33 @@ export const timer: TwitchFeature = async twitch => {
 				: { lastTrigger: 0, messageCount: 1, messageIndex: 0 },
 		}));
 
-		if (state()[channel].messageCount < settings()!.messages) return;
+		if (state.current[channel].messageCount < settings.current.messages) return;
 
 		if (
-			Date.now() - state()[channel].lastTrigger <
-			settings()!.minutes * 1000 * 60
+			Date.now() - state.current[channel].lastTrigger <
+			settings.current.minutes * 1000 * 60
 		)
 			return;
 
-		setState(curr => ({
+		state.set(curr => ({
 			...curr,
 			[channel]: {
 				lastTrigger: Date.now(),
 				messageCount: 0,
 				messageIndex:
-					curr[channel].messageIndex + 1 >= messages().length
+					curr[channel].messageIndex + 1 >= messages.current.length
 						? 0
 						: curr[channel].messageIndex + 1,
 			},
 		}));
 
 		setTimeout(async () => {
-			const timer = messages()[state()[channel].messageIndex];
+			const timer = messages.current[state.current[channel].messageIndex];
 
 			if (!timer) return;
 
 			await twitch.say(channel, timer.message);
-		}, settings()!.delay * 1000);
+		}, settings.current.delay * 1000);
 	});
 
 	twitch.on("chat", async (channel, userstate, message, self) => {
@@ -96,7 +96,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await createTimer(name, text);
 
-				setMessages(curr => [...curr, { id: name, message: text }]);
+				messages.set(curr => [...curr, { id: name, message: text }]);
 
 				await twitch.say(
 					channel,
@@ -116,7 +116,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await editCommand(name, text);
 
-				setMessages(curr =>
+				messages.set(curr =>
 					curr.map(msg => (msg.id === name ? { id: name, message: text } : msg))
 				);
 
@@ -138,7 +138,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await removeTimer(name);
 
-				setMessages(curr => curr.filter(msg => msg.id !== name));
+				messages.set(curr => curr.filter(msg => msg.id !== name));
 
 				await twitch.say(
 					channel,
@@ -159,7 +159,7 @@ export const timer: TwitchFeature = async twitch => {
 
 				await editTimerSetting(setting, parseInt(value, 10));
 
-				setSettings(curr => ({ ...curr, [setting]: parseInt(value, 10) }));
+				settings.set(curr => ({ ...curr, [setting]: parseInt(value, 10) }));
 
 				await twitch.say(
 					channel,
