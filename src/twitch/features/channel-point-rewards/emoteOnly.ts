@@ -1,13 +1,13 @@
 import { fetchPyramid } from "../../../firebase/fetchPyramid";
 import { prefixChannelReward } from "../../../helpers/prefixString";
-import { useState } from "../../../helpers/useState";
+import { State } from "../../../helpers/State";
 import { TwitchFeature } from "../../../types/Feature";
 import { PubSubListener } from "../../../types/PubSubListener";
 import { logTwitchError } from "../../helpers/twitchEventErrorHandler";
 
 export const emoteOnly: TwitchFeature = twitch => {
-	const [active, setActive] = useState(false);
-	const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+	const active = new State(false);
+	const timeoutId = new State<NodeJS.Timeout | null>(null);
 
 	const makePyramid = async (channel: string) => {
 		const pyramid = await fetchPyramid();
@@ -36,7 +36,7 @@ export const emoteOnly: TwitchFeature = twitch => {
 			return;
 
 		try {
-			if (active()) throw "already_emote_only_on";
+			if (active.current) throw "already_emote_only_on";
 
 			await twitch.emoteonly(channel);
 
@@ -49,8 +49,8 @@ export const emoteOnly: TwitchFeature = twitch => {
 				);
 
 				// This means the error comes from the api call
-				if (!active()) {
-					setActive(() => true);
+				if (!active.current) {
+					active.set(() => true);
 				}
 
 				return;
@@ -65,15 +65,15 @@ export const emoteOnly: TwitchFeature = twitch => {
 
 		const id = setTimeout(async () => {
 			try {
-				setTimeoutId(() => null);
+				timeoutId.set(() => null);
 
 				await twitch.emoteonlyoff(channel);
 
 				await twitch.say(channel, "FREEDOM! widepeepoHappy");
 			} catch (error) {
 				if (error === "already_emote_only_off") {
-					if (active()) {
-						setActive(() => false);
+					if (active.current) {
+						active.set(() => false);
 					}
 				} else if (error === "No response from Twitch.") {
 					// For whatever reason this error means
@@ -95,19 +95,19 @@ export const emoteOnly: TwitchFeature = twitch => {
 			}
 		}, 60 * 1000);
 
-		setTimeoutId(() => id);
+		timeoutId.set(() => id);
 	};
 	twitch.on("pubsub" as any, listener);
 
 	twitch.on("emoteonly", (_, enabled) => {
-		const id = timeoutId();
+		const id = timeoutId.current;
 
 		if (!enabled && id !== null) {
 			clearTimeout(id);
 
-			setTimeoutId(() => null);
+			timeoutId.set(() => null);
 		}
 
-		setActive(() => enabled);
+		active.set(() => enabled);
 	});
 };
