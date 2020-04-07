@@ -1,9 +1,7 @@
 import Discord from "discord.js";
-import {
-	songRequestManager,
-	SongRequestManager,
-} from "../../common/SongRequestManager";
+import { songRequestManager } from "../../common/songRequestManager";
 import { prefixChannel, prefixCommand } from "../../helpers/prefixString";
+import { YoutubeAudioManager } from "../../helpers/YoutubeAudioManager";
 import { TwitchFeature } from "../../types/Feature";
 import { isMod } from "../helpers/isMod";
 import { messageSplitter } from "../helpers/messageSplitter";
@@ -34,7 +32,7 @@ export const songRequest: TwitchFeature = (twitch, discord) => {
 			songRequestManager.setVoiceChannel(voiceChannel);
 		}
 
-		if (SongRequestManager.youtubeUrlRegex.test(action)) {
+		if (YoutubeAudioManager.youtubeUrlRegex.test(action)) {
 			const position = await songRequestManager.enqueue(action);
 
 			await twitch.say(
