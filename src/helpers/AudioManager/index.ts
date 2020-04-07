@@ -1,9 +1,9 @@
 import Discord from "discord.js";
 import { Readable } from "stream";
-import { clamp } from "./clamp";
-import { ErrorOnChat } from "./ErrorOnChat";
-import { Queue } from "./Queue";
-import { State } from "./State";
+import { clamp } from "../clamp";
+import { ErrorOnChat } from "../ErrorOnChat";
+import { Queue } from "../Queue";
+import { State } from "../State";
 
 export class AudioManager {
 	protected voiceChannel: Discord.VoiceChannel | null = null;
