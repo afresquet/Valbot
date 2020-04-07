@@ -4,8 +4,9 @@ import { DiscordFeature } from "../../types/Feature";
 import { live } from "./live";
 import { reactions } from "./reactions";
 import { roles } from "./roles";
+import { songRequest } from "./songRequest";
 
-export const features: DiscordFeature[] = [live, reactions, roles];
+export const features: DiscordFeature[] = [live, reactions, roles, songRequest];
 
 export const applyDiscordFeatures = (
 	discord: Discord.Client,
