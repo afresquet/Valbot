@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import { songRequestManager } from "../../common/songRequestManager";
+import { YoutubeAudioManager } from "../../helpers/AudioManager/YoutubeAudioManager";
 import { prefixChannel, prefixCommand } from "../../helpers/prefixString";
-import { YoutubeAudioManager } from "../../helpers/YoutubeAudioManager";
 import { TwitchFeature } from "../../types/Feature";
 import { isMod } from "../helpers/isMod";
 import { messageSplitter } from "../helpers/messageSplitter";

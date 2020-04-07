@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import ytdl from "ytdl-core";
-import { AudioManager } from "./AudioManager";
-import { ErrorOnChat } from "./ErrorOnChat";
+import { AudioManager } from ".";
+import { ErrorOnChat } from "../ErrorOnChat";
 
 export class YoutubeAudioManager extends AudioManager {
 	static youtubeUrlRegex = /^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+/;
