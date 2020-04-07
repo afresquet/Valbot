@@ -32,13 +32,16 @@
 		"typescript": "^3.8.3"
 	},
 	"dependencies": {
+		"@discordjs/opus": "^0.1.0",
 		"axios": "^0.19.2",
 		"discord.js": "^12.1.1",
 		"dotenv": "^8.2.0",
+		"ffmpeg-static": "^4.1.0",
 		"firebase-admin": "^8.10.0",
 		"seedrandom": "^3.0.5",
 		"tmi.js": "^1.5.0",
 		"twitch": "^4.0.8",
-		"twitch-pubsub-client": "^4.0.8"
+		"twitch-pubsub-client": "^4.0.8",
+		"ytdl-core": "^2.0.1"
 	}
 }
