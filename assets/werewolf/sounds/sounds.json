@@ -1,0 +1,109 @@
+{
+	"background": {
+		"fantasy": "background_fantasy"
+	},
+	"everyone": {
+		"close": "en_male_everyone_close",
+		"wiggle": "en_male_everyone_wiggle",
+		"wake": "en_male_everyone_wake",
+		"timeisup": "en_male_everyone_timeisup_321vote"
+	},
+	"doppelganger": {
+		"name": "en_male_doppelganger_name",
+		"rules": "en_male_doppelganger_rules",
+		"wake": "en_male_doppelganger_wake",
+		"close": "en_male_doppelganger_close",
+		"expert": {
+			"wake": "en_male_expert_doppelganger_wake"
+		}
+	},
+	"werewolf": {
+		"name": "en_male_werewolf_name",
+		"rules": "en_male_werewolf_rules",
+		"wake": "en_male_werewolf_wake",
+		"close": "en_male_werewolf_close",
+		"expert": {
+			"wake": "en_male_expert_werewolf_wake"
+		}
+	},
+	"minion": {
+		"name": "en_male_minion_name",
+		"rules": "en_male_minion_rules",
+		"wake": "en_male_minion_wake",
+		"thumb": "en_male_minion_thumb",
+		"close": "en_male_minion_close",
+		"doppelganger": "en_male_doppelganger_minion",
+		"expert": {
+			"wake": "en_male_expert_minion_wake",
+			"doppelganger": "en_male_expert_doppelganger_minion"
+		}
+	},
+	"mason": {
+		"name": "en_male_mason_name",
+		"rules": "en_male_mason_rules",
+		"wake": "en_male_mason_wake",
+		"close": "en_male_mason_close",
+		"expert": {
+			"wake": "en_male_expert_mason_wake"
+		}
+	},
+	"seer": {
+		"name": "en_male_seer_name",
+		"rules": "en_male_seer_rules",
+		"wake": "en_male_seer_wake",
+		"close": "en_male_seer_close",
+		"expert": {
+			"wake": "en_male_expert_seer_wake"
+		}
+	},
+	"robber": {
+		"name": "en_male_robber_name",
+		"rules": "en_male_robber_rules",
+		"wake": "en_male_robber_wake",
+		"close": "en_male_robber_close",
+		"expert": {
+			"wake": "en_male_expert_robber_wake"
+		}
+	},
+	"troublemaker": {
+		"name": "en_male_troublemaker_name",
+		"rules": "en_male_troublemaker_rules",
+		"wake": "en_male_troublemaker_wake",
+		"close": "en_male_troublemaker_close",
+		"expert": {
+			"wake": "en_male_expert_troublemaker_wake"
+		}
+	},
+	"drunk": {
+		"name": "en_male_drunk_name",
+		"rules": "en_male_drunk_rules",
+		"wake": "en_male_drunk_wake",
+		"close": "en_male_drunk_close",
+		"expert": {
+			"wake": "en_male_expert_drunk_wake"
+		}
+	},
+	"insomniac": {
+		"name": "en_male_insomniac_name",
+		"rules": "en_male_insomniac_rules",
+		"wake": "en_male_insomniac_wake",
+		"close": "en_male_insomniac_close",
+		"doppelganger": "en_male_doppelganger_insomniac",
+		"expert": {
+			"wake": "en_male_expert_insomniac_wake",
+			"doppelganger": "en_male_expert_doppelganger_insomniac"
+		}
+	},
+	"villager": {
+		"name": "en_male_villager_name",
+		"rules": "en_male_villager_rules"
+	},
+	"hunter": {
+		"name": "en_male_hunter_name",
+		"rules": "en_male_hunter_rules"
+	},
+	"tanner": {
+		"name": "en_male_tanner_name",
+		"rules": "en_male_tanner_rules"
+	}
+}
