@@ -2,12 +2,8 @@ import Discord from "discord.js";
 import { prefixChannel } from "../../../helpers/prefixString";
 import { messageSplitter } from "../../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../../types/Feature";
-import sounds from "./sounds.json";
+import { Character, Characters } from "./types";
 import { WerewolfManager } from "./WerewolfManager";
-
-const characters = Object.entries(sounds)
-	.filter(([_, value]) => value.hasOwnProperty("rules"))
-	.map(([key]) => key);
 
 export const werewolf: DiscordFeature = discord => {
 	const gameManager = new WerewolfManager();
@@ -39,19 +35,28 @@ export const werewolf: DiscordFeature = discord => {
 
 		switch (command) {
 			case "!join": {
-				await gameManager.join();
+				await gameManager.join(message.member!);
 
 				break;
 			}
 			case "!rules": {
-				if (!characters.includes(value)) break;
+				const role = value.toLowerCase();
 
-				await gameManager.rules(value as any);
+				if (!Characters.includes(role as any)) break;
+
+				await gameManager.rules(role as Character);
+
+				break;
+			}
+			case "!leave": {
+				gameManager.leave(message.author.id);
 
 				break;
 			}
 			default:
 				break;
 		}
+
+		await message.delete();
 	});
 };
