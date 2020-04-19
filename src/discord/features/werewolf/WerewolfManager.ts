@@ -30,24 +30,32 @@ export class WerewolfManager {
 	}
 
 	async join(member: Discord.GuildMember) {
+		const player = {
+			member,
+			role: null,
+			master: false,
+		};
+
 		if (this.players.current.length === 0) {
 			await this.audioManager.join();
+
+			player.master = true;
 		}
 
-		this.players.set(curr => [
-			...curr,
-			{
-				member,
-				role: null,
-			},
-		]);
+		this.players.set(curr => [...curr, player]);
 	}
 
 	leave(memberId: string) {
+		const player = this.players.current.find(p => p.member.id === memberId);
+
+		if (!player) return;
+
 		this.players.set(curr => curr.filter(p => p.member.id !== memberId));
 
 		if (this.players.current.length <= 0) {
 			this.audioManager.leave();
+		} else if (player.master) {
+			this.randomMaster();
 		}
 	}
 
@@ -58,5 +66,28 @@ export class WerewolfManager {
 
 	private async muteAll(on: boolean) {
 		await this.audioManager.muteAll(on);
+	}
+
+	setMaster(requesterId: string, newMasterId: string) {
+		if (
+			!this.players.current.find(p => p.member.id === requesterId && p.master)
+		)
+			return;
+
+		if (!this.players.current.find(p => p.member.id === newMasterId)) return;
+
+		this.players.set(curr =>
+			curr.map(p => ({ ...p, master: p.member.id === newMasterId }))
+		);
+	}
+
+	randomMaster() {
+		const randomIndex = Math.floor(Math.random() * this.players.current.length);
+
+		this.players.set(curr =>
+			curr.map((player, index) =>
+				index === randomIndex ? { ...player, master: true } : player
+			)
+		);
 	}
 }

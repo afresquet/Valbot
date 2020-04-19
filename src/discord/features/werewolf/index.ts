@@ -50,6 +50,15 @@ export const werewolf: DiscordFeature = discord => {
 
 				break;
 			}
+			case "!master": {
+				const member = message.mentions.users.first();
+
+				if (!member) break;
+
+				gameManager.setMaster(message.author.id, member.id);
+
+				break;
+			}
 			case "!leave": {
 				gameManager.leave(message.author.id);
 

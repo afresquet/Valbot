@@ -20,4 +20,5 @@ export type Character = typeof Characters[number];
 export interface Player {
 	member: Discord.GuildMember;
 	role: Character | null;
+	master: boolean;
 }
