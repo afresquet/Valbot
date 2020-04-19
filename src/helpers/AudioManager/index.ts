@@ -9,7 +9,7 @@ export class AudioManager {
 	protected dispatcher: Discord.StreamDispatcher | null = null;
 
 	protected streamOptions = new State<Discord.StreamOptions>({
-		volume: 100,
+		volume: 1,
 	});
 
 	setVoiceChannel(voiceChannel: Discord.VoiceChannel) {
