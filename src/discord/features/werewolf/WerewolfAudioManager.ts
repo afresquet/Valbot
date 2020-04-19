@@ -36,4 +36,14 @@ export class WerewolfAudioManager extends AudioManager {
 			});
 		});
 	}
+
+	muteAll(on: boolean) {
+		if (!this.voiceChannel) return;
+
+		return Promise.all(
+			this.voiceChannel.members.map(member =>
+				member.user.bot ? member.voice.setMute(false) : member.voice.setMute(on)
+			)
+		);
+	}
 }

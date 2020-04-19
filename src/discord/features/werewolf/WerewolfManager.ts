@@ -55,4 +55,8 @@ export class WerewolfManager {
 		await this.audioManager.play(this.soundPath(sounds[character].name));
 		await this.audioManager.play(this.soundPath(sounds[character].rules));
 	}
+
+	private async muteAll(on: boolean) {
+		await this.audioManager.muteAll(on);
+	}
 }
