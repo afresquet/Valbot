@@ -17,7 +17,7 @@ export const werewolf: DiscordFeature = discord => {
 		)
 			return;
 
-		if (!gameManager.audioManager.isReady()) {
+		if (!gameManager.isReady()) {
 			const voiceChannelName = prefixChannel("vc-werewolf");
 
 			const voiceChannel = message.guild?.channels.cache.find(
@@ -28,10 +28,12 @@ export const werewolf: DiscordFeature = discord => {
 				throw new Error(`There's no #${voiceChannelName} voice channel!`);
 			}
 
-			gameManager.audioManager.setVoiceChannel(voiceChannel);
+			gameManager.setup(message.channel as Discord.TextChannel, voiceChannel);
 		}
 
 		const [command, value] = messageSplitter(message.content, 1);
+
+		await message.delete();
 
 		switch (command) {
 			case "!join": {
@@ -56,7 +58,5 @@ export const werewolf: DiscordFeature = discord => {
 			default:
 				break;
 		}
-
-		await message.delete();
 	});
 };

@@ -6,12 +6,27 @@ import { Character, Player } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
-	audioManager = new WerewolfAudioManager();
+	private textChannel: Discord.TextChannel | null = null;
+	private audioManager = new WerewolfAudioManager();
 
 	private players = new State<Player[]>([]);
 
 	private soundPath(sound: string) {
 		return join(__dirname, `../../../../assets/werewolf/sounds/${sound}.mp3`);
+	}
+
+	isReady() {
+		return this.textChannel !== null && this.audioManager.isReady();
+	}
+
+	setup(textChannel: Discord.TextChannel, voiceChannel: Discord.VoiceChannel) {
+		if (!this.textChannel) {
+			this.textChannel = textChannel;
+		}
+
+		if (!this.audioManager.isReady()) {
+			this.audioManager.setVoiceChannel(voiceChannel);
+		}
 	}
 
 	async join(member: Discord.GuildMember) {
