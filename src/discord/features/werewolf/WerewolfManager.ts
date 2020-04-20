@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import { join } from "path";
 import { delay } from "../../../helpers/delay";
-import { prefixChannel } from "../../../helpers/prefixString";
+import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import sounds from "./sounds.json";
 import {
@@ -17,6 +17,7 @@ import { WerewolfAudioManager } from "./WerewolfAudioManager";
 export class WerewolfManager {
 	private textChannel: Discord.TextChannel | null = null;
 	private audioManager = new WerewolfAudioManager();
+	private playerRole: Discord.Role | null = null;
 
 	private players = new State<Player[]>([]);
 
@@ -60,7 +61,7 @@ export class WerewolfManager {
 			) as Discord.TextChannel;
 
 			if (!textChannel) {
-				throw new Error(`There's no #${textChannelName} voice channel!`);
+				throw new Error(`There's no #${textChannelName} text channel!`);
 			}
 
 			this.textChannel = textChannel;
@@ -79,9 +80,23 @@ export class WerewolfManager {
 
 			this.audioManager.setVoiceChannel(voiceChannel);
 		}
+
+		if (!this.playerRole) {
+			const playerRoleName = prefixRole("werewolf player");
+
+			const playerRole = guild.roles.cache.find(r => r.name === playerRoleName);
+
+			if (!playerRole) {
+				throw new Error(`There's no #${playerRoleName} role!`);
+			}
+
+			this.playerRole = playerRole;
+		}
 	}
 
 	async join(member: Discord.GuildMember) {
+		if (this.players.current.find(p => p.member.id === member.id)) return;
+
 		const player = {
 			member,
 			role: null,
@@ -96,6 +111,8 @@ export class WerewolfManager {
 
 		this.players.set(curr => [...curr, player]);
 
+		member.roles.add(this.playerRole!);
+
 		this.refreshEmbed();
 	}
 
@@ -105,6 +122,8 @@ export class WerewolfManager {
 		if (!player) return;
 
 		this.players.set(curr => curr.filter(p => p.member.id !== memberId));
+
+		player.member.roles.remove(this.playerRole!);
 
 		if (this.players.current.length <= 0) {
 			this.audioManager.leave();

@@ -6,6 +6,8 @@ export const prefixString = (prefix: string) => (string: string) => {
 
 export const prefixChannel = prefixString("bot-");
 
+export const prefixRole = prefixString("bot ");
+
 export const prefixChannelReward = prefixString("Bot ");
 
 const commandPrefixer = prefixString("bot");
