@@ -17,6 +17,8 @@ export const werewolf: DiscordFeature = discord => {
 		)
 			return;
 
+		await message.delete();
+
 		if (!gameManager.isReady()) {
 			const voiceChannelName = prefixChannel("vc-werewolf");
 
@@ -33,9 +35,7 @@ export const werewolf: DiscordFeature = discord => {
 
 		const [command, value] = messageSplitter(message.content, 1);
 
-		await message.delete();
-
-		if (gameManager.isActive()) {
+		if (gameManager.isPlaying()) {
 			switch (command) {
 				case "!cancel": {
 					gameManager.finish();
@@ -47,6 +47,11 @@ export const werewolf: DiscordFeature = discord => {
 			}
 		} else {
 			switch (command) {
+				case "!newgame": {
+					await gameManager.newGame();
+
+					break;
+				}
 				case "!start": {
 					if (!gameManager.isMaster(message.author.id)) return;
 
@@ -66,11 +71,16 @@ export const werewolf: DiscordFeature = discord => {
 				}
 				case "!add":
 				case "!remove": {
+					const character = value.toLowerCase();
+
 					if (!gameManager.isMaster(message.author.id)) return;
 
-					if (!Characters.includes(value as any)) return;
+					if (!Characters.includes(character as any)) return;
 
-					gameManager.manageCharacter(value as Character, command === "!add");
+					gameManager.manageCharacter(
+						character as Character,
+						command === "!add"
+					);
 
 					break;
 				}

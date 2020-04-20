@@ -3,7 +3,13 @@ import { join } from "path";
 import { delay } from "../../../helpers/delay";
 import { State } from "../../../helpers/State";
 import sounds from "./sounds.json";
-import { Character, Characters, NightActionCharacter, Player } from "./types";
+import {
+	Character,
+	Characters,
+	NightActionCharacter,
+	numberEmojis,
+	Player,
+} from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
@@ -12,7 +18,8 @@ export class WerewolfManager {
 
 	private players = new State<Player[]>([]);
 
-	private active = new State(false);
+	private currentGame: Discord.Message | null = null;
+	private playing = new State(false);
 
 	private expert = new State(false);
 
@@ -31,8 +38,8 @@ export class WerewolfManager {
 		return this.textChannel !== null && this.audioManager.isReady();
 	}
 
-	isActive() {
-		return this.active.current;
+	isPlaying() {
+		return this.playing.current;
 	}
 
 	isMaster(id: string) {
@@ -63,6 +70,8 @@ export class WerewolfManager {
 		}
 
 		this.players.set(curr => [...curr, player]);
+
+		this.refreshEmbed();
 	}
 
 	leave(memberId: string) {
@@ -77,6 +86,16 @@ export class WerewolfManager {
 		} else if (player.master) {
 			this.randomMaster();
 		}
+
+		this.refreshEmbed();
+	}
+
+	async newGame() {
+		if (!this.textChannel) return;
+
+		if (this.currentGame) return;
+
+		this.currentGame = await this.textChannel.send(this.preGameEmbed());
 	}
 
 	manageCharacter(character: Character, add: boolean) {
@@ -91,10 +110,12 @@ export class WerewolfManager {
 				return c.character === character ? { ...c, amount } : c;
 			})
 		);
+
+		this.refreshEmbed();
 	}
 
 	async start() {
-		this.active.set(() => true);
+		this.playing.set(() => true);
 
 		await this.muteAll(true);
 
@@ -126,7 +147,7 @@ export class WerewolfManager {
 	finish() {
 		this.muteAll(false);
 
-		this.active.set(() => false);
+		this.playing.set(() => false);
 	}
 
 	async rules(character: Character) {
@@ -144,6 +165,8 @@ export class WerewolfManager {
 		this.players.set(curr =>
 			curr.map(p => ({ ...p, master: p.member.id === memberId }))
 		);
+
+		this.refreshEmbed();
 	}
 
 	randomMaster() {
@@ -158,6 +181,8 @@ export class WerewolfManager {
 
 	toggleExpert() {
 		this.expert.set(curr => !curr);
+
+		this.refreshEmbed();
 	}
 
 	changeTimer(timer: "game" | "role", seconds: number) {
@@ -166,10 +191,14 @@ export class WerewolfManager {
 		} else if (timer === "role") {
 			this.roleTimer.set(() => (seconds > 0 ? seconds : 0));
 		}
+
+		this.refreshEmbed();
 	}
 
 	changeVolume(volume: number) {
 		this.audioManager.setVolume(volume);
+
+		this.refreshEmbed();
 	}
 
 	private async playCharacter(character: NightActionCharacter) {
@@ -193,5 +222,72 @@ export class WerewolfManager {
 		}
 
 		await this.audioManager.play(this.soundPath(sounds[character].close));
+	}
+
+	private refreshEmbed() {
+		if (!this.currentGame) return;
+
+		if (!this.playing.current) {
+			this.currentGame.edit(this.preGameEmbed());
+		}
+	}
+
+	preGameEmbed() {
+		return new Discord.MessageEmbed({
+			author: {
+				name: "One Night Ultimate Werewolf",
+				icon_url:
+					"https://image.winudf.com/v2/image1/Y29tLm1vYmllb3Mua2FyYW4uV29sZl9BbmRyb2lkMTRfMTFfMTNfaWNvbl8xNTU2NjQ4NDY4XzA0NA/icon.png?w=340&fakeurl=1",
+			},
+			footer: {
+				text: `Volume: ${100 * <number>this.audioManager.getOption("volume")}%`,
+			},
+			fields: [
+				{
+					name: "Master",
+					value:
+						this.players.current.find(p => p.master)?.member.displayName ||
+						"No master has joined yet",
+				},
+				{
+					name: "Players",
+					value: this.players.current.reduce((result, player, index) => {
+						const playerLine = `${numberEmojis[index]} ${player.member.displayName}`;
+
+						return index === 0 ? playerLine : `${result}\n${playerLine}`;
+					}, "No players have joined yet."),
+				},
+				{
+					name: "Characters",
+					value: this.characters.current.reduce((result, character) => {
+						const characterName =
+							character.character.charAt(0).toUpperCase() +
+							character.character.substring(1);
+
+						const nextLine =
+							result === "No characters have been set yet."
+								? `${characterName}: ${character.amount}`
+								: `${result}\n${characterName}: ${character.amount}`;
+
+						return character.amount > 0 ? nextLine : result;
+					}, "No characters have been set yet."),
+				},
+				{
+					name: "Game Timer",
+					value: `${this.gameTimer.current} seconds`,
+					inline: true,
+				},
+				{
+					name: "Role Timer",
+					value: `${this.roleTimer.current} seconds`,
+					inline: true,
+				},
+				{
+					name: "Expert Mode",
+					value: this.expert.current ? "On" : "Off",
+					inline: true,
+				},
+			],
+		});
 	}
 }
