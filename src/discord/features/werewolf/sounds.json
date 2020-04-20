@@ -4,7 +4,6 @@
 	},
 	"everyone": {
 		"close": "en_male_everyone_close",
-		"wiggle": "en_male_everyone_wiggle",
 		"wake": "en_male_everyone_wake",
 		"timeisup": "en_male_everyone_timeisup_321vote"
 	},

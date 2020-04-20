@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 
-export const Characters = [
+const NightActionCharacters = [
 	"doppelganger",
 	"werewolf",
 	"minion",
@@ -10,12 +10,17 @@ export const Characters = [
 	"troublemaker",
 	"drunk",
 	"insomniac",
+] as const;
+
+export const Characters = [
+	...NightActionCharacters,
 	"villager",
 	"hunter",
 	"tanner",
 ] as const;
 
 export type Character = typeof Characters[number];
+export type NightActionCharacter = typeof NightActionCharacters[number];
 
 export interface Player {
 	member: Discord.GuildMember;

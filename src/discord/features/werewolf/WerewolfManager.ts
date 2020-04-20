@@ -1,8 +1,9 @@
 import Discord from "discord.js";
 import { join } from "path";
+import { delay } from "../../../helpers/delay";
 import { State } from "../../../helpers/State";
 import sounds from "./sounds.json";
-import { Character, Player } from "./types";
+import { Character, Characters, NightActionCharacter, Player } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
@@ -17,6 +18,10 @@ export class WerewolfManager {
 
 	private gameTimer = new State(300);
 	private roleTimer = new State(10);
+
+	private characters = new State<{ character: Character; amount: number }[]>(
+		Characters.map(character => ({ character, amount: 0 }))
+	);
 
 	private soundPath(sound: string) {
 		return join(__dirname, `../../../../assets/werewolf/sounds/${sound}.mp3`);
@@ -74,8 +79,32 @@ export class WerewolfManager {
 		}
 	}
 
-	start() {
+	async start() {
 		this.active.set(() => true);
+
+		await this.audioManager.play(this.soundPath(sounds.everyone.close));
+
+		await this.playCharacter("werewolf");
+
+		await this.playCharacter("minion");
+
+		await this.playCharacter("mason");
+
+		await this.playCharacter("seer");
+
+		await this.playCharacter("robber");
+
+		await this.playCharacter("troublemaker");
+
+		await this.playCharacter("drunk");
+
+		await this.playCharacter("insomniac");
+
+		await delay(2000);
+
+		await this.audioManager.play(this.soundPath(sounds.everyone.wake));
+
+		this.finish();
 	}
 
 	finish() {
@@ -123,5 +152,28 @@ export class WerewolfManager {
 
 	changeVolume(volume: number) {
 		this.audioManager.setVolume(volume);
+	}
+
+	private async playCharacter(character: NightActionCharacter) {
+		if (
+			this.characters.current.find(c => c.character === character)!.amount <= 0
+		)
+			return;
+
+		if (this.expert.current) {
+			await this.audioManager.play(
+				this.soundPath(sounds[character].expert.wake)
+			);
+		} else {
+			await this.audioManager.play(this.soundPath(sounds[character].wake));
+		}
+
+		await delay(this.roleTimer.current * 1000);
+
+		if (character === "minion") {
+			await this.audioManager.play(this.soundPath(sounds.minion.thumb));
+		}
+
+		await this.audioManager.play(this.soundPath(sounds[character].close));
 	}
 }
