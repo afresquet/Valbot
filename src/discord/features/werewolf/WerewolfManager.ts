@@ -244,15 +244,11 @@ export class WerewolfManager {
 			},
 			fields: [
 				{
-					name: "Master",
-					value:
-						this.players.current.find(p => p.master)?.member.displayName ||
-						"No master has joined yet",
-				},
-				{
 					name: "Players",
 					value: this.players.current.reduce((result, player, index) => {
-						const playerLine = `${numberEmojis[index]} ${player.member.displayName}`;
+						const playerLine = `${numberEmojis[index]} ${
+							player.member.displayName
+						} ${player.master ? "(Master)" : ""}`;
 
 						return index === 0 ? playerLine : `${result}\n${playerLine}`;
 					}, "No players have joined yet."),

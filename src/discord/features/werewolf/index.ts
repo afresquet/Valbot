@@ -69,6 +69,17 @@ export const werewolf: DiscordFeature = discord => {
 
 					break;
 				}
+				case "!kick": {
+					if (!gameManager.isMaster(message.author.id)) return;
+
+					const member = message.mentions.users.first();
+
+					if (!member) break;
+
+					gameManager.leave(member.id);
+
+					break;
+				}
 				case "!add":
 				case "!remove": {
 					const character = value.toLowerCase();
