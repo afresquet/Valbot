@@ -10,6 +10,7 @@ import {
 	Characters,
 	GameState,
 	NightActionCharacter,
+	NightActionCharacters,
 	numberEmojis,
 	Player,
 } from "./types";
@@ -211,21 +212,9 @@ export class WerewolfManager {
 			this.muteAll(true),
 		]);
 
-		await this.playCharacter("werewolf");
-
-		await this.playCharacter("minion");
-
-		await this.playCharacter("mason");
-
-		await this.playCharacter("seer");
-
-		await this.playCharacter("robber");
-
-		await this.playCharacter("troublemaker");
-
-		await this.playCharacter("drunk");
-
-		await this.playCharacter("insomniac");
+		for (const character of NightActionCharacters) {
+			await this.playCharacter(character);
+		}
 
 		await delay(2000);
 	}

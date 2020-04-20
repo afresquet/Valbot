@@ -8,7 +8,7 @@ export type GameState =
 	| "DAY"
 	| "VOTING";
 
-const NightActionCharacters = [
+export const NightActionCharacters = [
 	"doppelganger",
 	"werewolf",
 	"minion",
