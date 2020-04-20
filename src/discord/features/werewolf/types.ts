@@ -1,5 +1,12 @@
 import Discord from "discord.js";
 
+export type GameState =
+	| "NOT_PLAYING"
+	| "PREPARATION"
+	| "NIGHT"
+	| "DAY"
+	| "VOTING";
+
 const NightActionCharacters = [
 	"doppelganger",
 	"werewolf",

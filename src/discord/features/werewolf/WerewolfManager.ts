@@ -6,6 +6,7 @@ import sounds from "./sounds.json";
 import {
 	Character,
 	Characters,
+	GameState,
 	NightActionCharacter,
 	numberEmojis,
 	Player,
@@ -18,8 +19,8 @@ export class WerewolfManager {
 
 	private players = new State<Player[]>([]);
 
-	private currentGame: Discord.Message | null = null;
-	private playing = new State(false);
+	private gameState = new State<GameState>("NOT_PLAYING");
+	private gameMessage: Discord.Message | null = null;
 
 	private expert = new State(false);
 
@@ -39,7 +40,10 @@ export class WerewolfManager {
 	}
 
 	isPlaying() {
-		return this.playing.current;
+		return (
+			this.gameState.current !== "NOT_PLAYING" &&
+			this.gameState.current !== "PREPARATION"
+		);
 	}
 
 	isMaster(id: string) {
@@ -93,9 +97,11 @@ export class WerewolfManager {
 	async newGame() {
 		if (!this.textChannel) return;
 
-		if (this.currentGame) return;
+		if (this.gameState.current !== "NOT_PLAYING") return;
 
-		this.currentGame = await this.textChannel.send(this.preGameEmbed());
+		this.gameMessage = await this.textChannel.send(this.preGameEmbed());
+
+		this.gameState.set(() => "PREPARATION");
 	}
 
 	manageCharacter(character: Character, add: boolean) {
@@ -115,7 +121,7 @@ export class WerewolfManager {
 	}
 
 	async start() {
-		this.playing.set(() => true);
+		this.gameState.set(() => "NIGHT");
 
 		await this.muteAll(true);
 
@@ -141,13 +147,19 @@ export class WerewolfManager {
 
 		await this.audioManager.play(this.soundPath(sounds.everyone.wake));
 
+		this.muteAll(false);
+
+		this.gameState.set(() => "DAY");
+
 		this.finish();
 	}
 
 	finish() {
-		this.muteAll(false);
+		this.gameState.set(() => "VOTING");
 
-		this.playing.set(() => false);
+		this.gameState.set(() => "NOT_PLAYING");
+
+		this.gameMessage = null;
 	}
 
 	async rules(character: Character) {
@@ -225,10 +237,10 @@ export class WerewolfManager {
 	}
 
 	private refreshEmbed() {
-		if (!this.currentGame) return;
+		if (!this.gameMessage || this.gameState.current === "NOT_PLAYING") return;
 
-		if (!this.playing.current) {
-			this.currentGame.edit(this.preGameEmbed());
+		if (this.gameState.current === "PREPARATION") {
+			this.gameMessage.edit(this.preGameEmbed());
 		}
 	}
 
