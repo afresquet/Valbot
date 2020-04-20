@@ -3,6 +3,7 @@ import Discord from "discord.js";
 export type GameState =
 	| "NOT_PLAYING"
 	| "PREPARATION"
+	| "ROLE_ASSIGNING"
 	| "NIGHT"
 	| "DAY"
 	| "VOTING";

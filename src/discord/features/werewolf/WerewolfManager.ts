@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { join } from "path";
+import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
@@ -20,6 +21,7 @@ export class WerewolfManager {
 	private playerRole: Discord.Role | null = null;
 
 	private players = new State<Player[]>([]);
+	private centerCards = new State<Character[]>([]);
 
 	private gameState = new State<GameState>("NOT_PLAYING");
 	private gameMessage: Discord.Message | null = null;
@@ -146,26 +148,66 @@ export class WerewolfManager {
 
 	manageCharacter(character: Character, add: boolean) {
 		this.characters.set(curr =>
-			curr.map(c => {
-				let amount = c.amount + 1;
-
-				if (!add) {
-					amount = c.amount - 1 < 0 ? 0 : c.amount - 1;
-				}
-
-				return c.character === character ? { ...c, amount } : c;
-			})
+			curr.map(c =>
+				c.character === character
+					? { ...c, amount: clamp(c.amount + (add ? 1 : -1), 0, 3) }
+					: c
+			)
 		);
 
 		this.refreshEmbed();
 	}
 
 	async start() {
+		if (this.gameState.current !== "PREPARATION") return;
+
+		const charactersAmount = this.characters.current.reduce(
+			(result, current) => result + current.amount,
+			0
+		);
+		const playersAmount = this.players.current.length + 3;
+
+		if (charactersAmount !== playersAmount) return;
+
+		this.assignRoles();
+
+		await this.night();
+
+		await this.day();
+
+		await this.voting();
+
+		this.finish();
+	}
+
+	assignRoles() {
+		this.gameState.set(() => "ROLE_ASSIGNING");
+
+		const roles = this.characters.current.reduce<Character[]>(
+			(result, current) => [
+				...result,
+				...new Array(current.amount).fill(current.character),
+			],
+			[]
+		);
+
+		this.players.set(curr =>
+			curr.map(player => ({
+				...player,
+				role: roles.splice(Math.floor(Math.random() * roles.length), 1)[0],
+			}))
+		);
+
+		this.centerCards.set(() => roles);
+	}
+
+	async night() {
 		this.gameState.set(() => "NIGHT");
 
-		await this.muteAll(true);
-
-		await this.audioManager.play(this.soundPath(sounds.everyone.close));
+		await Promise.all([
+			this.audioManager.play(this.soundPath(sounds.everyone.close)),
+			this.muteAll(true),
+		]);
 
 		await this.playCharacter("werewolf");
 
@@ -184,19 +226,28 @@ export class WerewolfManager {
 		await this.playCharacter("insomniac");
 
 		await delay(2000);
+	}
 
-		await this.audioManager.play(this.soundPath(sounds.everyone.wake));
-
-		this.muteAll(false);
-
+	async day() {
 		this.gameState.set(() => "DAY");
 
-		this.finish();
+		await Promise.all([
+			this.audioManager.play(this.soundPath(sounds.everyone.wake)),
+			this.muteAll(false),
+		]);
+
+		await delay(this.gameTimer.current * 1000);
+	}
+
+	async voting() {
+		this.gameState.set(() => "VOTING");
+
+		await this.audioManager.play(this.soundPath(sounds.everyone.timeisup));
+
+		await delay(this.roleTimer.current * 1000);
 	}
 
 	finish() {
-		this.gameState.set(() => "VOTING");
-
 		this.gameState.set(() => "NOT_PLAYING");
 
 		this.gameMessage = null;
