@@ -11,12 +11,27 @@ export class WerewolfManager {
 
 	private players = new State<Player[]>([]);
 
+	private active = new State(false);
+
+	private expert = new State(false);
+
+	private gameTimer = new State(300);
+	private roleTimer = new State(10);
+
 	private soundPath(sound: string) {
 		return join(__dirname, `../../../../assets/werewolf/sounds/${sound}.mp3`);
 	}
 
 	isReady() {
 		return this.textChannel !== null && this.audioManager.isReady();
+	}
+
+	isActive() {
+		return this.active.current;
+	}
+
+	isMaster(id: string) {
+		return !!this.players.current.find(p => p.member.id === id)?.master;
 	}
 
 	setup(textChannel: Discord.TextChannel, voiceChannel: Discord.VoiceChannel) {
@@ -59,6 +74,14 @@ export class WerewolfManager {
 		}
 	}
 
+	start() {
+		this.active.set(() => true);
+	}
+
+	finish() {
+		this.active.set(() => false);
+	}
+
 	async rules(character: Character) {
 		await this.audioManager.play(this.soundPath(sounds[character].name));
 		await this.audioManager.play(this.soundPath(sounds[character].rules));
@@ -68,16 +91,11 @@ export class WerewolfManager {
 		await this.audioManager.muteAll(on);
 	}
 
-	setMaster(requesterId: string, newMasterId: string) {
-		if (
-			!this.players.current.find(p => p.member.id === requesterId && p.master)
-		)
-			return;
-
-		if (!this.players.current.find(p => p.member.id === newMasterId)) return;
+	setMaster(memberId: string) {
+		if (!this.players.current.find(p => p.member.id === memberId)) return;
 
 		this.players.set(curr =>
-			curr.map(p => ({ ...p, master: p.member.id === newMasterId }))
+			curr.map(p => ({ ...p, master: p.member.id === memberId }))
 		);
 	}
 
@@ -89,5 +107,17 @@ export class WerewolfManager {
 				index === randomIndex ? { ...player, master: true } : player
 			)
 		);
+	}
+
+	toggleExpert() {
+		this.expert.set(curr => !curr);
+	}
+
+	changeTimer(timer: "game" | "role", seconds: number) {
+		if (timer === "game") {
+			this.gameTimer.set(() => (seconds > 0 ? seconds : 0));
+		} else if (timer === "role") {
+			this.roleTimer.set(() => (seconds > 0 ? seconds : 0));
+		}
 	}
 }

@@ -35,37 +35,83 @@ export const werewolf: DiscordFeature = discord => {
 
 		await message.delete();
 
-		switch (command) {
-			case "!join": {
-				await gameManager.join(message.member!);
+		if (gameManager.isActive()) {
+			switch (command) {
+				case "!cancel": {
+					gameManager.finish();
 
-				break;
+					break;
+				}
+				default:
+					break;
 			}
-			case "!rules": {
-				const role = value.toLowerCase();
+		} else if (gameManager.isMaster(message.author.id)) {
+			switch (command) {
+				case "!start": {
+					if (!gameManager.isMaster(message.author.id)) return;
 
-				if (!Characters.includes(role as any)) break;
+					gameManager.start();
 
-				await gameManager.rules(role as Character);
+					break;
+				}
+				case "!join": {
+					await gameManager.join(message.member!);
 
-				break;
+					break;
+				}
+				case "!leave": {
+					gameManager.leave(message.author.id);
+
+					break;
+				}
+				case "!rules": {
+					const role = value.toLowerCase();
+
+					if (!Characters.includes(role as any)) break;
+
+					await gameManager.rules(role as Character);
+
+					break;
+				}
+				case "!master": {
+					if (!gameManager.isMaster(message.author.id)) return;
+
+					const member = message.mentions.users.first();
+
+					if (!member) break;
+
+					gameManager.setMaster(member.id);
+
+					break;
+				}
+				case "!expert": {
+					if (!gameManager.isMaster(message.author.id)) return;
+
+					gameManager.toggleExpert();
+
+					break;
+				}
+				case "!timer": {
+					if (!gameManager.isMaster(message.author.id)) return;
+
+					const [timer, seconds] = messageSplitter(value, 2);
+
+					if (
+						!["game", "role"].includes(timer) ||
+						Number.isNaN(parseInt(seconds, 10))
+					)
+						return;
+
+					gameManager.changeTimer(
+						timer as "game" | "role",
+						parseInt(seconds, 10)
+					);
+
+					break;
+				}
+				default:
+					break;
 			}
-			case "!master": {
-				const member = message.mentions.users.first();
-
-				if (!member) break;
-
-				gameManager.setMaster(message.author.id, member.id);
-
-				break;
-			}
-			case "!leave": {
-				gameManager.leave(message.author.id);
-
-				break;
-			}
-			default:
-				break;
 		}
 	});
 };
