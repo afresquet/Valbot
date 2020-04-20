@@ -8,6 +8,7 @@ import sounds from "./sounds.json";
 import {
 	Character,
 	Characters,
+	CharactersMetaData,
 	GameState,
 	NightActionCharacter,
 	NightActionCharacters,
@@ -170,7 +171,7 @@ export class WerewolfManager {
 
 		if (charactersAmount !== playersAmount) return;
 
-		this.assignRoles();
+		await this.assignRoles();
 
 		await this.night();
 
@@ -181,7 +182,7 @@ export class WerewolfManager {
 		this.finish();
 	}
 
-	assignRoles() {
+	async assignRoles() {
 		this.gameState.set(() => "ROLE_ASSIGNING");
 
 		const roles = this.characters.current.reduce<Character[]>(
@@ -200,6 +201,18 @@ export class WerewolfManager {
 		);
 
 		this.centerCards.set(() => roles);
+
+		this.refreshEmbed();
+
+		const messages = await Promise.all(
+			this.players.current.map(player =>
+				player.member.send(this.roleEmbed(player))
+			)
+		);
+
+		await delay(this.roleTimer.current * 3 * 1000);
+
+		await Promise.all(messages.map(message => message.delete()));
 	}
 
 	async night() {
@@ -222,10 +235,9 @@ export class WerewolfManager {
 	async day() {
 		this.gameState.set(() => "DAY");
 
-		await Promise.all([
-			this.audioManager.play(this.soundPath(sounds.everyone.wake)),
-			this.muteAll(false),
-		]);
+		await this.audioManager.play(this.soundPath(sounds.everyone.wake));
+
+		await this.muteAll(false);
 
 		await delay(this.gameTimer.current * 1000);
 	}
@@ -325,6 +337,9 @@ export class WerewolfManager {
 			case "PREPARATION":
 				this.gameMessage.edit(this.preparationEmbed());
 				break;
+			case "ROLE_ASSIGNING":
+				this.gameMessage.edit(this.roleAssigningEmbed());
+				break;
 			case "NIGHT":
 				this.gameMessage.edit(this.nightEmbed());
 				break;
@@ -395,9 +410,34 @@ export class WerewolfManager {
 		});
 	}
 
+	roleAssigningEmbed() {
+		return this.baseEmbed({
+			title: "Check your DMs to view your role!",
+			description: "Game will begin shortly, be prepared!",
+		});
+	}
+
+	roleEmbed(player: Player) {
+		const character = CharactersMetaData[player.role!];
+
+		return this.baseEmbed({
+			title: `Your role is ${player.role}!`,
+			description: character.description,
+			footer: {
+				text:
+					"This message will self destruct soon, go to sleep to stay safe from it!",
+			},
+			image: {
+				url: character.image,
+			},
+		});
+	}
+
 	nightEmbed() {
 		return this.baseEmbed({
-			title: "schleeeeeeeepy time",
+			title:
+				"It's night time! Fall asleep, and wake up when your role is called.",
+			description: "schleeeeeeeeeeeeeepy time",
 			image: {
 				url:
 					"https://www.petmd.com/sites/default/files/shutterstock_395310793.jpg",
