@@ -79,8 +79,24 @@ export class WerewolfManager {
 		}
 	}
 
+	manageCharacter(character: Character, add: boolean) {
+		this.characters.set(curr =>
+			curr.map(c => {
+				let amount = c.amount + 1;
+
+				if (!add) {
+					amount = c.amount - 1 < 0 ? 0 : c.amount - 1;
+				}
+
+				return c.character === character ? { ...c, amount } : c;
+			})
+		);
+	}
+
 	async start() {
 		this.active.set(() => true);
+
+		await this.muteAll(true);
 
 		await this.audioManager.play(this.soundPath(sounds.everyone.close));
 
@@ -108,6 +124,8 @@ export class WerewolfManager {
 	}
 
 	finish() {
+		this.muteAll(false);
+
 		this.active.set(() => false);
 	}
 

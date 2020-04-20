@@ -64,6 +64,16 @@ export const werewolf: DiscordFeature = discord => {
 
 					break;
 				}
+				case "!add":
+				case "!remove": {
+					if (!gameManager.isMaster(message.author.id)) return;
+
+					if (!Characters.includes(value as any)) return;
+
+					gameManager.manageCharacter(value as Character, command === "!add");
+
+					break;
+				}
 				case "!rules": {
 					const role = value.toLowerCase();
 
