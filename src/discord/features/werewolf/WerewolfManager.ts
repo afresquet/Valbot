@@ -141,7 +141,7 @@ export class WerewolfManager {
 
 		if (this.gameState.current !== "NOT_PLAYING") return;
 
-		this.gameMessage = await this.textChannel.send(this.preGameEmbed());
+		this.gameMessage = await this.textChannel.send(this.preparationEmbed());
 
 		this.gameState.set(() => "PREPARATION");
 	}
@@ -203,6 +203,8 @@ export class WerewolfManager {
 
 	async night() {
 		this.gameState.set(() => "NIGHT");
+
+		this.refreshEmbed();
 
 		await Promise.all([
 			this.audioManager.play(this.soundPath(sounds.everyone.close)),
@@ -328,14 +330,22 @@ export class WerewolfManager {
 	}
 
 	private refreshEmbed() {
-		if (!this.gameMessage || this.gameState.current === "NOT_PLAYING") return;
+		if (!this.gameMessage) return;
 
-		if (this.gameState.current === "PREPARATION") {
-			this.gameMessage.edit(this.preGameEmbed());
+		switch (this.gameState.current) {
+			case "PREPARATION":
+				this.gameMessage.edit(this.preparationEmbed());
+				break;
+			case "NIGHT":
+				this.gameMessage.edit(this.nightEmbed());
+				break;
+			case "NOT_PLAYING":
+			default:
+				break;
 		}
 	}
 
-	preGameEmbed() {
+	baseEmbed(options: Discord.MessageEmbedOptions) {
 		return new Discord.MessageEmbed({
 			author: {
 				name: "One Night Ultimate Werewolf",
@@ -345,6 +355,12 @@ export class WerewolfManager {
 			footer: {
 				text: `Volume: ${100 * <number>this.audioManager.getOption("volume")}%`,
 			},
+			...options,
+		});
+	}
+
+	preparationEmbed() {
+		return this.baseEmbed({
 			fields: [
 				{
 					name: "Players",
@@ -387,6 +403,16 @@ export class WerewolfManager {
 					inline: true,
 				},
 			],
+		});
+	}
+
+	nightEmbed() {
+		return this.baseEmbed({
+			title: "schleeeeeeeepy time",
+			image: {
+				url:
+					"https://www.petmd.com/sites/default/files/shutterstock_395310793.jpg",
+			},
 		});
 	}
 }
