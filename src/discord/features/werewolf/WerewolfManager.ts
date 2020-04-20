@@ -120,4 +120,8 @@ export class WerewolfManager {
 			this.roleTimer.set(() => (seconds > 0 ? seconds : 0));
 		}
 	}
+
+	changeVolume(volume: number) {
+		this.audioManager.setVolume(volume);
+	}
 }

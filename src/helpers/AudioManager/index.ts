@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { Readable } from "stream";
+import { clamp } from "../clamp";
 import { ErrorOnChat } from "../ErrorOnChat";
 import { State } from "../State";
 
@@ -103,7 +104,7 @@ export class AudioManager {
 		return this.streamOptions.current[option];
 	}
 
-	setOption<T extends keyof Discord.StreamOptions>(
+	protected setOption<T extends keyof Discord.StreamOptions>(
 		option: T,
 		value: Discord.StreamOptions[T]
 	) {
@@ -130,5 +131,11 @@ export class AudioManager {
 		}
 
 		this.streamOptions.set(curr => ({ ...curr, [option]: value }));
+	}
+
+	setVolume(volume: number) {
+		const newVolume = clamp(volume, 0, 200) / 100;
+
+		this.setOption("volume", newVolume);
 	}
 }

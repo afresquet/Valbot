@@ -45,7 +45,7 @@ export const werewolf: DiscordFeature = discord => {
 				default:
 					break;
 			}
-		} else if (gameManager.isMaster(message.author.id)) {
+		} else {
 			switch (command) {
 				case "!start": {
 					if (!gameManager.isMaster(message.author.id)) return;
@@ -112,6 +112,20 @@ export const werewolf: DiscordFeature = discord => {
 				default:
 					break;
 			}
+		}
+
+		switch (command) {
+			case "!volume": {
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				if (Number.isNaN(parseInt(value, 10))) return;
+
+				gameManager.changeVolume(parseInt(value, 10));
+
+				break;
+			}
+			default:
+				break;
 		}
 	});
 };
