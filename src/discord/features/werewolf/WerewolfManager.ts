@@ -1,6 +1,7 @@
 import Discord from "discord.js";
 import { join } from "path";
 import { delay } from "../../../helpers/delay";
+import { prefixChannel } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import sounds from "./sounds.json";
 import {
@@ -50,12 +51,32 @@ export class WerewolfManager {
 		return !!this.players.current.find(p => p.member.id === id)?.master;
 	}
 
-	setup(textChannel: Discord.TextChannel, voiceChannel: Discord.VoiceChannel) {
+	setup(guild: Discord.Guild) {
 		if (!this.textChannel) {
+			const textChannelName = prefixChannel("werewolf");
+
+			const textChannel = guild.channels.cache.find(
+				c => c.name === textChannelName
+			) as Discord.TextChannel;
+
+			if (!textChannel) {
+				throw new Error(`There's no #${textChannelName} voice channel!`);
+			}
+
 			this.textChannel = textChannel;
 		}
 
 		if (!this.audioManager.isReady()) {
+			const voiceChannelName = prefixChannel("vc-werewolf");
+
+			const voiceChannel = guild.channels.cache.find(
+				c => c.name === voiceChannelName
+			) as Discord.VoiceChannel;
+
+			if (!voiceChannel) {
+				throw new Error(`There's no #${voiceChannelName} voice channel!`);
+			}
+
 			this.audioManager.setVoiceChannel(voiceChannel);
 		}
 	}

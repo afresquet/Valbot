@@ -19,19 +19,7 @@ export const werewolf: DiscordFeature = discord => {
 
 		await message.delete();
 
-		if (!gameManager.isReady()) {
-			const voiceChannelName = prefixChannel("vc-werewolf");
-
-			const voiceChannel = message.guild?.channels.cache.find(
-				c => c.name === voiceChannelName
-			) as Discord.VoiceChannel;
-
-			if (!voiceChannel) {
-				throw new Error(`There's no #${voiceChannelName} voice channel!`);
-			}
-
-			gameManager.setup(message.channel as Discord.TextChannel, voiceChannel);
-		}
+		if (!gameManager.isReady()) gameManager.setup(message.guild!);
 
 		const [command, value] = messageSplitter(message.content, 1);
 
