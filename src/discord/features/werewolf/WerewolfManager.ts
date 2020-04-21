@@ -564,6 +564,9 @@ export class WerewolfManager {
 			case "NIGHT":
 				await this.gameMessage.edit(this.nightEmbed());
 				break;
+			case "DAY":
+				await this.gameMessage.edit(this.dayEmbed());
+				break;
 			case "VOTING":
 				await this.gameMessage.edit(this.votingEmbed());
 				break;
@@ -922,6 +925,13 @@ export class WerewolfManager {
 				? playerLine
 				: `${result}\n${playerLine}`;
 		}, "There are no players.");
+	}
+
+	dayEmbed() {
+		return this.baseEmbed({
+			title:
+				"I'm hoping to make a timer that counts down here idk how I'll do it.",
+		});
 	}
 
 	votingEmbed() {
