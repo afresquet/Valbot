@@ -4,11 +4,10 @@ import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
-import sounds from "./sounds.json";
+import { characters } from "./characters";
 import {
 	Character,
 	Characters,
-	CharactersMetaData,
 	GameState,
 	NightActionCharacter,
 	NightActionCharacters,
@@ -221,7 +220,7 @@ export class WerewolfManager {
 		this.refreshEmbed();
 
 		await Promise.all([
-			this.audioManager.play(this.soundPath(sounds.everyone.close)),
+			this.audioManager.play(this.soundPath(characters.everyone.sounds.close)),
 			this.muteAll(true),
 		]);
 
@@ -235,7 +234,9 @@ export class WerewolfManager {
 	async day() {
 		this.gameState.set(() => "DAY");
 
-		await this.audioManager.play(this.soundPath(sounds.everyone.wake));
+		await this.audioManager.play(
+			this.soundPath(characters.everyone.sounds.wake)
+		);
 
 		await this.muteAll(false);
 
@@ -245,7 +246,9 @@ export class WerewolfManager {
 	async voting() {
 		this.gameState.set(() => "VOTING");
 
-		await this.audioManager.play(this.soundPath(sounds.everyone.timeisup));
+		await this.audioManager.play(
+			this.soundPath(characters.everyone.sounds.timeisup)
+		);
 
 		await delay(this.roleTimer.current * 1000);
 	}
@@ -257,8 +260,12 @@ export class WerewolfManager {
 	}
 
 	async rules(character: Character) {
-		await this.audioManager.play(this.soundPath(sounds[character].name));
-		await this.audioManager.play(this.soundPath(sounds[character].rules));
+		await this.audioManager.play(
+			this.soundPath(characters[character].sounds.name)
+		);
+		await this.audioManager.play(
+			this.soundPath(characters[character].sounds.rules)
+		);
 	}
 
 	private async muteAll(on: boolean) {
@@ -315,19 +322,25 @@ export class WerewolfManager {
 
 		if (this.expert.current) {
 			await this.audioManager.play(
-				this.soundPath(sounds[character].expert.wake)
+				this.soundPath(characters[character].sounds.expert.wake)
 			);
 		} else {
-			await this.audioManager.play(this.soundPath(sounds[character].wake));
+			await this.audioManager.play(
+				this.soundPath(characters[character].sounds.wake)
+			);
 		}
 
 		await delay(this.roleTimer.current * 1000);
 
 		if (character === "minion") {
-			await this.audioManager.play(this.soundPath(sounds.minion.thumb));
+			await this.audioManager.play(
+				this.soundPath(characters.minion.sounds.thumb)
+			);
 		}
 
-		await this.audioManager.play(this.soundPath(sounds[character].close));
+		await this.audioManager.play(
+			this.soundPath(characters[character].sounds.close)
+		);
 	}
 
 	private refreshEmbed() {
@@ -418,7 +431,7 @@ export class WerewolfManager {
 	}
 
 	roleEmbed(player: Player) {
-		const character = CharactersMetaData[player.role!];
+		const character = characters[player.role!];
 
 		return this.baseEmbed({
 			title: `Your role is ${player.role}!`,
