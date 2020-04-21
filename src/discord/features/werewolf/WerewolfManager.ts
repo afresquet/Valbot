@@ -389,6 +389,13 @@ export class WerewolfManager {
 			}, ""),
 		});
 
+		const centerCards = this.centerCards.current;
+
+		fields.push({
+			name: "Center roles",
+			value: `${centerEmojis[0]} ${centerCards[0]}\n${centerEmojis[1]} ${centerCards[1]}\n${centerEmojis[2]} ${centerCards[2]}`,
+		});
+
 		await this.gameMessage.edit(
 			this.baseEmbed({
 				footer: {},
