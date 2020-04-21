@@ -10,6 +10,7 @@ import {
 	centerEmojis,
 	Character,
 	Characters,
+	DrunkAction,
 	GameState,
 	NightActionCharacter,
 	NightActionCharacters,
@@ -411,11 +412,11 @@ export class WerewolfManager {
 
 				await this.nightActionDM!.react(numberEmojis[i]);
 			}
+		}
 
-			if (character === "seer") {
-				for (let i = 0; i < centerEmojis.length; i++) {
-					await this.nightActionDM!.react(centerEmojis[i]);
-				}
+		if (["seer", "drunk"].includes(character)) {
+			for (let i = 0; i < centerEmojis.length; i++) {
+				await this.nightActionDM!.react(centerEmojis[i]);
 			}
 		}
 
@@ -460,13 +461,15 @@ export class WerewolfManager {
 			thumbnail: { url: characters[character].image },
 		};
 
+		const order = (index: number) =>
+			index === 0 ? "Left" : index === 1 ? "Middle" : "Right";
+
 		switch (player.initialRole) {
 			case "seer": {
-				const order = (index: number) =>
-					index === 0 ? "Left" : index === 1 ? "Middle" : "Right";
+				const action = player.action as SeerAction;
 
-				if (player.action!.player !== null) {
-					const target = this.players.current[player.action!.player];
+				if (action.player !== null) {
+					const target = this.players.current[action.player];
 
 					this.nightActionDM.edit(
 						this.baseEmbed({
@@ -478,34 +481,34 @@ export class WerewolfManager {
 							},
 						})
 					);
-				} else if (player.action!.center.every(x => x !== null)) {
+				} else if (action.center.every(x => x !== null)) {
 					this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title: "Seer, these are the center roles you chose to view:",
 							fields: [
 								{
-									name: order(player.action!.center[0]!),
+									name: order(action.center[0]!),
 									value: capitalize(
-										this.centerCards.current[player.action!.center[0]!]
+										this.centerCards.current[action.center[0]!]
 									),
 								},
 								{
-									name: order(player.action!.center[1]!),
+									name: order(action.center[1]!),
 									value: capitalize(
-										this.centerCards.current[player.action!.center[1]!]
+										this.centerCards.current[action.center[1]!]
 									),
 								},
 							],
 						})
 					);
-				} else if (player.action!.center.some(x => x === null)) {
+				} else if (action.center.some(x => x === null)) {
 					this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title: "Seer, choose another center role to view.",
 							description: `You already chose to view the role on the ${order(
-								player.action!.center[0]!
+								action.center[0]!
 							)}.`,
 						})
 					);
@@ -513,7 +516,20 @@ export class WerewolfManager {
 
 				break;
 			}
+			case "drunk": {
+				const action = player.action as DrunkAction;
 
+				this.nightActionDM.edit(
+					this.baseEmbed({
+						...common,
+						title: `Drunk, you chose to become the role in the ${order(
+							action.center
+						)}.`,
+					})
+				);
+
+				break;
+			}
 			default:
 				break;
 		}
@@ -668,6 +684,12 @@ export class WerewolfManager {
 						},
 					],
 				});
+			case "drunk":
+				return this.baseEmbed({
+					...common,
+					title: "Drunk, choose a card from the center to become that role:",
+					description: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+				});
 			case "insomniac":
 				return this.baseEmbed({
 					...common,
@@ -782,9 +804,9 @@ export class WerewolfManager {
 				case "seer": {
 					if (playerIndex === -1 && centerIndex === -1) break;
 
-					let action: SeerAction =
+					const action: SeerAction =
 						player.action !== null
-							? { ...player.action }
+							? { ...(player.action as SeerAction) }
 							: { player: null, center: [null, null] };
 
 					if (playerIndex !== -1) {
@@ -799,6 +821,8 @@ export class WerewolfManager {
 
 						if (nullIndex === -1) break;
 
+						if (nullIndex !== 0 && action.center[0] === centerIndex) break;
+
 						action.center[nullIndex] = centerIndex;
 					}
 
@@ -806,6 +830,29 @@ export class WerewolfManager {
 						curr.map<Player>(p =>
 							p.member.id === player.member.id ? { ...p, action } : p
 						)
+					);
+
+					break;
+				}
+				case "drunk": {
+					if (centerIndex === -1) break;
+
+					if (player.action !== null) break;
+
+					this.players.set(curr =>
+						curr.map<Player>(p =>
+							p.member.id === player.member.id
+								? {
+										...p,
+										role: this.centerCards.current[centerIndex],
+										action: { center: centerIndex } as DrunkAction,
+								  }
+								: p
+						)
+					);
+
+					this.centerCards.set(curr =>
+						curr.map((c, i) => (i === centerIndex ? "drunk" : c))
 					);
 
 					break;
