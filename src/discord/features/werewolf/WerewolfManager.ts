@@ -6,7 +6,17 @@ import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { characters } from "./characters";
-import { Character, Characters, GameState, NightActionCharacter, NightActionCharacters, numberEmojis, Player } from "./types";
+import {
+	centerEmojis,
+	Character,
+	Characters,
+	GameState,
+	NightActionCharacter,
+	NightActionCharacters,
+	numberEmojis,
+	Player,
+	SeerAction,
+} from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
@@ -95,10 +105,11 @@ export class WerewolfManager {
 		if (this.players.current.find(p => p.member.id === member.id)) return;
 
 		const player: Player = {
+			master: false,
 			member,
 			initialRole: null,
 			role: null,
-			master: false,
+			action: null,
 			killing: null,
 		};
 
@@ -207,7 +218,7 @@ export class WerewolfManager {
 			)
 		);
 
-		await delay(this.roleTimer.current * 3 * 1000);
+		await delay(this.roleTimer.current * 1000);
 
 		await Promise.all(messages.map(message => message.delete()));
 	}
@@ -384,9 +395,29 @@ export class WerewolfManager {
 			player => player.initialRole === character
 		)!;
 
+		if (!player) {
+			await delay(this.roleTimer.current * 1000);
+
+			return;
+		}
+
 		this.nightActionDM = await player.member.send(
 			this.nightActionDMEmbed(player)
 		);
+
+		if (["seer"].includes(character)) {
+			for (let i = 0; i < this.players.current.length; i++) {
+				if (this.players.current[i].member.id === player.member.id) continue;
+
+				await this.nightActionDM!.react(numberEmojis[i]);
+			}
+
+			if (character === "seer") {
+				for (let i = 0; i < centerEmojis.length; i++) {
+					await this.nightActionDM!.react(centerEmojis[i]);
+				}
+			}
+		}
 
 		await delay(this.roleTimer.current * 1000);
 
@@ -412,6 +443,77 @@ export class WerewolfManager {
 				this.gameMessage.edit(this.votingEmbed());
 				break;
 			case "NOT_PLAYING":
+			default:
+				break;
+		}
+	}
+
+	private refreshDM(character: Character) {
+		if (!this.nightActionDM || this.gameState.current !== "NIGHT") return;
+
+		const player = this.players.current.find(p => p.initialRole === character);
+
+		if (!player) return;
+
+		const common = {
+			footer: { text: "This message will expire soon, act fast!" },
+			thumbnail: { url: characters[character].image },
+		};
+
+		switch (player.initialRole) {
+			case "seer": {
+				const order = (index: number) =>
+					index === 0 ? "Left" : index === 1 ? "Middle" : "Right";
+
+				if (player.action!.player !== null) {
+					const target = this.players.current[player.action!.player];
+
+					this.nightActionDM.edit(
+						this.baseEmbed({
+							...common,
+							title: `Seer, this is ${target.member.displayName}'s role:`,
+							description: capitalize(target.role!),
+							image: {
+								url: characters[target.role!].image,
+							},
+						})
+					);
+				} else if (player.action!.center.every(x => x !== null)) {
+					this.nightActionDM.edit(
+						this.baseEmbed({
+							...common,
+							title: "Seer, these are the center roles you chose to view:",
+							fields: [
+								{
+									name: order(player.action!.center[0]!),
+									value: capitalize(
+										this.centerCards.current[player.action!.center[0]!]
+									),
+								},
+								{
+									name: order(player.action!.center[1]!),
+									value: capitalize(
+										this.centerCards.current[player.action!.center[1]!]
+									),
+								},
+							],
+						})
+					);
+				} else if (player.action!.center.some(x => x === null)) {
+					this.nightActionDM.edit(
+						this.baseEmbed({
+							...common,
+							title: "Seer, choose another center role to view.",
+							description: `You already chose to view the role on the ${order(
+								player.action!.center[0]!
+							)}.`,
+						})
+					);
+				}
+
+				break;
+			}
+
 			default:
 				break;
 		}
@@ -542,6 +644,30 @@ export class WerewolfManager {
 						player.member.id
 					),
 				});
+			case "seer":
+				return this.baseEmbed({
+					...common,
+					title:
+						"Seer, choose a player to view their role, or view two roles from the center:",
+					fields: [
+						{
+							name: "Players",
+							value: this.players.current.reduce((result, current, index) => {
+								if (current.member.id === player.member.id) return result;
+
+								const playerLine = `${numberEmojis[index]} ${current.member.displayName}`;
+
+								return result === "There are no players."
+									? playerLine
+									: `${result}\n${playerLine}`;
+							}, "There are no players."),
+						},
+						{
+							name: "Center",
+							value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+						},
+					],
+				});
 			case "insomniac":
 				return this.baseEmbed({
 					...common,
@@ -632,22 +758,63 @@ export class WerewolfManager {
 	}
 
 	handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
+		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
+		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
+
+		const player = this.players.current.find(
+			(p, i) => p.member.id === user.id && i !== playerIndex
+		);
+
+		if (!player) return;
+
 		if (this.gameState.current === "VOTING") {
-			const index = numberEmojis.indexOf(reaction.emoji.name);
-
-			if (index === -1) return;
-
-			const player = this.players.current.find(
-				(p, i) => p.member.id === user.id && i !== index
-			);
-
-			if (!player || player.killing !== null) return;
+			if (playerIndex === -1 || player.killing !== null) return;
 
 			this.players.set(curr =>
-				curr.map(p => (p.member.id === user.id ? { ...p, killing: index } : p))
+				curr.map(p =>
+					p.member.id === user.id ? { ...p, killing: playerIndex } : p
+				)
 			);
 
 			this.refreshEmbed();
+		} else if (this.gameState.current === "NIGHT") {
+			switch (player.initialRole) {
+				case "seer": {
+					if (playerIndex === -1 && centerIndex === -1) break;
+
+					let action: SeerAction =
+						player.action !== null
+							? { ...player.action }
+							: { player: null, center: [null, null] };
+
+					if (playerIndex !== -1) {
+						if (action.player !== null || action.center.some(x => x !== null))
+							break;
+
+						action.player = playerIndex;
+					} else if (centerIndex !== -1) {
+						if (action.player !== null) break;
+
+						const nullIndex = action.center.indexOf(null);
+
+						if (nullIndex === -1) break;
+
+						action.center[nullIndex] = centerIndex;
+					}
+
+					this.players.set(curr =>
+						curr.map<Player>(p =>
+							p.member.id === player.member.id ? { ...p, action } : p
+						)
+					);
+
+					break;
+				}
+				default:
+					break;
+			}
+
+			this.refreshDM(player.initialRole!);
 		}
 	}
 }

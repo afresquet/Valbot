@@ -31,12 +31,18 @@ export type Character = typeof Characters[number];
 export type NightActionCharacter = typeof NightActionCharacters[number];
 
 export interface Player {
+	master: boolean;
 	member: Discord.GuildMember;
 	initialRole: Character | null;
 	role: Character | null;
-	master: boolean;
+	action: SeerAction | null;
 	killing: number | null;
 }
+
+export type SeerAction = {
+	player: number | null;
+	center: [number | null, number | null];
+};
 
 export const numberEmojis = [
 	"1️⃣",
@@ -50,3 +56,5 @@ export const numberEmojis = [
 	"9️⃣",
 	"🔟",
 ];
+
+export const centerEmojis = ["🇱", "🇲", "🇷"];
