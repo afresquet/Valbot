@@ -18,6 +18,7 @@ import {
 	Player,
 	RobberAction,
 	SeerAction,
+	TroublemakerAction,
 } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
@@ -407,7 +408,7 @@ export class WerewolfManager {
 			this.nightActionDMEmbed(player)
 		);
 
-		if (["seer", "robber"].includes(character)) {
+		if (["seer", "robber", "troublemaker"].includes(character)) {
 			for (let i = 0; i < this.players.current.length; i++) {
 				if (this.players.current[i].member.id === player.member.id) continue;
 
@@ -532,6 +533,46 @@ export class WerewolfManager {
 						},
 					})
 				);
+
+				break;
+			}
+			case "troublemaker": {
+				const action = player.action as TroublemakerAction;
+
+				if (action.second === null) {
+					this.nightActionDM.edit(
+						this.baseEmbed({
+							...common,
+							title:
+								"Troublemaker, choose two other players to swap their roles:",
+							fields: [
+								{
+									name: "Picked",
+									value: `${numberEmojis[action.first!]} ${
+										this.players.current[action.first!].member.displayName
+									}`,
+								},
+								{
+									name: "Players",
+									value: this.listOfEveryoneElse(player.member.id),
+								},
+							],
+						})
+					);
+				} else {
+					this.nightActionDM.edit(
+						this.baseEmbed({
+							...common,
+							title:
+								"Troublemaker, you swapped the roles of these two players:",
+							description: `${numberEmojis[action.first!]} ${
+								this.players.current[action.first!].member.displayName
+							}\n${numberEmojis[action.second]} ${
+								this.players.current[action.second].member.displayName
+							}`,
+						})
+					);
+				}
 
 				break;
 			}
@@ -700,6 +741,21 @@ export class WerewolfManager {
 					...common,
 					title: "Robber, choose another player to steal their role:",
 					description: this.listOfEveryoneElse(player.member.id),
+				});
+			case "troublemaker":
+				return this.baseEmbed({
+					...common,
+					title: "Troublemaker, choose two other players to swap their roles:",
+					fields: [
+						{
+							name: "Picked",
+							value: "No players have been picked yet.",
+						},
+						{
+							name: "Players",
+							value: this.listOfEveryoneElse(player.member.id),
+						},
+					],
 				});
 			case "drunk":
 				return this.baseEmbed({
@@ -888,6 +944,47 @@ export class WerewolfManager {
 							}
 						})
 					);
+
+					break;
+				}
+				case "troublemaker": {
+					if (playerIndex === -1) break;
+
+					const action: TroublemakerAction =
+						player.action !== null
+							? { ...(player.action as TroublemakerAction) }
+							: { first: null, second: null };
+
+					if (action.first === null) {
+						action.first = playerIndex;
+
+						this.players.set(curr =>
+							curr.map<Player>(p =>
+								p.member.id === player.member.id ? { ...p, action } : p
+							)
+						);
+					} else if (action.second === null) {
+						if (action.first === playerIndex) break;
+
+						action.second = playerIndex;
+
+						const first = this.players.current[action.first];
+						const second = this.players.current[action.second];
+
+						this.players.set(curr =>
+							curr.map<Player>(p => {
+								if (p.member.id === player.member.id) {
+									return { ...p, action };
+								} else if (p.member.id === first.member.id) {
+									return { ...p, role: second.role };
+								} else if (p.member.id === second.member.id) {
+									return { ...p, role: first.role };
+								} else {
+									return p;
+								}
+							})
+						);
+					}
 
 					break;
 				}

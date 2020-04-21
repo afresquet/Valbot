@@ -35,7 +35,7 @@ export interface Player {
 	member: Discord.GuildMember;
 	initialRole: Character | null;
 	role: Character | null;
-	action: SeerAction | RobberAction | DrunkAction | null;
+	action: SeerAction | RobberAction | TroublemakerAction | DrunkAction | null;
 	killing: number | null;
 }
 
@@ -46,6 +46,11 @@ export type SeerAction = {
 
 export type RobberAction = {
 	player: number | null;
+};
+
+export type TroublemakerAction = {
+	first: number | null;
+	second: number | null;
 };
 
 export type DrunkAction = {
