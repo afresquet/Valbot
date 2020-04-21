@@ -6,7 +6,20 @@ import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { characters } from "./characters";
-import { centerEmojis, Character, Characters, DrunkAction, GameState, NightActionCharacter, NightActionCharacters, numberEmojis, Player, RobberAction, SeerAction, TroublemakerAction } from "./types";
+import {
+	centerEmojis,
+	Character,
+	Characters,
+	DrunkAction,
+	GameState,
+	NightActionCharacter,
+	NightActionCharacters,
+	numberEmojis,
+	Player,
+	RobberAction,
+	SeerAction,
+	TroublemakerAction,
+} from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 const order = (index: number) =>
@@ -166,9 +179,11 @@ export class WerewolfManager {
 			(result, current) => result + current.amount,
 			0
 		);
-		const playersAmount = this.players.current.length + 3;
+		const playersAmount = this.players.current.length;
 
-		if (charactersAmount !== playersAmount) return;
+		if (playersAmount < 3) return;
+
+		if (charactersAmount !== playersAmount + 3) return;
 
 		await this.assignRoles();
 
@@ -238,6 +253,8 @@ export class WerewolfManager {
 	private async day() {
 		this.gameState.set(() => "DAY");
 
+		this.refreshEmbed();
+
 		await this.audioManager.play(
 			this.soundPath(characters.everyone.sounds.wake)
 		);
@@ -286,6 +303,8 @@ export class WerewolfManager {
 
 		const votes = players.reduce<{ [player: string]: number }>(
 			(result, player) => {
+				if (player.killing === null) return result;
+
 				const id = players[player.killing!].member.id;
 
 				return {
@@ -374,8 +393,18 @@ export class WerewolfManager {
 			this.baseEmbed({
 				footer: {},
 				timestamp: Date.now(),
-				title: `${killed.member.displayName} was killed with ${killedVotes}!`,
-				description: `Their role was ${killed.role}.`,
+				title: `${killed.member.displayName} was killed with ${killedVotes} votes!`,
+				description: players.reduce((result, current, index) => {
+					if (current.killing === null) return result;
+
+					const playerLine = `${numberEmojis[index]} ${
+						current.member.id
+					} voted ${players[current.killing].member.id}.`;
+
+					return result === "No votes happened"
+						? playerLine
+						: `${result}\n${playerLine}`;
+				}, "No votes happened"),
 				thumbnail: {
 					url: characters[killed.role!].image,
 				},
