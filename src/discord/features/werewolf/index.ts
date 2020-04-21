@@ -147,4 +147,12 @@ export const werewolf: DiscordFeature = discord => {
 				break;
 		}
 	});
+
+	discord.on("messageReactionAdd", (reaction, user) => {
+		if (user.bot) return;
+
+		if (reaction.message.channel.type !== "dm") return;
+
+		gameManager.handleReaction(reaction, user as Discord.User);
+	});
 };

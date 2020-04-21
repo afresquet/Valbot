@@ -34,6 +34,7 @@ export interface Player {
 	member: Discord.GuildMember;
 	role: Character | null;
 	master: boolean;
+	killing: number | null;
 }
 
 export const numberEmojis = [

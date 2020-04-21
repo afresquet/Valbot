@@ -104,6 +104,7 @@ export class WerewolfManager {
 			member,
 			role: null,
 			master: false,
+			killing: null,
 		};
 
 		if (this.players.current.length === 0) {
@@ -250,7 +251,27 @@ export class WerewolfManager {
 			this.soundPath(characters.everyone.sounds.timeisup)
 		);
 
+		const messages = await Promise.all(
+			this.players.current.map(async (player, index, array) => {
+				const message = await player.member.send(
+					this.playerVotingEmbed(player)
+				);
+
+				for (let i = 0; i < array.length; i++) {
+					if (i === index) continue;
+
+					await message.react(numberEmojis[i]);
+				}
+
+				return message;
+			})
+		);
+
+		this.refreshEmbed();
+
 		await delay(this.roleTimer.current * 1000);
+
+		await Promise.all(messages.map(message => message.delete()));
 	}
 
 	finish() {
@@ -356,6 +377,9 @@ export class WerewolfManager {
 			case "NIGHT":
 				this.gameMessage.edit(this.nightEmbed());
 				break;
+			case "VOTING":
+				this.gameMessage.edit(this.votingEmbed());
+				break;
 			case "NOT_PLAYING":
 			default:
 				break;
@@ -456,5 +480,83 @@ export class WerewolfManager {
 					"https://www.petmd.com/sites/default/files/shutterstock_395310793.jpg",
 			},
 		});
+	}
+
+	votingEmbed() {
+		const votedValue = this.players.current.reduce(
+			(result, player, _, array) => {
+				if (player.killing === null) return result;
+
+				const playerLine = `${player.member.displayName} is killing ${
+					array[player.killing].member.displayName
+				}.`;
+
+				return result === "" ? playerLine : `${result}\n${playerLine}`;
+			},
+			""
+		);
+
+		const pendingValue = this.players.current.reduce((result, player) => {
+			if (player.killing !== null) return result;
+
+			const playerLine = `${player.member.displayName} is choosing who to kill.`;
+
+			return result === "" ? playerLine : `${result}\n${playerLine}`;
+		}, "");
+
+		return this.baseEmbed({
+			title: "Vote for who you want to kill!",
+			description: "Check your DMs to vote.",
+			footer: {},
+			fields: [
+				{
+					name: "Voted",
+					value: votedValue === "" ? "No one has voted yet." : votedValue,
+				},
+				{
+					name: "Pending",
+					value:
+						pendingValue === "" ? "Everyone has voted already." : pendingValue,
+				},
+			],
+		});
+	}
+
+	playerVotingEmbed(player: Player) {
+		return this.baseEmbed({
+			title: "Vote for who you want to kill!",
+			fields: [
+				{
+					name: "Players",
+					value: this.players.current.reduce((result, current, index) => {
+						if (current.member.id === player.member.id) return result;
+
+						const playerLine = `${numberEmojis[index]} ${current.member.displayName}`;
+
+						return result === "" ? playerLine : `${result}\n${playerLine}`;
+					}, ""),
+				},
+			],
+		});
+	}
+
+	handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
+		if (this.gameState.current === "VOTING") {
+			const index = numberEmojis.indexOf(reaction.emoji.name);
+
+			if (index === -1) return;
+
+			const player = this.players.current.find(
+				(p, i) => p.member.id === user.id && i !== index
+			);
+
+			if (!player || player.killing !== null) return;
+
+			this.players.set(curr =>
+				curr.map(p => (p.member.id === user.id ? { ...p, killing: index } : p))
+			);
+
+			this.refreshEmbed();
+		}
 	}
 }
