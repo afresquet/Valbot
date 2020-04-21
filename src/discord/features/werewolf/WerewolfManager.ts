@@ -6,20 +6,7 @@ import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { characters } from "./characters";
-import {
-	centerEmojis,
-	Character,
-	Characters,
-	DrunkAction,
-	GameState,
-	NightActionCharacter,
-	NightActionCharacters,
-	numberEmojis,
-	Player,
-	RobberAction,
-	SeerAction,
-	TroublemakerAction,
-} from "./types";
+import { centerEmojis, Character, Characters, DrunkAction, GameState, NightActionCharacter, NightActionCharacters, numberEmojis, Player, RobberAction, SeerAction, TroublemakerAction } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 const order = (index: number) =>
@@ -196,7 +183,7 @@ export class WerewolfManager {
 		this.cleanUp();
 	}
 
-	async assignRoles() {
+	private async assignRoles() {
 		this.gameState.set(() => "ROLE_ASSIGNING");
 
 		const roles = this.characters.current.reduce<Character[]>(
@@ -231,7 +218,7 @@ export class WerewolfManager {
 		await Promise.all(messages.map(message => message.delete()));
 	}
 
-	async night() {
+	private async night() {
 		this.gameState.set(() => "NIGHT");
 
 		await this.refreshEmbed();
@@ -248,7 +235,7 @@ export class WerewolfManager {
 		await delay(2000);
 	}
 
-	async day() {
+	private async day() {
 		this.gameState.set(() => "DAY");
 
 		await this.audioManager.play(
@@ -260,7 +247,7 @@ export class WerewolfManager {
 		await delay(this.gameTimer.current * 1000);
 	}
 
-	async voting() {
+	private async voting() {
 		this.gameState.set(() => "VOTING");
 
 		await this.audioManager.play(
@@ -290,7 +277,7 @@ export class WerewolfManager {
 		await Promise.all(messages.map(message => message.delete()));
 	}
 
-	async finish() {
+	private async finish() {
 		this.gameState.set(() => "NOT_PLAYING");
 
 		if (!this.gameMessage) return;
@@ -399,7 +386,7 @@ export class WerewolfManager {
 		this.gameMessage = null;
 	}
 
-	cleanUp() {
+	private cleanUp() {
 		this.players.set(curr =>
 			curr.map(player => ({
 				...player,
@@ -436,7 +423,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 	}
 
-	randomMaster() {
+	private randomMaster() {
 		const randomIndex = Math.floor(Math.random() * this.players.current.length);
 
 		this.players.set(curr =>
@@ -717,7 +704,7 @@ export class WerewolfManager {
 		}
 	}
 
-	baseEmbed(options: Discord.MessageEmbedOptions) {
+	private baseEmbed(options: Discord.MessageEmbedOptions) {
 		return new Discord.MessageEmbed({
 			author: {
 				name: "One Night Ultimate Werewolf",
@@ -731,7 +718,7 @@ export class WerewolfManager {
 		});
 	}
 
-	preparationEmbed() {
+	private preparationEmbed() {
 		return this.baseEmbed({
 			fields: [
 				{
@@ -776,14 +763,14 @@ export class WerewolfManager {
 		});
 	}
 
-	roleAssigningEmbed() {
+	private roleAssigningEmbed() {
 		return this.baseEmbed({
 			title: "Check your DMs to view your role!",
 			description: "Game will begin shortly, be prepared!",
 		});
 	}
 
-	roleEmbed(player: Player) {
+	private roleEmbed(player: Player) {
 		const character = characters[player.initialRole!];
 
 		return this.baseEmbed({
@@ -799,7 +786,7 @@ export class WerewolfManager {
 		});
 	}
 
-	nightEmbed() {
+	private nightEmbed() {
 		return this.baseEmbed({
 			title:
 				"It's night time! Fall asleep, and wake up when your role is called.",
@@ -811,7 +798,7 @@ export class WerewolfManager {
 		});
 	}
 
-	nightActionDMEmbed(player: Player) {
+	private nightActionDMEmbed(player: Player) {
 		const common = {
 			footer: { text: "This message will expire soon, act fast!" },
 			thumbnail: { url: characters[player.initialRole!].image },
@@ -901,7 +888,7 @@ export class WerewolfManager {
 		}
 	}
 
-	nightTeammatesDescription(role: Character, id: string) {
+	private nightTeammatesDescription(role: Character, id: string) {
 		const placeholder = `There are no ${role} players!`;
 
 		return this.players.current.reduce((result, current, index) => {
@@ -915,7 +902,7 @@ export class WerewolfManager {
 		}, placeholder);
 	}
 
-	listOfEveryoneElse(id: string) {
+	private listOfEveryoneElse(id: string) {
 		return this.players.current.reduce((result, current, index) => {
 			if (current.member.id === id) return result;
 
@@ -927,14 +914,14 @@ export class WerewolfManager {
 		}, "There are no players.");
 	}
 
-	dayEmbed() {
+	private dayEmbed() {
 		return this.baseEmbed({
 			title:
 				"I'm hoping to make a timer that counts down here idk how I'll do it.",
 		});
 	}
 
-	votingEmbed() {
+	private votingEmbed() {
 		const votedValue = this.players.current.reduce(
 			(result, player, _, array) => {
 				if (player.killing === null) return result;
@@ -974,7 +961,7 @@ export class WerewolfManager {
 		});
 	}
 
-	playerVotingEmbed(player: Player) {
+	private playerVotingEmbed(player: Player) {
 		return this.baseEmbed({
 			title: "Vote for who you want to kill!",
 			footer: { text: "This message will expire soon, act fast!" },

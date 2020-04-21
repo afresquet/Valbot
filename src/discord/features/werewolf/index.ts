@@ -26,7 +26,7 @@ export const werewolf: DiscordFeature = discord => {
 		if (gameManager.isPlaying()) {
 			switch (command) {
 				case "!cancel": {
-					await gameManager.finish();
+					// await gameManager.finish();
 
 					break;
 				}
