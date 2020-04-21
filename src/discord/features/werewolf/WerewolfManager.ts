@@ -22,6 +22,9 @@ import {
 } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
+const order = (index: number) =>
+	index === 0 ? "Left" : index === 1 ? "Middle" : "Right";
+
 export class WerewolfManager {
 	private textChannel: Discord.TextChannel | null = null;
 	private audioManager = new WerewolfAudioManager();
@@ -189,6 +192,8 @@ export class WerewolfManager {
 		await this.voting();
 
 		await this.finish();
+
+		this.cleanUp();
 	}
 
 	async assignRoles() {
@@ -288,7 +293,124 @@ export class WerewolfManager {
 	async finish() {
 		this.gameState.set(() => "NOT_PLAYING");
 
+		if (!this.gameMessage) return;
+
+		const players = this.players.current;
+
+		const votes = players.reduce<{ [player: string]: number }>(
+			(result, player) => {
+				const id = players[player.killing!].member.id;
+
+				return {
+					...result,
+					[id]: result[id] ? result[id] + 1 : 1,
+				};
+			},
+			{}
+		);
+
+		const [killedId, killedVotes] = Object.entries(votes).reduce(
+			(result, amount) => (amount[1] > result[1] ? amount : result),
+			["", 0]
+		);
+
+		const killed = players.find(p => p.member.id === killedId)!;
+
+		const fields: Discord.EmbedFieldData[] = [];
+
+		const seer = players.find(p => p.initialRole === "seer")!;
+		if (seer) {
+			const action = seer.action as SeerAction;
+
+			let value = "";
+			if (action.player !== null) {
+				value = `Viewed the role of ${
+					players[action.player!].member.displayName
+				}.`;
+			} else {
+				value = `Viewed the roles at the ${order(
+					action.center![0]!
+				)} and at the ${order(action.center![1]!)}.`;
+			}
+
+			fields.push({ name: `${seer.member.displayName} (Seer)`, value });
+		}
+
+		const robber = players.find(p => p.initialRole === "robber")!;
+		if (robber) {
+			const action = robber.action as RobberAction;
+
+			fields.push({
+				name: `${robber.member.displayName} (Robber)`,
+				value: `Stole the role from ${
+					players[action.player].member.displayName
+				}.`,
+			});
+		}
+
+		const troublemaker = players.find(p => p.initialRole === "troublemaker")!;
+		if (troublemaker) {
+			const action = troublemaker.action as TroublemakerAction;
+
+			fields.push({
+				name: `${troublemaker.member.displayName} (Troublemaker)`,
+				value: `Swapped the roles of ${
+					players[action.first!].member.displayName
+				} and ${players[action.first!].member.displayName}.`,
+			});
+		}
+
+		const drunk = players.find(p => p.initialRole === "drunk")!;
+		if (drunk) {
+			const action = drunk.action as DrunkAction;
+
+			fields.push({
+				name: `${robber.member.displayName} (Robber)`,
+				value: `Took the role from the center at the ${order(action.center)}.`,
+			});
+		}
+
+		fields.push({
+			name: "Final roles",
+			value: players.reduce((result, current, index) => {
+				const role =
+					current.initialRole !== current.role
+						? `${current.initialRole} -> ${current.role}`
+						: current.role;
+				const playerLine = `${numberEmojis[index]} ${current.member.displayName}: ${role}`;
+
+				return result === "" ? playerLine : `${result}\n${playerLine}`;
+			}, ""),
+		});
+
+		await this.gameMessage.edit(
+			this.baseEmbed({
+				footer: {},
+				timestamp: Date.now(),
+				title: `${killed.member.displayName} was killed with ${killedVotes}!`,
+				description: `Their role was ${killed.role}.`,
+				thumbnail: {
+					url: characters[killed.role!].image,
+				},
+				fields,
+			})
+		);
+
 		this.gameMessage = null;
+	}
+
+	cleanUp() {
+		this.players.set(curr =>
+			curr.map(player => ({
+				...player,
+				initialRole: null,
+				role: null,
+				action: null,
+				killing: null,
+			}))
+		);
+
+		this.centerCards.set(() => []);
 	}
 
 	async rules(character: Character) {
@@ -462,9 +584,6 @@ export class WerewolfManager {
 			footer: { text: "This message will expire soon, act fast!" },
 			thumbnail: { url: characters[character].image },
 		};
-
-		const order = (index: number) =>
-			index === 0 ? "Left" : index === 1 ? "Middle" : "Right";
 
 		switch (player.initialRole) {
 			case "seer": {

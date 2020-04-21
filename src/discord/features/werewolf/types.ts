@@ -45,7 +45,7 @@ export type SeerAction = {
 };
 
 export type RobberAction = {
-	player: number | null;
+	player: number;
 };
 
 export type TroublemakerAction = {
