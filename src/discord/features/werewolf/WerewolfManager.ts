@@ -495,7 +495,7 @@ export class WerewolfManager {
 		const character = characters[player.initialRole!];
 
 		return this.baseEmbed({
-			title: `Your role is ${player.initialRole}!`,
+			title: `Your role is ${capitalize(player.initialRole!)}!`,
 			description: character.description,
 			footer: {
 				text:
@@ -520,35 +520,55 @@ export class WerewolfManager {
 	}
 
 	nightActionDMEmbed(player: Player) {
-		const footer = { text: "This message will expire soon, act fast!" };
+		const common = {
+			footer: { text: "This message will expire soon, act fast!" },
+			thumbnail: { url: characters[player.initialRole!].image },
+		};
 
 		switch (player.initialRole) {
 			case "doppelganger":
 				return this.baseEmbed({
+					...common,
 					title: "Doppelganger hasn't been implemented into the game yet!",
-					footer,
 				});
 			case "werewolf":
 			case "mason":
 				return this.baseEmbed({
-					title: `${capitalize(player.initialRole)} team`,
-					footer,
-					thumbnail: { url: characters[player.initialRole].image },
-					description: this.players.current.reduce((result, current, index) => {
-						if (current.initialRole !== player.initialRole) return result;
-
-						const playerLine = `${numberEmojis[index]} ${
-							current.member.displayName
-						} ${current.member.id === player.member.id ? "(You)" : ""}`;
-
-						return result === "" ? playerLine : `${result}\n${playerLine}`;
-					}, ""),
+					...common,
+					title: `${capitalize(player.initialRole)}, this is your team:`,
+					description: this.nightTeammatesDescription(
+						player.initialRole,
+						player.member.id
+					),
+				});
+			case "minion":
+				return this.baseEmbed({
+					...common,
+					title: "Minion, these are the werewolves:",
+					description: this.nightTeammatesDescription(
+						"werewolf",
+						player.member.id
+					),
 				});
 			default:
 				throw new Error(
 					`Unhandled night action character "${player.initialRole}".`
 				);
 		}
+	}
+
+	nightTeammatesDescription(role: Character, id: string) {
+		const placeholder = `There are no ${role} players!`;
+
+		return this.players.current.reduce((result, current, index) => {
+			if (current.initialRole !== role) return result;
+
+			const playerLine = `${numberEmojis[index]} ${
+				current.member.displayName
+			} ${current.member.id === id ? "(You)" : ""}`;
+
+			return result === placeholder ? playerLine : `${result}\n${playerLine}`;
+		}, placeholder);
 	}
 
 	votingEmbed() {
