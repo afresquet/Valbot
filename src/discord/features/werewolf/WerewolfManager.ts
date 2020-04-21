@@ -16,6 +16,7 @@ import {
 	NightActionCharacters,
 	numberEmojis,
 	Player,
+	RobberAction,
 	SeerAction,
 } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
@@ -406,7 +407,7 @@ export class WerewolfManager {
 			this.nightActionDMEmbed(player)
 		);
 
-		if (["seer"].includes(character)) {
+		if (["seer", "robber"].includes(character)) {
 			for (let i = 0; i < this.players.current.length; i++) {
 				if (this.players.current[i].member.id === player.member.id) continue;
 
@@ -513,6 +514,24 @@ export class WerewolfManager {
 						})
 					);
 				}
+
+				break;
+			}
+			case "robber": {
+				const action = player.action as RobberAction;
+
+				this.nightActionDM.edit(
+					this.baseEmbed({
+						...common,
+						title: `You stole the role from ${
+							this.players.current[action.player!].member.displayName
+						}!`,
+						description: `You became a ${capitalize(player.role!)}.`,
+						image: {
+							url: characters[player.role!].image,
+						},
+					})
+				);
 
 				break;
 			}
@@ -668,21 +687,19 @@ export class WerewolfManager {
 					fields: [
 						{
 							name: "Players",
-							value: this.players.current.reduce((result, current, index) => {
-								if (current.member.id === player.member.id) return result;
-
-								const playerLine = `${numberEmojis[index]} ${current.member.displayName}`;
-
-								return result === "There are no players."
-									? playerLine
-									: `${result}\n${playerLine}`;
-							}, "There are no players."),
+							value: this.listOfEveryoneElse(player.member.id),
 						},
 						{
 							name: "Center",
 							value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
 						},
 					],
+				});
+			case "robber":
+				return this.baseEmbed({
+					...common,
+					title: "Robber, choose another player to steal their role:",
+					description: this.listOfEveryoneElse(player.member.id),
 				});
 			case "drunk":
 				return this.baseEmbed({
@@ -718,6 +735,18 @@ export class WerewolfManager {
 
 			return result === placeholder ? playerLine : `${result}\n${playerLine}`;
 		}, placeholder);
+	}
+
+	listOfEveryoneElse(id: string) {
+		return this.players.current.reduce((result, current, index) => {
+			if (current.member.id === id) return result;
+
+			const playerLine = `${numberEmojis[index]} ${current.member.displayName}`;
+
+			return result === "There are no players."
+				? playerLine
+				: `${result}\n${playerLine}`;
+		}, "There are no players.");
 	}
 
 	votingEmbed() {
@@ -834,6 +863,34 @@ export class WerewolfManager {
 
 					break;
 				}
+				case "robber": {
+					if (playerIndex === -1) break;
+
+					if (player.action !== null) break;
+
+					const target = this.players.current[playerIndex];
+
+					this.players.set(curr =>
+						curr.map<Player>(p => {
+							if (p.member.id === player.member.id) {
+								return {
+									...p,
+									role: target.role,
+									action: { player: playerIndex } as RobberAction,
+								};
+							} else if (p.member.id === target.member.id) {
+								return {
+									...p,
+									role: player.role,
+								};
+							} else {
+								return p;
+							}
+						})
+					);
+
+					break;
+				}
 				case "drunk": {
 					if (centerIndex === -1) break;
 
@@ -852,7 +909,7 @@ export class WerewolfManager {
 					);
 
 					this.centerCards.set(curr =>
-						curr.map((c, i) => (i === centerIndex ? "drunk" : c))
+						curr.map((c, i) => (i === centerIndex ? player.role! : c))
 					);
 
 					break;

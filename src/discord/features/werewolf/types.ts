@@ -35,13 +35,17 @@ export interface Player {
 	member: Discord.GuildMember;
 	initialRole: Character | null;
 	role: Character | null;
-	action: SeerAction | DrunkAction | null;
+	action: SeerAction | RobberAction | DrunkAction | null;
 	killing: number | null;
 }
 
 export type SeerAction = {
 	player: number | null;
 	center: [number | null, number | null];
+};
+
+export type RobberAction = {
+	player: number | null;
 };
 
 export type DrunkAction = {
