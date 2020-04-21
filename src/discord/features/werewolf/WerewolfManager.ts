@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { join } from "path";
+import { capitalize } from "../../../helpers/capitalize";
 import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
@@ -26,6 +27,7 @@ export class WerewolfManager {
 
 	private gameState = new State<GameState>("NOT_PLAYING");
 	private gameMessage: Discord.Message | null = null;
+	private nightActionDM: Discord.Message | null = null;
 
 	private expert = new State(false);
 
@@ -100,8 +102,9 @@ export class WerewolfManager {
 	async join(member: Discord.GuildMember) {
 		if (this.players.current.find(p => p.member.id === member.id)) return;
 
-		const player = {
+		const player: Player = {
 			member,
+			initialRole: null,
 			role: null,
 			master: false,
 			killing: null,
@@ -194,10 +197,12 @@ export class WerewolfManager {
 		);
 
 		this.players.set(curr =>
-			curr.map(player => ({
-				...player,
-				role: roles.splice(Math.floor(Math.random() * roles.length), 1)[0],
-			}))
+			curr.map(player => {
+				const randomIndex = Math.floor(Math.random() * roles.length);
+				const [role] = roles.splice(randomIndex, 1);
+
+				return { ...player, initialRole: role, role };
+			})
 		);
 
 		this.centerCards.set(() => roles);
@@ -351,7 +356,7 @@ export class WerewolfManager {
 			);
 		}
 
-		await delay(this.roleTimer.current * 1000);
+		await this.handleNightActionCharacter(character);
 
 		if (character === "minion") {
 			await this.audioManager.play(
@@ -362,6 +367,40 @@ export class WerewolfManager {
 		await this.audioManager.play(
 			this.soundPath(characters[character].sounds.close)
 		);
+	}
+
+	private async handleNightActionCharacter(character: NightActionCharacter) {
+		if (["werewolf", "mason"].includes(character)) {
+			const players = this.players.current.filter(
+				player => player.initialRole === character
+			);
+
+			const messages = await Promise.all(
+				players.map(player =>
+					player.member.send(this.nightActionDMEmbed(player))
+				)
+			);
+
+			await delay(this.roleTimer.current * 1000);
+
+			await Promise.all(messages.map(message => message.delete()));
+
+			return;
+		}
+
+		const player = this.players.current.find(
+			player => player.initialRole === character
+		)!;
+
+		this.nightActionDM = await player.member.send(
+			this.nightActionDMEmbed(player)
+		);
+
+		await delay(this.roleTimer.current * 1000);
+
+		await this.nightActionDM.delete();
+
+		this.nightActionDM = null;
 	}
 
 	private refreshEmbed() {
@@ -416,9 +455,7 @@ export class WerewolfManager {
 				{
 					name: "Characters",
 					value: this.characters.current.reduce((result, character) => {
-						const characterName =
-							character.character.charAt(0).toUpperCase() +
-							character.character.substring(1);
+						const characterName = capitalize(character.character);
 
 						const nextLine =
 							result === "No characters have been set yet."
@@ -455,10 +492,10 @@ export class WerewolfManager {
 	}
 
 	roleEmbed(player: Player) {
-		const character = characters[player.role!];
+		const character = characters[player.initialRole!];
 
 		return this.baseEmbed({
-			title: `Your role is ${player.role}!`,
+			title: `Your role is ${player.initialRole}!`,
 			description: character.description,
 			footer: {
 				text:
@@ -480,6 +517,38 @@ export class WerewolfManager {
 					"https://www.petmd.com/sites/default/files/shutterstock_395310793.jpg",
 			},
 		});
+	}
+
+	nightActionDMEmbed(player: Player) {
+		const footer = { text: "This message will expire soon, act fast!" };
+
+		switch (player.initialRole) {
+			case "doppelganger":
+				return this.baseEmbed({
+					title: "Doppelganger hasn't been implemented into the game yet!",
+					footer,
+				});
+			case "werewolf":
+			case "mason":
+				return this.baseEmbed({
+					title: `${capitalize(player.initialRole)} team`,
+					footer,
+					thumbnail: { url: characters[player.initialRole].image },
+					description: this.players.current.reduce((result, current, index) => {
+						if (current.initialRole !== player.initialRole) return result;
+
+						const playerLine = `${numberEmojis[index]} ${
+							current.member.displayName
+						} ${current.member.id === player.member.id ? "(You)" : ""}`;
+
+						return result === "" ? playerLine : `${result}\n${playerLine}`;
+					}, ""),
+				});
+			default:
+				throw new Error(
+					`Unhandled night action character "${player.initialRole}".`
+				);
+		}
 	}
 
 	votingEmbed() {
@@ -525,6 +594,7 @@ export class WerewolfManager {
 	playerVotingEmbed(player: Player) {
 		return this.baseEmbed({
 			title: "Vote for who you want to kill!",
+			footer: { text: "This message will expire soon, act fast!" },
 			fields: [
 				{
 					name: "Players",

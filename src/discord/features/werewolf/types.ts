@@ -32,6 +32,7 @@ export type NightActionCharacter = typeof NightActionCharacters[number];
 
 export interface Player {
 	member: Discord.GuildMember;
+	initialRole: Character | null;
 	role: Character | null;
 	master: boolean;
 	killing: number | null;
