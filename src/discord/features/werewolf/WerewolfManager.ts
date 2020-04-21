@@ -126,10 +126,10 @@ export class WerewolfManager {
 
 		member.roles.add(this.playerRole!);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
-	leave(memberId: string) {
+	async leave(memberId: string) {
 		const player = this.players.current.find(p => p.member.id === memberId);
 
 		if (!player) return;
@@ -144,7 +144,7 @@ export class WerewolfManager {
 			this.randomMaster();
 		}
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
 	async newGame() {
@@ -157,7 +157,7 @@ export class WerewolfManager {
 		this.gameState.set(() => "PREPARATION");
 	}
 
-	manageCharacter(character: Character, add: boolean) {
+	async manageCharacter(character: Character, add: boolean) {
 		this.characters.set(curr =>
 			curr.map(c =>
 				c.character === character
@@ -166,7 +166,7 @@ export class WerewolfManager {
 			)
 		);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
 	async start() {
@@ -188,7 +188,7 @@ export class WerewolfManager {
 
 		await this.voting();
 
-		this.finish();
+		await this.finish();
 	}
 
 	async assignRoles() {
@@ -213,7 +213,7 @@ export class WerewolfManager {
 
 		this.centerCards.set(() => roles);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 
 		const messages = await Promise.all(
 			this.players.current.map(player =>
@@ -229,7 +229,7 @@ export class WerewolfManager {
 	async night() {
 		this.gameState.set(() => "NIGHT");
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 
 		await Promise.all([
 			this.audioManager.play(this.soundPath(characters.everyone.sounds.close)),
@@ -278,14 +278,14 @@ export class WerewolfManager {
 			})
 		);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 
 		await delay(this.roleTimer.current * 1000);
 
 		await Promise.all(messages.map(message => message.delete()));
 	}
 
-	finish() {
+	async finish() {
 		this.gameState.set(() => "NOT_PLAYING");
 
 		this.gameMessage = null;
@@ -304,14 +304,14 @@ export class WerewolfManager {
 		await this.audioManager.muteAll(on);
 	}
 
-	setMaster(memberId: string) {
+	async setMaster(memberId: string) {
 		if (!this.players.current.find(p => p.member.id === memberId)) return;
 
 		this.players.set(curr =>
 			curr.map(p => ({ ...p, master: p.member.id === memberId }))
 		);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
 	randomMaster() {
@@ -324,26 +324,26 @@ export class WerewolfManager {
 		);
 	}
 
-	toggleExpert() {
+	async toggleExpert() {
 		this.expert.set(curr => !curr);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
-	changeTimer(timer: "game" | "role", seconds: number) {
+	async changeTimer(timer: "game" | "role", seconds: number) {
 		if (timer === "game") {
 			this.gameTimer.set(() => (seconds > 0 ? seconds : 0));
 		} else if (timer === "role") {
 			this.roleTimer.set(() => (seconds > 0 ? seconds : 0));
 		}
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
-	changeVolume(volume: number) {
+	async changeVolume(volume: number) {
 		this.audioManager.setVolume(volume);
 
-		this.refreshEmbed();
+		await this.refreshEmbed();
 	}
 
 	private async playCharacter(character: NightActionCharacter) {
@@ -429,21 +429,21 @@ export class WerewolfManager {
 		this.nightActionDM = null;
 	}
 
-	private refreshEmbed() {
+	private async refreshEmbed() {
 		if (!this.gameMessage) return;
 
 		switch (this.gameState.current) {
 			case "PREPARATION":
-				this.gameMessage.edit(this.preparationEmbed());
+				await this.gameMessage.edit(this.preparationEmbed());
 				break;
 			case "ROLE_ASSIGNING":
-				this.gameMessage.edit(this.roleAssigningEmbed());
+				await this.gameMessage.edit(this.roleAssigningEmbed());
 				break;
 			case "NIGHT":
-				this.gameMessage.edit(this.nightEmbed());
+				await this.gameMessage.edit(this.nightEmbed());
 				break;
 			case "VOTING":
-				this.gameMessage.edit(this.votingEmbed());
+				await this.gameMessage.edit(this.votingEmbed());
 				break;
 			case "NOT_PLAYING":
 			default:
@@ -451,7 +451,7 @@ export class WerewolfManager {
 		}
 	}
 
-	private refreshDM(character: Character) {
+	private async refreshDM(character: Character) {
 		if (!this.nightActionDM || this.gameState.current !== "NIGHT") return;
 
 		const player = this.players.current.find(p => p.initialRole === character);
@@ -473,7 +473,7 @@ export class WerewolfManager {
 				if (action.player !== null) {
 					const target = this.players.current[action.player];
 
-					this.nightActionDM.edit(
+					await this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title: `Seer, this is ${target.member.displayName}'s role:`,
@@ -484,7 +484,7 @@ export class WerewolfManager {
 						})
 					);
 				} else if (action.center.every(x => x !== null)) {
-					this.nightActionDM.edit(
+					await this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title: "Seer, these are the center roles you chose to view:",
@@ -505,7 +505,7 @@ export class WerewolfManager {
 						})
 					);
 				} else if (action.center.some(x => x === null)) {
-					this.nightActionDM.edit(
+					await this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title: "Seer, choose another center role to view.",
@@ -521,7 +521,7 @@ export class WerewolfManager {
 			case "robber": {
 				const action = player.action as RobberAction;
 
-				this.nightActionDM.edit(
+				await this.nightActionDM.edit(
 					this.baseEmbed({
 						...common,
 						title: `You stole the role from ${
@@ -540,7 +540,7 @@ export class WerewolfManager {
 				const action = player.action as TroublemakerAction;
 
 				if (action.second === null) {
-					this.nightActionDM.edit(
+					await this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title:
@@ -560,7 +560,7 @@ export class WerewolfManager {
 						})
 					);
 				} else {
-					this.nightActionDM.edit(
+					await this.nightActionDM.edit(
 						this.baseEmbed({
 							...common,
 							title:
@@ -579,7 +579,7 @@ export class WerewolfManager {
 			case "drunk": {
 				const action = player.action as DrunkAction;
 
-				this.nightActionDM.edit(
+				await this.nightActionDM.edit(
 					this.baseEmbed({
 						...common,
 						title: `Drunk, you chose to become the role in the ${order(
@@ -864,7 +864,7 @@ export class WerewolfManager {
 		});
 	}
 
-	handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
+	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
 		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
 		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
 
@@ -883,7 +883,7 @@ export class WerewolfManager {
 				)
 			);
 
-			this.refreshEmbed();
+			await this.refreshEmbed();
 		} else if (this.gameState.current === "NIGHT") {
 			switch (player.initialRole) {
 				case "seer": {
@@ -1015,7 +1015,7 @@ export class WerewolfManager {
 					break;
 			}
 
-			this.refreshDM(player.initialRole!);
+			await this.refreshDM(player.initialRole!);
 		}
 	}
 }

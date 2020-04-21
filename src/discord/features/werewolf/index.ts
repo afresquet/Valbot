@@ -26,7 +26,7 @@ export const werewolf: DiscordFeature = discord => {
 		if (gameManager.isPlaying()) {
 			switch (command) {
 				case "!cancel": {
-					gameManager.finish();
+					await gameManager.finish();
 
 					break;
 				}
@@ -43,7 +43,7 @@ export const werewolf: DiscordFeature = discord => {
 				case "!start": {
 					if (!gameManager.isMaster(message.author.id)) return;
 
-					gameManager.start();
+					await gameManager.start();
 
 					break;
 				}
@@ -53,7 +53,7 @@ export const werewolf: DiscordFeature = discord => {
 					break;
 				}
 				case "!leave": {
-					gameManager.leave(message.author.id);
+					await gameManager.leave(message.author.id);
 
 					break;
 				}
@@ -64,7 +64,7 @@ export const werewolf: DiscordFeature = discord => {
 
 					if (!member) break;
 
-					gameManager.leave(member.id);
+					await gameManager.leave(member.id);
 
 					break;
 				}
@@ -76,7 +76,7 @@ export const werewolf: DiscordFeature = discord => {
 
 					if (!Characters.includes(character as any)) return;
 
-					gameManager.manageCharacter(
+					await gameManager.manageCharacter(
 						character as Character,
 						command === "!add"
 					);
@@ -99,14 +99,14 @@ export const werewolf: DiscordFeature = discord => {
 
 					if (!member) break;
 
-					gameManager.setMaster(member.id);
+					await gameManager.setMaster(member.id);
 
 					break;
 				}
 				case "!expert": {
 					if (!gameManager.isMaster(message.author.id)) return;
 
-					gameManager.toggleExpert();
+					await gameManager.toggleExpert();
 
 					break;
 				}
@@ -121,7 +121,7 @@ export const werewolf: DiscordFeature = discord => {
 					)
 						return;
 
-					gameManager.changeTimer(
+					await gameManager.changeTimer(
 						timer as "game" | "role",
 						parseInt(seconds, 10)
 					);
@@ -139,7 +139,7 @@ export const werewolf: DiscordFeature = discord => {
 
 				if (Number.isNaN(parseInt(value, 10))) return;
 
-				gameManager.changeVolume(parseInt(value, 10));
+				await gameManager.changeVolume(parseInt(value, 10));
 
 				break;
 			}
@@ -148,11 +148,11 @@ export const werewolf: DiscordFeature = discord => {
 		}
 	});
 
-	discord.on("messageReactionAdd", (reaction, user) => {
+	discord.on("messageReactionAdd", async (reaction, user) => {
 		if (user.bot) return;
 
 		if (reaction.message.channel.type !== "dm") return;
 
-		gameManager.handleReaction(reaction, user as Discord.User);
+		await gameManager.handleReaction(reaction, user as Discord.User);
 	});
 };
