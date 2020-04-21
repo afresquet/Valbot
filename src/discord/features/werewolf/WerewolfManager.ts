@@ -6,15 +6,7 @@ import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { characters } from "./characters";
-import {
-	Character,
-	Characters,
-	GameState,
-	NightActionCharacter,
-	NightActionCharacters,
-	numberEmojis,
-	Player,
-} from "./types";
+import { Character, Characters, GameState, NightActionCharacter, NightActionCharacters, numberEmojis, Player } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
@@ -549,6 +541,15 @@ export class WerewolfManager {
 						"werewolf",
 						player.member.id
 					),
+				});
+			case "insomniac":
+				return this.baseEmbed({
+					...common,
+					title: "Insomniac, this is your role:",
+					description: capitalize(player.role!),
+					image: {
+						url: characters[player.role!].image,
+					},
 				});
 			default:
 				throw new Error(

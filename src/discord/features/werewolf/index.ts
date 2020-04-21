@@ -17,11 +17,11 @@ export const werewolf: DiscordFeature = discord => {
 		)
 			return;
 
-		await message.delete();
-
 		if (!gameManager.isReady()) gameManager.setup(message.guild!);
 
 		const [command, value] = messageSplitter(message.content, 1);
+
+		await message.delete();
 
 		if (gameManager.isPlaying()) {
 			switch (command) {
