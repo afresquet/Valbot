@@ -6,10 +6,13 @@ import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { characters } from "./characters";
+import { Embeds } from "./embeds";
+import { listOfEveryone } from "./helpers/listOfEveryone";
 import {
 	centerEmojis,
 	Character,
 	Characters,
+	CharactersState,
 	DrunkAction,
 	GameState,
 	NightActionCharacter,
@@ -30,6 +33,8 @@ export class WerewolfManager {
 	private audioManager = new WerewolfAudioManager();
 	private playerRole: Discord.Role | null = null;
 
+	private embeds = new Embeds(this.audioManager);
+
 	private players = new State<Player[]>([]);
 	private centerCards = new State<Character[]>([]);
 
@@ -42,7 +47,7 @@ export class WerewolfManager {
 	private gameTimer = new State(300);
 	private roleTimer = new State(10);
 
-	private characters = new State<{ character: Character; amount: number }[]>(
+	private characters = new State<CharactersState>(
 		Characters.map(character => ({ character, amount: 0 }))
 	);
 
@@ -155,7 +160,15 @@ export class WerewolfManager {
 
 		if (this.gameState.current !== "NOT_PLAYING") return;
 
-		this.gameMessage = await this.textChannel.send(this.preparationEmbed());
+		this.gameMessage = await this.textChannel.send(
+			this.embeds.preparation(
+				this.players.current,
+				this.characters.current,
+				this.gameTimer.current,
+				this.roleTimer.current,
+				this.expert.current
+			)
+		);
 
 		this.gameState.set(() => "PREPARATION");
 	}
@@ -224,7 +237,7 @@ export class WerewolfManager {
 
 		const messages = await Promise.all(
 			this.players.current.map(player =>
-				player.member.send(this.roleEmbed(player))
+				player.member.send(this.embeds.role(player))
 			)
 		);
 
@@ -274,7 +287,7 @@ export class WerewolfManager {
 		const messages = await Promise.all(
 			this.players.current.map(async (player, index, array) => {
 				const message = await player.member.send(
-					this.playerVotingEmbed(player)
+					this.embeds.playerVoting(this.players.current, player)
 				);
 
 				for (let i = 0; i < array.length; i++) {
@@ -397,7 +410,7 @@ export class WerewolfManager {
 		});
 
 		await this.gameMessage.edit(
-			this.baseEmbed({
+			this.embeds.base({
 				footer: {},
 				timestamp: Date.now(),
 				title: `${killed.member.displayName} was killed with ${killedVotes} votes!`,
@@ -528,7 +541,9 @@ export class WerewolfManager {
 
 			const messages = await Promise.all(
 				players.map(player =>
-					player.member.send(this.nightActionDMEmbed(player))
+					player.member.send(
+						this.embeds.nightActionDM(this.players.current, player)
+					)
 				)
 			);
 
@@ -550,7 +565,7 @@ export class WerewolfManager {
 		}
 
 		this.nightActionDM = await player.member.send(
-			this.nightActionDMEmbed(player)
+			this.embeds.nightActionDM(this.players.current, player)
 		);
 
 		if (["seer", "robber", "troublemaker"].includes(character)) {
@@ -579,19 +594,27 @@ export class WerewolfManager {
 
 		switch (this.gameState.current) {
 			case "PREPARATION":
-				await this.gameMessage.edit(this.preparationEmbed());
+				await this.gameMessage.edit(
+					this.embeds.preparation(
+						this.players.current,
+						this.characters.current,
+						this.gameTimer.current,
+						this.roleTimer.current,
+						this.expert.current
+					)
+				);
 				break;
 			case "ROLE_ASSIGNING":
-				await this.gameMessage.edit(this.roleAssigningEmbed());
+				await this.gameMessage.edit(this.embeds.roleAssigning());
 				break;
 			case "NIGHT":
-				await this.gameMessage.edit(this.nightEmbed());
+				await this.gameMessage.edit(this.embeds.night());
 				break;
 			case "DAY":
-				await this.gameMessage.edit(this.dayEmbed());
+				await this.gameMessage.edit(this.embeds.day());
 				break;
 			case "VOTING":
-				await this.gameMessage.edit(this.votingEmbed());
+				await this.gameMessage.edit(this.embeds.voting(this.players.current));
 				break;
 			case "NOT_PLAYING":
 			default:
@@ -619,7 +642,7 @@ export class WerewolfManager {
 					const target = this.players.current[action.player];
 
 					await this.nightActionDM.edit(
-						this.baseEmbed({
+						this.embeds.base({
 							...common,
 							title: `Seer, this is ${target.member.displayName}'s role:`,
 							description: capitalize(target.role!),
@@ -630,7 +653,7 @@ export class WerewolfManager {
 					);
 				} else if (action.center.every(x => x !== null)) {
 					await this.nightActionDM.edit(
-						this.baseEmbed({
+						this.embeds.base({
 							...common,
 							title: "Seer, these are the center roles you chose to view:",
 							fields: [
@@ -651,7 +674,7 @@ export class WerewolfManager {
 					);
 				} else if (action.center.some(x => x === null)) {
 					await this.nightActionDM.edit(
-						this.baseEmbed({
+						this.embeds.base({
 							...common,
 							title: "Seer, choose another center role to view.",
 							description: `You already chose to view the role on the ${order(
@@ -667,7 +690,7 @@ export class WerewolfManager {
 				const action = player.action as RobberAction;
 
 				await this.nightActionDM.edit(
-					this.baseEmbed({
+					this.embeds.base({
 						...common,
 						title: `You stole the role from ${
 							this.players.current[action.player!].member.displayName
@@ -686,7 +709,7 @@ export class WerewolfManager {
 
 				if (action.second === null) {
 					await this.nightActionDM.edit(
-						this.baseEmbed({
+						this.embeds.base({
 							...common,
 							title:
 								"Troublemaker, choose two other players to swap their roles:",
@@ -699,14 +722,16 @@ export class WerewolfManager {
 								},
 								{
 									name: "Players",
-									value: this.listOfEveryoneElse(player.member.id),
+									value: listOfEveryone(this.players.current, [
+										player.member.id,
+									]),
 								},
 							],
 						})
 					);
 				} else {
 					await this.nightActionDM.edit(
-						this.baseEmbed({
+						this.embeds.base({
 							...common,
 							title:
 								"Troublemaker, you swapped the roles of these two players:",
@@ -725,7 +750,7 @@ export class WerewolfManager {
 				const action = player.action as DrunkAction;
 
 				await this.nightActionDM.edit(
-					this.baseEmbed({
+					this.embeds.base({
 						...common,
 						title: `Drunk, you chose to become the role in the ${order(
 							action.center
@@ -738,282 +763,6 @@ export class WerewolfManager {
 			default:
 				break;
 		}
-	}
-
-	private baseEmbed(options: Discord.MessageEmbedOptions) {
-		return new Discord.MessageEmbed({
-			author: {
-				name: "One Night Ultimate Werewolf",
-				icon_url:
-					"https://image.winudf.com/v2/image1/Y29tLm1vYmllb3Mua2FyYW4uV29sZl9BbmRyb2lkMTRfMTFfMTNfaWNvbl8xNTU2NjQ4NDY4XzA0NA/icon.png?w=340&fakeurl=1",
-			},
-			footer: {
-				text: `Volume: ${100 * <number>this.audioManager.getOption("volume")}%`,
-			},
-			...options,
-		});
-	}
-
-	private preparationEmbed() {
-		return this.baseEmbed({
-			fields: [
-				{
-					name: "Players",
-					value: this.players.current.reduce((result, player, index) => {
-						const playerLine = `${numberEmojis[index]} ${
-							player.member.displayName
-						} ${player.master ? "(Master)" : ""}`;
-
-						return index === 0 ? playerLine : `${result}\n${playerLine}`;
-					}, "No players have joined yet."),
-				},
-				{
-					name: "Characters",
-					value: this.characters.current.reduce((result, character) => {
-						const characterName = capitalize(character.character);
-
-						const nextLine =
-							result === "No characters have been set yet."
-								? `${characterName}: ${character.amount}`
-								: `${result}\n${characterName}: ${character.amount}`;
-
-						return character.amount > 0 ? nextLine : result;
-					}, "No characters have been set yet."),
-				},
-				{
-					name: "Game Timer",
-					value: `${this.gameTimer.current} seconds`,
-					inline: true,
-				},
-				{
-					name: "Role Timer",
-					value: `${this.roleTimer.current} seconds`,
-					inline: true,
-				},
-				{
-					name: "Expert Mode",
-					value: this.expert.current ? "On" : "Off",
-					inline: true,
-				},
-			],
-		});
-	}
-
-	private roleAssigningEmbed() {
-		return this.baseEmbed({
-			title: "Check your DMs to view your role!",
-			description: "Game will begin shortly, be prepared!",
-		});
-	}
-
-	private roleEmbed(player: Player) {
-		const character = characters[player.initialRole!];
-
-		return this.baseEmbed({
-			title: `Your role is ${capitalize(player.initialRole!)}!`,
-			description: character.description,
-			footer: {
-				text:
-					"This message will self destruct soon, go to sleep to stay safe from it!",
-			},
-			image: {
-				url: character.image,
-			},
-		});
-	}
-
-	private nightEmbed() {
-		return this.baseEmbed({
-			title:
-				"It's night time! Fall asleep, and wake up when your role is called.",
-			description: "schleeeeeeeeeeeeeepy time",
-			image: {
-				url:
-					"https://www.petmd.com/sites/default/files/shutterstock_395310793.jpg",
-			},
-		});
-	}
-
-	private nightActionDMEmbed(player: Player) {
-		const common = {
-			footer: { text: "This message will expire soon, act fast!" },
-			thumbnail: { url: characters[player.initialRole!].image },
-		};
-
-		switch (player.initialRole) {
-			case "doppelganger":
-				return this.baseEmbed({
-					...common,
-					title: "Doppelganger hasn't been implemented into the game yet!",
-				});
-			case "werewolf":
-			case "mason":
-				return this.baseEmbed({
-					...common,
-					title: `${capitalize(player.initialRole)}, this is your team:`,
-					description: this.nightTeammatesDescription(
-						player.initialRole,
-						player.member.id
-					),
-				});
-			case "minion":
-				return this.baseEmbed({
-					...common,
-					title: "Minion, these are the werewolves:",
-					description: this.nightTeammatesDescription(
-						"werewolf",
-						player.member.id
-					),
-				});
-			case "seer":
-				return this.baseEmbed({
-					...common,
-					title:
-						"Seer, choose a player to view their role, or view two roles from the center:",
-					fields: [
-						{
-							name: "Players",
-							value: this.listOfEveryoneElse(player.member.id),
-						},
-						{
-							name: "Center",
-							value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
-						},
-					],
-				});
-			case "robber":
-				return this.baseEmbed({
-					...common,
-					title: "Robber, choose another player to steal their role:",
-					description: this.listOfEveryoneElse(player.member.id),
-				});
-			case "troublemaker":
-				return this.baseEmbed({
-					...common,
-					title: "Troublemaker, choose two other players to swap their roles:",
-					fields: [
-						{
-							name: "Picked",
-							value: "No players have been picked yet.",
-						},
-						{
-							name: "Players",
-							value: this.listOfEveryoneElse(player.member.id),
-						},
-					],
-				});
-			case "drunk":
-				return this.baseEmbed({
-					...common,
-					title: "Drunk, choose a card from the center to become that role:",
-					description: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
-				});
-			case "insomniac":
-				return this.baseEmbed({
-					...common,
-					title: "Insomniac, this is your role:",
-					description: capitalize(player.role!),
-					image: {
-						url: characters[player.role!].image,
-					},
-				});
-			default:
-				throw new Error(
-					`Unhandled night action character "${player.initialRole}".`
-				);
-		}
-	}
-
-	private nightTeammatesDescription(role: Character, id: string) {
-		const placeholder = `There are no ${role} players!`;
-
-		return this.players.current.reduce((result, current, index) => {
-			if (current.initialRole !== role) return result;
-
-			const playerLine = `${numberEmojis[index]} ${
-				current.member.displayName
-			} ${current.member.id === id ? "(You)" : ""}`;
-
-			return result === placeholder ? playerLine : `${result}\n${playerLine}`;
-		}, placeholder);
-	}
-
-	private listOfEveryoneElse(id: string) {
-		return this.players.current.reduce((result, current, index) => {
-			if (current.member.id === id) return result;
-
-			const playerLine = `${numberEmojis[index]} ${current.member.displayName}`;
-
-			return result === "There are no players."
-				? playerLine
-				: `${result}\n${playerLine}`;
-		}, "There are no players.");
-	}
-
-	private dayEmbed() {
-		return this.baseEmbed({
-			title:
-				"I'm hoping to make a timer that counts down here idk how I'll do it.",
-		});
-	}
-
-	private votingEmbed() {
-		const votedValue = this.players.current.reduce(
-			(result, player, _, array) => {
-				if (player.killing === null) return result;
-
-				const playerLine = `${player.member.displayName} is killing ${
-					array[player.killing].member.displayName
-				}.`;
-
-				return result === "" ? playerLine : `${result}\n${playerLine}`;
-			},
-			""
-		);
-
-		const pendingValue = this.players.current.reduce((result, player) => {
-			if (player.killing !== null) return result;
-
-			const playerLine = `${player.member.displayName} is choosing who to kill.`;
-
-			return result === "" ? playerLine : `${result}\n${playerLine}`;
-		}, "");
-
-		return this.baseEmbed({
-			title: "Vote for who you want to kill!",
-			description: "Check your DMs to vote.",
-			footer: {},
-			fields: [
-				{
-					name: "Voted",
-					value: votedValue === "" ? "No one has voted yet." : votedValue,
-				},
-				{
-					name: "Pending",
-					value:
-						pendingValue === "" ? "Everyone has voted already." : pendingValue,
-				},
-			],
-		});
-	}
-
-	private playerVotingEmbed(player: Player) {
-		return this.baseEmbed({
-			title: "Vote for who you want to kill!",
-			footer: { text: "This message will expire soon, act fast!" },
-			fields: [
-				{
-					name: "Players",
-					value: this.players.current.reduce((result, current, index) => {
-						if (current.member.id === player.member.id) return result;
-
-						const playerLine = `${numberEmojis[index]} ${current.member.displayName}`;
-
-						return result === "" ? playerLine : `${result}\n${playerLine}`;
-					}, ""),
-				},
-			],
-		});
 	}
 
 	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {

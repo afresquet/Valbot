@@ -30,6 +30,8 @@ export const Characters = [
 export type Character = typeof Characters[number];
 export type NightActionCharacter = typeof NightActionCharacters[number];
 
+export type CharactersState = { character: Character; amount: number }[];
+
 export interface Player {
 	master: boolean;
 	member: Discord.GuildMember;
