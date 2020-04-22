@@ -8,6 +8,8 @@ Read the official game rules by clicking [here](https://www.fgbradleys.com/rules
 
 In order to play the game, you need to allow Direct Messages (DM) to be received from members of the server. Please make sure to enable this by checking the checkbox at Server > Privacy Settings > Allow direct messages from server members ✅.
 
+This is so the bot is able to send you a DM with information about your role, and when you are required to do any actions. Please DO NOT privately message other players as that is a huge advantage (for example: the Minion letting their Werewolves know that they are the Minion). Please do not discuss strategy or anything that would give you an advantage over the rest privately. If you want to send memes however, then go for it (looking at you Sid).
+
 A good practice is to set your "server name" to whatever nickname people know you for. It's easier to know who someone is if they have their name instead of a meme name.
 
 The player that joins the game first will become the "Master". They will choose the characters and settings the games will be played with.
