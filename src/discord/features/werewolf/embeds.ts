@@ -2,14 +2,9 @@ import Discord from "discord.js";
 import { AudioManager } from "../../../helpers/AudioManager";
 import { capitalize } from "../../../helpers/capitalize";
 import { characters } from "./characters";
+import { centerEmojis, numberEmojis } from "./emojis";
 import { listOfEveryone } from "./helpers/listOfEveryone";
-import {
-	centerEmojis,
-	Character,
-	CharactersState,
-	numberEmojis,
-	Player,
-} from "./types";
+import { Character, CharactersState, Player } from "./types";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}
@@ -139,7 +134,7 @@ export class Embeds {
 		}, placeholder);
 	}
 
-	nightActionDM(players: Player[], player: Player) {
+	nightActionDM(players: Player[], player: Player): Discord.MessageEmbed {
 		switch (player.initialRole) {
 			case "doppelganger":
 				return this.doppelgangerNightActionDM();
@@ -249,7 +244,7 @@ export class Embeds {
 	}
 
 	minionNightActionDM(players: Player[], player: Player) {
-		this.base({
+		return this.base({
 			...this.nightActionDMCommon,
 			title: "Minion, these are the werewolves:",
 			description: this.nightTeammatesDescription(

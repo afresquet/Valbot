@@ -68,18 +68,3 @@ type TroublemakerAction = {
 type DrunkAction = {
 	center: number;
 };
-
-export const numberEmojis = [
-	"1️⃣",
-	"2️⃣",
-	"3️⃣",
-	"4️⃣",
-	"5️⃣",
-	"6️⃣",
-	"7️⃣",
-	"8️⃣",
-	"9️⃣",
-	"🔟",
-];
-
-export const centerEmojis = ["🇱", "🇲", "🇷"];

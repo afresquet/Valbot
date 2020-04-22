@@ -1,4 +1,5 @@
-import { numberEmojis, Player } from "../types";
+import { numberEmojis } from "../emojis";
+import { Player } from "../types";
 
 export const listOfEveryone = (
 	players: Player[],

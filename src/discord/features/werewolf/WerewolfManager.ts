@@ -7,16 +7,15 @@ import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
+import { centerEmojis, numberEmojis } from "./emojis";
 import { listOfEveryone } from "./helpers/listOfEveryone";
 import {
-	centerEmojis,
 	Character,
 	Characters,
 	CharactersState,
 	GameState,
 	NightActionCharacter,
 	NightActionCharacters,
-	numberEmojis,
 	Player,
 } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
@@ -369,7 +368,7 @@ export class WerewolfManager {
 				name: `${troublemaker.member.displayName} (Troublemaker)`,
 				value: `Swapped the roles of ${
 					players[troublemaker.action.first!].member.displayName
-				} and ${players[troublemaker.action.first!].member.displayName}.`,
+				} and ${players[troublemaker.action.second!].member.displayName}.`,
 			});
 		}
 
@@ -414,8 +413,8 @@ export class WerewolfManager {
 					if (current.killing === null) return result;
 
 					const playerLine = `${numberEmojis[index]} ${
-						current.member.id
-					} voted ${players[current.killing].member.id}.`;
+						current.member.displayName
+					} voted ${players[current.killing].member.displayName}.`;
 
 					return result === "No votes happened"
 						? playerLine
