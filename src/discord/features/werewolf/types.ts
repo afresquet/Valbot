@@ -32,30 +32,40 @@ export type NightActionCharacter = typeof NightActionCharacters[number];
 
 export type CharactersState = { character: Character; amount: number }[];
 
-export interface Player {
+export interface Player<T extends Character | null = Character | null> {
 	master: boolean;
 	member: Discord.GuildMember;
-	initialRole: Character | null;
+	initialRole: T;
 	role: Character | null;
-	action: SeerAction | RobberAction | TroublemakerAction | DrunkAction | null;
+	action: Actions<T>;
 	killing: number | null;
 }
 
-export type SeerAction = {
+type Actions<T extends Character | null> = T extends "seer"
+	? SeerAction
+	: T extends "robber"
+	? RobberAction
+	: T extends "troublemaker"
+	? TroublemakerAction
+	: T extends "drunk"
+	? DrunkAction
+	: null;
+
+type SeerAction = {
 	player: number | null;
 	center: [number | null, number | null];
 };
 
-export type RobberAction = {
+type RobberAction = {
 	player: number;
 };
 
-export type TroublemakerAction = {
+type TroublemakerAction = {
 	first: number | null;
 	second: number | null;
 };
 
-export type DrunkAction = {
+type DrunkAction = {
 	center: number;
 };
 
