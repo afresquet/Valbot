@@ -23,6 +23,7 @@ export class WerewolfManager {
 	private textChannel: Discord.TextChannel | null = null;
 	private audioManager = new WerewolfAudioManager();
 	private playerRole: Discord.Role | null = null;
+	private bannedRole: Discord.Role | null = null;
 
 	private embeds = new Embeds(this.audioManager);
 
@@ -98,10 +99,29 @@ export class WerewolfManager {
 
 			this.playerRole = playerRole;
 		}
+
+		if (!this.bannedRole) {
+			const bannedRoleName = prefixRole("werewolf banned");
+
+			const bannedRole = guild.roles.cache.find(r => r.name === bannedRoleName);
+
+			if (!bannedRole) {
+				throw new Error(`There's no #${bannedRoleName} role!`);
+			}
+
+			this.bannedRole = bannedRole;
+		}
 	}
 
 	async join(member: Discord.GuildMember) {
 		if (this.findPlayerById(member.id)) return;
+
+		if (
+			member.roles.cache.find(
+				role => role.name === prefixRole("werewolf banned")
+			)
+		)
+			return;
 
 		const player: Player = {
 			master: false,
@@ -120,25 +140,30 @@ export class WerewolfManager {
 
 		this.players.set(curr => [...curr, player]);
 
-		member.roles.add(this.playerRole!);
+		await member.roles.add(this.playerRole!);
 
 		await this.refreshEmbed();
 	}
 
-	async leave(memberId: string, kick: boolean = false) {
+	async leave(memberId: string, kick: boolean = false, ban: boolean = false) {
 		const player = this.findPlayerById(memberId);
 
 		if (!player) return;
 
 		this.players.set(curr => curr.filter(p => p.member.id !== memberId));
 
-		player.member.roles.remove(this.playerRole!);
+		await player.member.roles.remove(this.playerRole!);
 
 		if (
-			kick &&
 			this.audioManager.isUserInVoiceChannel(player.member.voice.channelID!)
 		) {
-			await player.member.voice.kick();
+			if (kick || ban) {
+				await player.member.voice.kick();
+			}
+
+			if (ban) {
+				await player.member.roles.add(this.bannedRole!);
+			}
 		}
 
 		if (this.players.current.length <= 0) {

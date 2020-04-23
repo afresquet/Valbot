@@ -54,7 +54,13 @@ Let's you leave the game.
 
 ### `!kick <@player>` (Master only)
 
-Kicks a player.
+Kicks a player from the game and from the voice channel.
+
+### `!ban <@player>` (Mod only)
+
+Bans a player from joining the game and the voice call. Will also kick them from the voice channel.
+
+A "banned" role is applied to them, in order from them to play again that role has to be removed.
 
 ### `!rules <character>`
 

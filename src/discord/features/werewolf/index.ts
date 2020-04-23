@@ -57,14 +57,26 @@ export const werewolf: DiscordFeature = discord => {
 
 					break;
 				}
-				case "!kick": {
-					if (!gameManager.isMaster(message.author.id)) break;
+				case "!kick":
+				case "!ban": {
+					if (command === "!kick" && !gameManager.isMaster(message.author.id))
+						break;
+
+					if (
+						command === "!ban" &&
+						!message.member?.roles.cache.find(role => role.name === "mods")
+					)
+						return;
 
 					const member = message.mentions.users.first();
 
 					if (!member) break;
 
-					await gameManager.leave(member.id, true);
+					await gameManager.leave(
+						member.id,
+						command === "!kick",
+						command === "!ban"
+					);
 
 					break;
 				}
@@ -99,8 +111,7 @@ export const werewolf: DiscordFeature = discord => {
 
 					if (
 						command === "!forcemaster" &&
-						(!message.member?.hasPermission("ADMINISTRATOR") ||
-							!message.member?.roles.cache.find(role => role.name === "mods"))
+						!message.member?.roles.cache.find(role => role.name === "mods")
 					)
 						break;
 
