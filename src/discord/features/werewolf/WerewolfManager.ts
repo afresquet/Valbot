@@ -312,7 +312,7 @@ export class WerewolfManager {
 		const votes = players.reduce<{ [player: string]: number }>(
 			(result, player, index, array) => {
 				const target = player.killing
-					? players.find(p => p.member.id === player.killing)!
+					? this.findPlayerById(player.killing)!
 					: players[(index + 1) % array.length];
 
 				const id = target.member.id;
@@ -330,14 +330,14 @@ export class WerewolfManager {
 			["", 0]
 		);
 
-		const killed = players.find(p => p.member.id === killedId)!;
+		const killed = this.findPlayerById(killedId)!;
 
 		const fields: Discord.EmbedFieldData[] = [];
 
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
 		if (seer && seer.action !== null) {
 			if (seer.action.player !== null) {
-				const player = players.find(p => p.member.id === seer.action.player)!;
+				const player = this.findPlayerById(seer.action.player)!;
 
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
@@ -357,7 +357,7 @@ export class WerewolfManager {
 			"robber"
 		>;
 		if (robber && robber.action !== null) {
-			const player = players.find(p => p.member.id === robber.action.player)!;
+			const player = this.findPlayerById(robber.action.player)!;
 
 			fields.push({
 				name: `${robber.member.displayName} (Robber)`,
@@ -426,7 +426,7 @@ export class WerewolfManager {
 				title: `${killed.member.displayName} was killed with ${killedVotes} votes!`,
 				description: players.reduce((result, current, index, array) => {
 					const target = current.killing
-						? players.find(p => p.member.id === current.killing)!
+						? this.findPlayerById(current.killing)!
 						: players[(index + 1) % array.length];
 
 					const playerLine = `${numberEmojis[index]} ${current.member.displayName} voted ${target.member.displayName}.`;
