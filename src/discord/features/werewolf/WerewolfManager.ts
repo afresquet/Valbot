@@ -194,6 +194,9 @@ export class WerewolfManager {
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
+		// Will remove this when I implement it
+		if (character === "doppelganger") return;
+
 		let max = 1;
 		if (character === "werewolf" || character === "mason") {
 			max = 2;
