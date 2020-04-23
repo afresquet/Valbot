@@ -53,7 +53,8 @@ type Actions<T extends Character | null> = T extends "seer"
 
 type SeerAction = {
 	player: number | null;
-	center: [number | null, number | null];
+	first: number | null;
+	second: number | null;
 };
 
 type RobberAction = {

@@ -333,19 +333,24 @@ export class WerewolfManager {
 		const fields: Discord.EmbedFieldData[] = [];
 
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
-		if (seer) {
-			let value = "";
-			if (seer.action.player !== null) {
-				value = `Viewed the role of ${
+		if (seer && seer.action.player !== null) {
+			fields.push({
+				name: `${seer.member.displayName} (Seer)`,
+				value: `Viewed the role of ${
 					players[seer.action.player!].member.displayName
-				}.`;
-			} else {
-				value = `Viewed the roles at the ${order(
-					seer.action.center![0]!
-				)} and at the ${order(seer.action.center![1]!)}.`;
-			}
-
-			fields.push({ name: `${seer.member.displayName} (Seer)`, value });
+				}.`,
+			});
+		} else if (
+			seer &&
+			seer.action.first !== null &&
+			seer.action.second !== null
+		) {
+			fields.push({
+				name: `${seer.member.displayName} (Seer)`,
+				value: `Viewed the roles at the ${order(
+					seer.action.first!
+				)} and at the ${order(seer.action.second!)}.`,
+			});
 		}
 
 		const robber = players.find(p => p.initialRole === "robber") as Player<
@@ -646,35 +651,35 @@ export class WerewolfManager {
 							},
 						})
 					);
-				} else if (seer.action.center.every(x => x !== null)) {
+				} else if (seer.action.first !== null && seer.action.second === null) {
+					await this.nightActionDM.edit(
+						this.embeds.base({
+							...common,
+							title: "Seer, choose another center role to view.",
+							description: `You already chose to view the role on the ${order(
+								seer.action.first
+							)}.`,
+						})
+					);
+				} else if (seer.action.first !== null && seer.action.second !== null) {
 					await this.nightActionDM.edit(
 						this.embeds.base({
 							...common,
 							title: "Seer, these are the center roles you chose to view:",
 							fields: [
 								{
-									name: order(seer.action.center[0]!),
+									name: order(seer.action.first),
 									value: capitalize(
-										this.centerCards.current[seer.action.center[0]!]
+										this.centerCards.current[seer.action.first]
 									),
 								},
 								{
-									name: order(seer.action.center[1]!),
+									name: order(seer.action.second),
 									value: capitalize(
-										this.centerCards.current[seer.action.center[1]!]
+										this.centerCards.current[seer.action.second]
 									),
 								},
 							],
-						})
-					);
-				} else if (seer.action.center.some(x => x === null)) {
-					await this.nightActionDM.edit(
-						this.embeds.base({
-							...common,
-							title: "Seer, choose another center role to view.",
-							description: `You already chose to view the role on the ${order(
-								seer.action.center[0]!
-							)}.`,
 						})
 					);
 				}
@@ -767,6 +772,8 @@ export class WerewolfManager {
 		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
 		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
 
+		if (playerIndex === -1 && centerIndex === -1) return;
+
 		const player = this.players.current.find(
 			(p, i) => p.member.id === user.id && i !== playerIndex
 		);
@@ -786,30 +793,36 @@ export class WerewolfManager {
 		} else if (this.gameState.current === "NIGHT") {
 			switch (player.initialRole) {
 				case "seer": {
-					if (playerIndex === -1 && centerIndex === -1) break;
-
 					const seer = player as Player<"seer">;
 
 					const action: typeof seer.action =
 						seer.action !== null
 							? { ...seer.action }
-							: { player: null, center: [null, null] };
+							: { player: null, first: null, second: null };
 
 					if (playerIndex !== -1) {
-						if (action.player !== null || action.center.some(x => x !== null))
+						if (
+							action.player !== null ||
+							action.first !== null ||
+							action.second !== null
+						)
 							break;
 
 						action.player = playerIndex;
 					} else if (centerIndex !== -1) {
 						if (action.player !== null) break;
 
-						const nullIndex = action.center.indexOf(null);
-
-						if (nullIndex === -1) break;
-
-						if (nullIndex !== 0 && action.center[0] === centerIndex) break;
-
-						action.center[nullIndex] = centerIndex;
+						if (action.first === null) {
+							action.first = centerIndex;
+						} else if (
+							action.first !== null &&
+							action.first !== centerIndex &&
+							action.second === null
+						) {
+							action.second = centerIndex;
+						} else {
+							break;
+						}
 					}
 
 					this.players.set(curr =>
