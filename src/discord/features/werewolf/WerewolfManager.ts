@@ -333,30 +333,28 @@ export class WerewolfManager {
 		const fields: Discord.EmbedFieldData[] = [];
 
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
-		if (seer && seer.action.player !== null) {
-			const player = players.find(p => p.member.id === seer.action.player)!;
+		if (seer && seer.action !== null) {
+			if (seer.action.player !== null) {
+				const player = players.find(p => p.member.id === seer.action.player)!;
 
-			fields.push({
-				name: `${seer.member.displayName} (Seer)`,
-				value: `Viewed the role of ${player.member.displayName}.`,
-			});
-		} else if (
-			seer &&
-			seer.action.first !== null &&
-			seer.action.second !== null
-		) {
-			fields.push({
-				name: `${seer.member.displayName} (Seer)`,
-				value: `Viewed the roles at the ${order(
-					seer.action.first!
-				)} and at the ${order(seer.action.second!)}.`,
-			});
+				fields.push({
+					name: `${seer.member.displayName} (Seer)`,
+					value: `Viewed the role of ${player.member.displayName}.`,
+				});
+			} else if (seer.action.first !== null && seer.action.second !== null) {
+				fields.push({
+					name: `${seer.member.displayName} (Seer)`,
+					value: `Viewed the roles at the ${order(
+						seer.action.first!
+					)} and at the ${order(seer.action.second!)}.`,
+				});
+			}
 		}
 
 		const robber = players.find(p => p.initialRole === "robber") as Player<
 			"robber"
 		>;
-		if (robber) {
+		if (robber && robber.action !== null) {
 			const player = players.find(p => p.member.id === robber.action.player)!;
 
 			fields.push({
@@ -368,7 +366,12 @@ export class WerewolfManager {
 		const troublemaker = players.find(
 			p => p.initialRole === "troublemaker"
 		) as Player<"troublemaker">;
-		if (troublemaker) {
+		if (
+			troublemaker &&
+			troublemaker.action !== null &&
+			troublemaker.action.first !== null &&
+			troublemaker.action.second !== null
+		) {
 			const first = players.find(
 				p => p.member.id === troublemaker.action.first
 			)!;
@@ -385,7 +388,7 @@ export class WerewolfManager {
 		const drunk = players.find(p => p.initialRole === "drunk") as Player<
 			"drunk"
 		>;
-		if (drunk) {
+		if (drunk && drunk.action !== null) {
 			fields.push({
 				name: `${drunk.member.displayName} (Drunk)`,
 				value: `Took the role from the center at the ${order(
@@ -716,9 +719,12 @@ export class WerewolfManager {
 			case "troublemaker": {
 				const troublemaker = player as Player<"troublemaker">;
 
-				if (troublemaker.action.second === null) {
+				if (
+					troublemaker.action.first !== null &&
+					troublemaker.action.second === null
+				) {
 					const first = this.players.current.find(
-						p => p.member.id === troublemaker.action.first!
+						p => p.member.id === troublemaker.action.first
 					)!;
 					const firstIndex = this.players.current.indexOf(first);
 
@@ -741,13 +747,16 @@ export class WerewolfManager {
 							],
 						})
 					);
-				} else {
+				} else if (
+					troublemaker.action.first !== null &&
+					troublemaker.action.second !== null
+				) {
 					const first = this.players.current.find(
-						p => p.member.id === troublemaker.action.first!
+						p => p.member.id === troublemaker.action.first
 					)!;
 					const firstIndex = this.players.current.indexOf(first);
 					const second = this.players.current.find(
-						p => p.member.id === troublemaker.action.second!
+						p => p.member.id === troublemaker.action.second
 					)!;
 					const secondIndex = this.players.current.indexOf(second);
 
