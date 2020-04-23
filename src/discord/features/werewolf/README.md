@@ -72,6 +72,10 @@ Adds or removes a character from the game.
 
 Starts the game from "Preparation" mode.
 
+### `!cancel` (Master only)
+
+Stops the game at "Day" time only.
+
 ### `!master <@player>` (Master only)
 
 Passes the "master" status to another player.

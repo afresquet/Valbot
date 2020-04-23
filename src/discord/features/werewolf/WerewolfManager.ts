@@ -206,7 +206,17 @@ export class WerewolfManager {
 		this.cleanUp();
 	}
 
+	cancel() {
+		if (this.gameState.current !== "DAY") return;
+
+		this.gameState.set(() => "NOT_PLAYING");
+
+		this.cleanUp();
+	}
+
 	private async assignRoles() {
+		if (this.gameState.current !== "PREPARATION") return;
+
 		this.gameState.set(() => "ROLE_ASSIGNING");
 
 		const roles = this.characters.current.reduce<Character[]>(
@@ -242,6 +252,8 @@ export class WerewolfManager {
 	}
 
 	private async night() {
+		if (this.gameState.current !== "ROLE_ASSIGNING") return;
+
 		this.gameState.set(() => "NIGHT");
 
 		await this.refreshEmbed();
@@ -259,6 +271,8 @@ export class WerewolfManager {
 	}
 
 	private async day() {
+		if (this.gameState.current !== "NIGHT") return;
+
 		this.gameState.set(() => "DAY");
 
 		this.refreshEmbed();
@@ -273,6 +287,8 @@ export class WerewolfManager {
 	}
 
 	private async voting() {
+		if (this.gameState.current !== "DAY") return;
+
 		this.gameState.set(() => "VOTING");
 
 		await this.audioManager.play(
@@ -303,6 +319,8 @@ export class WerewolfManager {
 	}
 
 	private async finish() {
+		if (this.gameState.current !== "VOTING") return;
+
 		this.gameState.set(() => "NOT_PLAYING");
 
 		if (!this.gameMessage) return;

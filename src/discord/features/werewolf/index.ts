@@ -23,117 +23,105 @@ export const werewolf: DiscordFeature = discord => {
 
 		await message.delete();
 
-		if (gameManager.isPlaying()) {
-			switch (command) {
-				case "!cancel": {
-					// await gameManager.finish();
-
-					break;
-				}
-				default:
-					break;
-			}
-		} else {
-			switch (command) {
-				case "!newgame": {
-					await gameManager.newGame();
-
-					break;
-				}
-				case "!start": {
-					if (!gameManager.isMaster(message.author.id)) return;
-
-					await gameManager.start();
-
-					break;
-				}
-				case "!join": {
-					await gameManager.join(message.member!);
-
-					break;
-				}
-				case "!leave": {
-					await gameManager.leave(message.author.id);
-
-					break;
-				}
-				case "!kick": {
-					if (!gameManager.isMaster(message.author.id)) return;
-
-					const member = message.mentions.users.first();
-
-					if (!member) break;
-
-					await gameManager.leave(member.id);
-
-					break;
-				}
-				case "!add":
-				case "!remove": {
-					const character = value.toLowerCase();
-
-					if (!gameManager.isMaster(message.author.id)) return;
-
-					if (!Characters.includes(character as any)) return;
-
-					await gameManager.manageCharacter(
-						character as Character,
-						command === "!add"
-					);
-
-					break;
-				}
-				case "!rules": {
-					const role = value.toLowerCase();
-
-					if (!Characters.includes(role as any)) break;
-
-					await gameManager.rules(role as Character);
-
-					break;
-				}
-				case "!master": {
-					if (!gameManager.isMaster(message.author.id)) return;
-
-					const member = message.mentions.users.first();
-
-					if (!member) break;
-
-					await gameManager.setMaster(member.id);
-
-					break;
-				}
-				case "!expert": {
-					if (!gameManager.isMaster(message.author.id)) return;
-
-					await gameManager.toggleExpert();
-
-					break;
-				}
-				case "!timer": {
-					if (!gameManager.isMaster(message.author.id)) return;
-
-					const [timer, seconds] = messageSplitter(value, 2);
-
-					if (
-						!["game", "role"].includes(timer) ||
-						Number.isNaN(parseInt(seconds, 10))
-					)
-						return;
-
-					await gameManager.changeTimer(
-						timer as "game" | "role",
-						parseInt(seconds, 10)
-					);
-
-					break;
-				}
-				default:
-					break;
-			}
-		}
-
 		switch (command) {
+			case "!newgame": {
+				await gameManager.newGame();
+
+				break;
+			}
+			case "!start": {
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				await gameManager.start();
+
+				break;
+			}
+			case "!join": {
+				await gameManager.join(message.member!);
+
+				break;
+			}
+			case "!cancel": {
+				gameManager.cancel();
+
+				break;
+			}
+			case "!leave": {
+				await gameManager.leave(message.author.id);
+
+				break;
+			}
+			case "!kick": {
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				const member = message.mentions.users.first();
+
+				if (!member) break;
+
+				await gameManager.leave(member.id);
+
+				break;
+			}
+			case "!add":
+			case "!remove": {
+				const character = value.toLowerCase();
+
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				if (!Characters.includes(character as any)) return;
+
+				await gameManager.manageCharacter(
+					character as Character,
+					command === "!add"
+				);
+
+				break;
+			}
+			case "!rules": {
+				const role = value.toLowerCase();
+
+				if (!Characters.includes(role as any)) break;
+
+				await gameManager.rules(role as Character);
+
+				break;
+			}
+			case "!master": {
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				const member = message.mentions.users.first();
+
+				if (!member) break;
+
+				await gameManager.setMaster(member.id);
+
+				break;
+			}
+			case "!expert": {
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				await gameManager.toggleExpert();
+
+				break;
+			}
+			case "!timer": {
+				if (!gameManager.isMaster(message.author.id)) return;
+
+				const [timer, seconds] = messageSplitter(value, 2);
+
+				if (
+					!["game", "role"].includes(timer) ||
+					Number.isNaN(parseInt(seconds, 10))
+				)
+					return;
+
+				await gameManager.changeTimer(
+					timer as "game" | "role",
+					parseInt(seconds, 10)
+				);
+
+				break;
+			}
 			case "!volume": {
 				if (!gameManager.isMaster(message.author.id)) return;
 
