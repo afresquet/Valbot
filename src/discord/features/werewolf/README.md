@@ -42,7 +42,7 @@ Currently Doppelganger is not supported, but I will add it soon™.
 
 ## Commands
 
-All of the commands except `!volume` can only be used when a game is not currently going on.
+All of the commands except `!cancel` and `!volume` can only be used when a game is not currently going on.
 
 ### `!join`
 
