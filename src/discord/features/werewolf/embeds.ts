@@ -168,12 +168,12 @@ export class Embeds {
 	}
 
 	voting(players: Player[]) {
-		const votedValue = players.reduce((result, player, _, array) => {
+		const votedValue = players.reduce((result, player, _) => {
 			if (player.killing === null) return result;
 
-			const playerLine = `${player.member.displayName} is killing ${
-				array[player.killing].member.displayName
-			}.`;
+			const target = players.find(p => p.member.id === player.killing)!;
+
+			const playerLine = `${player.member.displayName} is killing ${target.member.displayName}.`;
 
 			return result === "No one has voted yet."
 				? playerLine
@@ -208,17 +208,27 @@ export class Embeds {
 	}
 
 	playerVoting(players: Player[], player: Player) {
+		const playerIndex = players.indexOf(player);
+
 		return this.base({
 			title: "Vote for who you want to kill!",
 			footer: { text: "This message will expire soon, act fast!" },
 			fields: [
 				{
 					name: "Players",
-					value: listOfEveryone(
-						players,
-						[player.member.id],
-						"There are no players."
-					),
+					value: players.reduce((result, current, index, array) => {
+						if (current.member.id === player.member.id) return result;
+
+						const playerLine = `${numberEmojis[index]} ${
+							current.member.displayName
+						} ${
+							(index + 1) % array.length === playerIndex ? "(Default vote)" : ""
+						}`;
+
+						return result === "There are no players."
+							? playerLine
+							: `${result}\n${playerLine}`;
+					}, "There are no players."),
 				},
 			],
 		});

@@ -38,7 +38,7 @@ export interface Player<T extends Character | null = Character | null> {
 	initialRole: T;
 	role: Character | null;
 	action: Actions<T>;
-	killing: number | null;
+	killing: string | null;
 }
 
 type Actions<T extends Character | null> = T extends "seer"

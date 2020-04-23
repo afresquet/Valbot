@@ -310,10 +310,12 @@ export class WerewolfManager {
 		const players = this.players.current;
 
 		const votes = players.reduce<{ [player: string]: number }>(
-			(result, player) => {
-				if (player.killing === null) return result;
+			(result, player, index, array) => {
+				const target = player.killing
+					? players.find(p => p.member.id === player.killing)!
+					: players[(index + 1) % array.length];
 
-				const id = players[player.killing!].member.id;
+				const id = target.member.id;
 
 				return {
 					...result,
@@ -422,12 +424,12 @@ export class WerewolfManager {
 				footer: {},
 				timestamp: Date.now(),
 				title: `${killed.member.displayName} was killed with ${killedVotes} votes!`,
-				description: players.reduce((result, current, index) => {
-					if (current.killing === null) return result;
+				description: players.reduce((result, current, index, array) => {
+					const target = current.killing
+						? players.find(p => p.member.id === current.killing)!
+						: players[(index + 1) % array.length];
 
-					const playerLine = `${numberEmojis[index]} ${
-						current.member.displayName
-					} voted ${players[current.killing].member.displayName}.`;
+					const playerLine = `${numberEmojis[index]} ${current.member.displayName} voted ${target.member.displayName}.`;
 
 					return result === "No votes happened"
 						? playerLine
@@ -810,9 +812,11 @@ export class WerewolfManager {
 		if (this.gameState.current === "VOTING") {
 			if (playerIndex === -1 || player.killing !== null) return;
 
+			const target = this.players.current[playerIndex];
+
 			this.players.set(curr =>
 				curr.map(p =>
-					p.member.id === user.id ? { ...p, killing: playerIndex } : p
+					p.member.id === user.id ? { ...p, killing: target.member.id } : p
 				)
 			);
 
