@@ -241,10 +241,14 @@ export class WerewolfManager {
 		this.cleanUp();
 	}
 
-	cancel() {
+	async cancel() {
 		if (this.gameState.current !== "DAY") return;
 
 		this.gameState.set(() => "NOT_PLAYING");
+
+		if (this.gameMessage) {
+			await this.gameMessage.delete();
+		}
 
 		this.cleanUp();
 	}
