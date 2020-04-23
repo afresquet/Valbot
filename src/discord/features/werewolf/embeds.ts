@@ -17,6 +17,7 @@ export class Embeds {
 	private nightActionDMCommon = (
 		character: Character
 	): Discord.MessageEmbedOptions => ({
+		description: "React to this message with your choice!",
 		footer: { text: "This message will expire soon, act fast!" },
 		thumbnail: { url: characters[character].image },
 	});
@@ -343,7 +344,12 @@ export class Embeds {
 			return this.base({
 				...this.nightActionDMCommon,
 				title: "Robber, choose another player to steal their role:",
-				description: listOfEveryone(players, [robber.member.id]),
+				fields: [
+					{
+						name: "Players",
+						value: listOfEveryone(players, [robber.member.id]),
+					},
+				],
 			});
 		} else {
 			const target = this.findPlayerById(players, robber.action.player)!;
@@ -426,8 +432,13 @@ export class Embeds {
 		if (drunk.action === null) {
 			return this.base({
 				...this.nightActionDMCommon,
-				title: "Drunk, choose a card from the center to become that role:",
-				description: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+				title: "Drunk, choose a role from the center to become that role:",
+				fields: [
+					{
+						name: "Center roles",
+						value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+					},
+				],
 			});
 		} else {
 			return this.base({
