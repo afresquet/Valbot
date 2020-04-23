@@ -159,7 +159,7 @@ export class Embeds {
 			case "doppelganger": {
 				const doppelganger = player as Player<"doppelganger">;
 
-				return doppelganger.action.ready
+				return doppelganger.action?.ready
 					? this.base(
 							this.doppelgangerCopiedNightActionDM(players, doppelganger)
 					  )
@@ -334,7 +334,7 @@ export class Embeds {
 			title: `${capitalize(role)}, this is your team:`,
 			description: this.nightTeammatesDescription(
 				players,
-				player.initialRole!,
+				role,
 				player.member.id
 			),
 		};
@@ -345,7 +345,7 @@ export class Embeds {
 		player: Player
 	): Discord.MessageEmbedOptions {
 		return {
-			...this.nightActionDMCommon("minion"),
+			...this.nightActionDMCommon(player.initialRole!),
 			title: "Minion, these are the werewolves:",
 			description: this.nightTeammatesDescription(
 				players,

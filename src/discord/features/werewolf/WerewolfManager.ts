@@ -701,6 +701,10 @@ export class WerewolfManager {
 		}
 
 		// Doppelganger Minion
+		if (
+			this.characters.current.find(c => c.character === "minion")!.amount <= 0
+		)
+			return;
 
 		await this.audioManager.play(
 			this.soundPath(
@@ -715,9 +719,11 @@ export class WerewolfManager {
 			doppelganger.action.role.character === "minion"
 		) {
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.doppelgangerCopiedNightActionDM(
-					this.players.current,
-					doppelganger
+				this.embeds.base(
+					this.embeds.doppelgangerCopiedNightActionDM(
+						this.players.current,
+						doppelganger
+					)
 				)
 			);
 		}
