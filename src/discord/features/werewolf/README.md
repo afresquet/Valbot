@@ -46,7 +46,7 @@ All of the commands except `!cancel` and `!volume` can only be used when a game 
 
 ### `!join`
 
-Let's you join the game.
+Let's you join the game. Only after using this command will you be able to talk in the voice channel.
 
 ### `!leave`
 
