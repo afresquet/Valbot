@@ -574,15 +574,13 @@ export class WerewolfManager {
 		)
 			return;
 
-		if (this.expert.current) {
-			await this.audioManager.play(
-				this.soundPath(characters[character].sounds.expert.wake)
-			);
-		} else {
-			await this.audioManager.play(
-				this.soundPath(characters[character].sounds.wake)
-			);
-		}
+		await this.audioManager.play(
+			this.soundPath(
+				this.expert.current
+					? characters[character].sounds.expert.wake
+					: characters[character].sounds.wake
+			)
+		);
 
 		await this.handleNightActionCharacter(character);
 
@@ -599,6 +597,44 @@ export class WerewolfManager {
 		await this.audioManager.play(
 			this.soundPath(characters[character].sounds.close)
 		);
+
+		if (
+			character === "insomniac" &&
+			this.characters.current.find(c => c.character === "doppelganger")!
+				.amount > 0
+		) {
+			const doppelganger = this.players.current.find(
+				p => p.initialRole === "doppelganger"
+			)! as Player<"doppelganger", "insomniac">;
+
+			await this.audioManager.play(
+				this.soundPath(
+					this.expert.current
+						? characters.insomniac.sounds.expert.doppelganger
+						: characters.insomniac.sounds.doppelganger
+				)
+			);
+
+			this.nightActionDM = await doppelganger.member.send(
+				this.embeds.base(
+					this.embeds.doppelgangerCopiedNightActionDM(
+						this.players.current,
+						doppelganger
+					)
+				)
+			);
+
+			await delay(this.roleTimer.current * 1000);
+
+			await Promise.all([
+				this.audioManager.play(
+					this.soundPath(characters.doppelganger.sounds.close)
+				),
+				this.nightActionDM.delete(),
+			]);
+
+			this.nightActionDM = null;
+		}
 	}
 
 	private async handleNightActionCharacter(character: NightActionCharacter) {

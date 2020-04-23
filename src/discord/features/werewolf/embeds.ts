@@ -313,6 +313,11 @@ export class Embeds {
 					...this.minionNightActionDM(players, player),
 					title: "Doppelganger-Minion, these are the werewolves:",
 				};
+			case "insomniac":
+				return {
+					...this.insomniacNightActionDM(player),
+					title: "Doppelganger-Insomniac, this is your role:",
+				};
 			default:
 				throw new Error(
 					`Unhandled Doppelganger action of character ${player.action.role.character}.`
@@ -538,7 +543,7 @@ export class Embeds {
 
 	insomniacNightActionDM(player: Player): Discord.MessageEmbedOptions {
 		return {
-			...this.nightActionDMCommon("insomniac"),
+			...this.nightActionDMCommon(player.initialRole!),
 			title: "Insomniac, this is your role:",
 			description: capitalize(player.role!),
 			image: {
