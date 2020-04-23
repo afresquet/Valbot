@@ -52,18 +52,18 @@ type Actions<T extends Character | null> = T extends "seer"
 	: null;
 
 type SeerAction = {
-	player: number | null;
+	player: string | null;
 	first: number | null;
 	second: number | null;
 };
 
 type RobberAction = {
-	player: number;
+	player: string;
 };
 
 type TroublemakerAction = {
-	first: number | null;
-	second: number | null;
+	first: string | null;
+	second: string | null;
 };
 
 type DrunkAction = {

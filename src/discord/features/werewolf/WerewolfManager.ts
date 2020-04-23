@@ -334,11 +334,11 @@ export class WerewolfManager {
 
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
 		if (seer && seer.action.player !== null) {
+			const player = players.find(p => p.member.id === seer.action.player)!;
+
 			fields.push({
 				name: `${seer.member.displayName} (Seer)`,
-				value: `Viewed the role of ${
-					players[seer.action.player!].member.displayName
-				}.`,
+				value: `Viewed the role of ${player.member.displayName}.`,
 			});
 		} else if (
 			seer &&
@@ -357,11 +357,11 @@ export class WerewolfManager {
 			"robber"
 		>;
 		if (robber) {
+			const player = players.find(p => p.member.id === robber.action.player)!;
+
 			fields.push({
 				name: `${robber.member.displayName} (Robber)`,
-				value: `Stole the role from ${
-					players[robber.action.player].member.displayName
-				}.`,
+				value: `Stole the role from ${player.member.displayName}.`,
 			});
 		}
 
@@ -369,11 +369,16 @@ export class WerewolfManager {
 			p => p.initialRole === "troublemaker"
 		) as Player<"troublemaker">;
 		if (troublemaker) {
+			const first = players.find(
+				p => p.member.id === troublemaker.action.first
+			)!;
+			const second = players.find(
+				p => p.member.id === troublemaker.action.second
+			)!;
+
 			fields.push({
 				name: `${troublemaker.member.displayName} (Troublemaker)`,
-				value: `Swapped the roles of ${
-					players[troublemaker.action.first!].member.displayName
-				} and ${players[troublemaker.action.second!].member.displayName}.`,
+				value: `Swapped the roles of ${first.member.displayName} and ${second.member.displayName}.`,
 			});
 		}
 
@@ -639,7 +644,9 @@ export class WerewolfManager {
 				const seer = player as Player<"seer">;
 
 				if (seer.action.player !== null) {
-					const target = this.players.current[seer.action.player];
+					const target = this.players.current.find(
+						p => p.member.id === seer.action.player
+					)!;
 
 					await this.nightActionDM.edit(
 						this.embeds.base({
@@ -689,12 +696,14 @@ export class WerewolfManager {
 			case "robber": {
 				const robber = player as Player<"robber">;
 
+				const target = this.players.current.find(
+					p => p.member.id === robber.action.player
+				)!;
+
 				await this.nightActionDM.edit(
 					this.embeds.base({
 						...common,
-						title: `You stole the role from ${
-							this.players.current[robber.action.player].member.displayName
-						}!`,
+						title: `You stole the role from ${target.member.displayName}!`,
 						description: `You became a ${capitalize(robber.role!)}.`,
 						image: {
 							url: characters[robber.role!].image,
@@ -708,6 +717,11 @@ export class WerewolfManager {
 				const troublemaker = player as Player<"troublemaker">;
 
 				if (troublemaker.action.second === null) {
+					const first = this.players.current.find(
+						p => p.member.id === troublemaker.action.first!
+					)!;
+					const firstIndex = this.players.current.indexOf(first);
+
 					await this.nightActionDM.edit(
 						this.embeds.base({
 							...common,
@@ -716,10 +730,7 @@ export class WerewolfManager {
 							fields: [
 								{
 									name: "Picked",
-									value: `${numberEmojis[troublemaker.action.first!]} ${
-										this.players.current[troublemaker.action.first!].member
-											.displayName
-									}`,
+									value: `${numberEmojis[firstIndex]} ${first.member.displayName}`,
 								},
 								{
 									name: "Players",
@@ -731,18 +742,21 @@ export class WerewolfManager {
 						})
 					);
 				} else {
+					const first = this.players.current.find(
+						p => p.member.id === troublemaker.action.first!
+					)!;
+					const firstIndex = this.players.current.indexOf(first);
+					const second = this.players.current.find(
+						p => p.member.id === troublemaker.action.second!
+					)!;
+					const secondIndex = this.players.current.indexOf(second);
+
 					await this.nightActionDM.edit(
 						this.embeds.base({
 							...common,
 							title:
 								"Troublemaker, you swapped the roles of these two players:",
-							description: `${numberEmojis[troublemaker.action.first!]} ${
-								this.players.current[troublemaker.action.first!].member
-									.displayName
-							}\n${numberEmojis[troublemaker.action.second]} ${
-								this.players.current[troublemaker.action.second].member
-									.displayName
-							}`,
+							description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
 						})
 					);
 				}
@@ -780,6 +794,10 @@ export class WerewolfManager {
 
 		if (!player) return;
 
+		const target = this.players.current[playerIndex];
+
+		if (playerIndex !== -1 && !target) return;
+
 		if (this.gameState.current === "VOTING") {
 			if (playerIndex === -1 || player.killing !== null) return;
 
@@ -808,7 +826,7 @@ export class WerewolfManager {
 						)
 							break;
 
-						action.player = playerIndex;
+						action.player = target.member.id;
 					} else if (centerIndex !== -1) {
 						if (action.player !== null) break;
 
@@ -840,9 +858,7 @@ export class WerewolfManager {
 
 					if (robber.action !== null) break;
 
-					const target = this.players.current[playerIndex];
-
-					const action: typeof robber.action = { player: playerIndex };
+					const action: typeof robber.action = { player: target.member.id };
 
 					this.players.set(curr =>
 						curr.map<Player>(p => {
@@ -869,7 +885,7 @@ export class WerewolfManager {
 							: { first: null, second: null };
 
 					if (action.first === null) {
-						action.first = playerIndex;
+						action.first = target.member.id;
 
 						this.players.set(curr =>
 							curr.map<Player>(p =>
@@ -877,20 +893,22 @@ export class WerewolfManager {
 							)
 						);
 					} else if (action.second === null) {
-						if (action.first === playerIndex) break;
+						if (action.first === target.member.id) break;
 
-						action.second = playerIndex;
+						const first = this.players.current.find(
+							p => p.member.id === action.first
+						)!;
+						const second = target;
 
-						const first = this.players.current[action.first];
-						const second = this.players.current[action.second];
+						action.second = second.member.id;
 
 						this.players.set(curr =>
 							curr.map<Player>(p => {
 								if (p.member.id === troublemaker.member.id) {
 									return { ...p, action };
-								} else if (p.member.id === first.member.id) {
+								} else if (p.member.id === action.first) {
 									return { ...p, role: second.role };
-								} else if (p.member.id === second.member.id) {
+								} else if (p.member.id === action.second) {
 									return { ...p, role: first.role };
 								} else {
 									return p;
