@@ -3,11 +3,16 @@ import { AudioManager } from "../../../helpers/AudioManager";
 import { capitalize } from "../../../helpers/capitalize";
 import { characters } from "./characters";
 import { centerEmojis, numberEmojis } from "./emojis";
+import { centerCardPosition } from "./helpers/centerCardPosition";
 import { listOfEveryone } from "./helpers/listOfEveryone";
 import { Character, CharactersState, Player } from "./types";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}
+
+	private findPlayerById(players: Player[], id: string) {
+		return players.find(player => player.member.id === id);
+	}
 
 	private nightActionDMCommon = (
 		character: Character
@@ -134,7 +139,11 @@ export class Embeds {
 		}, placeholder);
 	}
 
-	nightActionDM(players: Player[], player: Player): Discord.MessageEmbed {
+	nightActionDM(
+		players: Player[],
+		player: Player,
+		centerCards?: Character[]
+	): Discord.MessageEmbed {
 		switch (player.initialRole) {
 			case "doppelganger":
 				return this.doppelgangerNightActionDM();
@@ -144,13 +153,13 @@ export class Embeds {
 			case "minion":
 				return this.minionNightActionDM(players, player);
 			case "seer":
-				return this.seerNightActionDM(players, player);
+				return this.seerNightActionDM(players, player, centerCards!);
 			case "robber":
 				return this.robberNightActionDM(players, player);
 			case "troublemaker":
 				return this.troublemakerNightActionDM(players, player);
 			case "drunk":
-				return this.drunkNightActionDM();
+				return this.drunkNightActionDM(player);
 			case "insomniac":
 				return this.insomniacNightActionDM(player);
 			default:
@@ -171,7 +180,7 @@ export class Embeds {
 		const votedValue = players.reduce((result, player, _) => {
 			if (player.killing === null) return result;
 
-			const target = players.find(p => p.member.id === player.killing)!;
+			const target = this.findPlayerById(players, player.killing)!;
 
 			const playerLine = `${player.member.displayName} is killing ${target.member.displayName}.`;
 
@@ -265,7 +274,51 @@ export class Embeds {
 		});
 	}
 
-	seerNightActionDM(players: Player[], player: Player) {
+	seerNightActionDM(
+		players: Player[],
+		player: Player,
+		centerCards: Character[]
+	) {
+		const seer = player as Player<"seer">;
+
+		if (seer.action !== null) {
+			if (seer.action.player !== null) {
+				const target = this.findPlayerById(players, seer.action.player)!;
+
+				return this.base({
+					...this.nightActionDMCommon,
+					title: `Seer, this is ${target.member.displayName}'s role:`,
+					description: capitalize(target.role!),
+					image: {
+						url: characters[target.role!].image,
+					},
+				});
+			} else if (seer.action.first !== null && seer.action.second === null) {
+				return this.base({
+					...this.nightActionDMCommon,
+					title: "Seer, choose another center role to view.",
+					description: `You already chose to view the role on the ${centerCardPosition(
+						seer.action.first
+					)}.`,
+				});
+			} else if (seer.action.first !== null && seer.action.second !== null) {
+				return this.base({
+					...this.nightActionDMCommon,
+					title: "Seer, these are the center roles you chose to view:",
+					fields: [
+						{
+							name: centerCardPosition(seer.action.first),
+							value: capitalize(centerCards[seer.action.first]),
+						},
+						{
+							name: centerCardPosition(seer.action.second),
+							value: capitalize(centerCards[seer.action.second]),
+						},
+					],
+				});
+			}
+		}
+
 		return this.base({
 			...this.nightActionDMCommon,
 			title:
@@ -273,7 +326,7 @@ export class Embeds {
 			fields: [
 				{
 					name: "Players",
-					value: listOfEveryone(players, [player.member.id]),
+					value: listOfEveryone(players, [seer.member.id]),
 				},
 				{
 					name: "Center",
@@ -284,14 +337,73 @@ export class Embeds {
 	}
 
 	robberNightActionDM(players: Player[], player: Player) {
-		return this.base({
-			...this.nightActionDMCommon,
-			title: "Robber, choose another player to steal their role:",
-			description: listOfEveryone(players, [player.member.id]),
-		});
+		const robber = player as Player<"robber">;
+
+		if (robber.action === null) {
+			return this.base({
+				...this.nightActionDMCommon,
+				title: "Robber, choose another player to steal their role:",
+				description: listOfEveryone(players, [robber.member.id]),
+			});
+		} else {
+			const target = this.findPlayerById(players, robber.action.player)!;
+
+			return this.base({
+				...this.nightActionDMCommon,
+				title: `You stole the role from ${target.member.displayName}!`,
+				description: `You became a ${capitalize(robber.role!)}.`,
+				image: {
+					url: characters[robber.role!].image,
+				},
+			});
+		}
 	}
 
 	troublemakerNightActionDM(players: Player[], player: Player) {
+		const troublemaker = player as Player<"troublemaker">;
+
+		if (troublemaker.action !== null) {
+			if (
+				troublemaker.action.first !== null &&
+				troublemaker.action.second === null
+			) {
+				const first = this.findPlayerById(players, troublemaker.action.first)!;
+				const firstIndex = players.indexOf(first);
+
+				return this.base({
+					...this.nightActionDMCommon,
+					title: "Troublemaker, choose two other players to swap their roles:",
+					fields: [
+						{
+							name: "Picked",
+							value: `${numberEmojis[firstIndex]} ${first.member.displayName}`,
+						},
+						{
+							name: "Players",
+							value: listOfEveryone(players, [troublemaker.member.id]),
+						},
+					],
+				});
+			} else if (
+				troublemaker.action.first !== null &&
+				troublemaker.action.second !== null
+			) {
+				const first = this.findPlayerById(players, troublemaker.action.first)!;
+				const firstIndex = players.indexOf(first);
+				const second = this.findPlayerById(
+					players,
+					troublemaker.action.second
+				)!;
+				const secondIndex = players.indexOf(second);
+
+				return this.base({
+					...this.nightActionDMCommon,
+					title: "Troublemaker, you swapped the roles of these two players:",
+					description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
+				});
+			}
+		}
+
 		return this.base({
 			...this.nightActionDMCommon,
 			title: "Troublemaker, choose two other players to swap their roles:",
@@ -302,18 +414,29 @@ export class Embeds {
 				},
 				{
 					name: "Players",
-					value: listOfEveryone(players, [player.member.id]),
+					value: listOfEveryone(players, [troublemaker.member.id]),
 				},
 			],
 		});
 	}
 
-	drunkNightActionDM() {
-		return this.base({
-			...this.nightActionDMCommon,
-			title: "Drunk, choose a card from the center to become that role:",
-			description: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
-		});
+	drunkNightActionDM(player: Player) {
+		const drunk = player as Player<"drunk">;
+
+		if (drunk.action === null) {
+			return this.base({
+				...this.nightActionDMCommon,
+				title: "Drunk, choose a card from the center to become that role:",
+				description: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+			});
+		} else {
+			return this.base({
+				...this.nightActionDMCommon,
+				title: `Drunk, you chose to become the role in the ${centerCardPosition(
+					drunk.action.center
+				)}.`,
+			});
+		}
 	}
 
 	insomniacNightActionDM(player: Player) {

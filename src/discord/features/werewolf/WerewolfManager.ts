@@ -1,6 +1,5 @@
 import Discord from "discord.js";
 import { join } from "path";
-import { capitalize } from "../../../helpers/capitalize";
 import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
@@ -8,7 +7,6 @@ import { State } from "../../../helpers/State";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
-import { listOfEveryone } from "./helpers/listOfEveryone";
 import {
 	Character,
 	Characters,
@@ -636,148 +634,13 @@ export class WerewolfManager {
 
 		if (!player) return;
 
-		const common = {
-			footer: { text: "This message will expire soon, act fast!" },
-			thumbnail: { url: characters[character].image },
-		};
-
-		switch (player.initialRole) {
-			case "seer": {
-				const seer = player as Player<"seer">;
-
-				if (seer.action.player !== null) {
-					const target = this.findPlayerById(seer.action.player)!;
-
-					await this.nightActionDM.edit(
-						this.embeds.base({
-							...common,
-							title: `Seer, this is ${target.member.displayName}'s role:`,
-							description: capitalize(target.role!),
-							image: {
-								url: characters[target.role!].image,
-							},
-						})
-					);
-				} else if (seer.action.first !== null && seer.action.second === null) {
-					await this.nightActionDM.edit(
-						this.embeds.base({
-							...common,
-							title: "Seer, choose another center role to view.",
-							description: `You already chose to view the role on the ${order(
-								seer.action.first
-							)}.`,
-						})
-					);
-				} else if (seer.action.first !== null && seer.action.second !== null) {
-					await this.nightActionDM.edit(
-						this.embeds.base({
-							...common,
-							title: "Seer, these are the center roles you chose to view:",
-							fields: [
-								{
-									name: order(seer.action.first),
-									value: capitalize(
-										this.centerCards.current[seer.action.first]
-									),
-								},
-								{
-									name: order(seer.action.second),
-									value: capitalize(
-										this.centerCards.current[seer.action.second]
-									),
-								},
-							],
-						})
-					);
-				}
-
-				break;
-			}
-			case "robber": {
-				const robber = player as Player<"robber">;
-
-				const target = this.findPlayerById(robber.action.player)!;
-
-				await this.nightActionDM.edit(
-					this.embeds.base({
-						...common,
-						title: `You stole the role from ${target.member.displayName}!`,
-						description: `You became a ${capitalize(robber.role!)}.`,
-						image: {
-							url: characters[robber.role!].image,
-						},
-					})
-				);
-
-				break;
-			}
-			case "troublemaker": {
-				const troublemaker = player as Player<"troublemaker">;
-
-				if (
-					troublemaker.action.first !== null &&
-					troublemaker.action.second === null
-				) {
-					const first = this.findPlayerById(troublemaker.action.first)!;
-					const firstIndex = this.players.current.indexOf(first);
-
-					await this.nightActionDM.edit(
-						this.embeds.base({
-							...common,
-							title:
-								"Troublemaker, choose two other players to swap their roles:",
-							fields: [
-								{
-									name: "Picked",
-									value: `${numberEmojis[firstIndex]} ${first.member.displayName}`,
-								},
-								{
-									name: "Players",
-									value: listOfEveryone(this.players.current, [
-										troublemaker.member.id,
-									]),
-								},
-							],
-						})
-					);
-				} else if (
-					troublemaker.action.first !== null &&
-					troublemaker.action.second !== null
-				) {
-					const first = this.findPlayerById(troublemaker.action.first)!;
-					const firstIndex = this.players.current.indexOf(first);
-					const second = this.findPlayerById(troublemaker.action.second)!;
-					const secondIndex = this.players.current.indexOf(second);
-
-					await this.nightActionDM.edit(
-						this.embeds.base({
-							...common,
-							title:
-								"Troublemaker, you swapped the roles of these two players:",
-							description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
-						})
-					);
-				}
-
-				break;
-			}
-			case "drunk": {
-				const drunk = player as Player<"drunk">;
-
-				await this.nightActionDM.edit(
-					this.embeds.base({
-						...common,
-						title: `Drunk, you chose to become the role in the ${order(
-							drunk.action.center
-						)}.`,
-					})
-				);
-
-				break;
-			}
-			default:
-				break;
-		}
+		await this.nightActionDM.edit(
+			this.embeds.nightActionDM(
+				this.players.current,
+				player,
+				this.centerCards.current
+			)
+		);
 	}
 
 	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
