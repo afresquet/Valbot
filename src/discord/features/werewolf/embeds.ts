@@ -246,14 +246,14 @@ export class Embeds {
 
 	doppelgangerNightActionDM() {
 		return this.base({
-			...this.nightActionDMCommon,
+			...this.nightActionDMCommon("doppelganger"),
 			title: "Doppelganger hasn't been implemented into the game yet!",
 		});
 	}
 
 	werewolfAndMasonNightActionDM(players: Player[], player: Player) {
 		return this.base({
-			...this.nightActionDMCommon,
+			...this.nightActionDMCommon(player.initialRole!),
 			title: `${capitalize(player.initialRole!)}, this is your team:`,
 			description: this.nightTeammatesDescription(
 				players,
@@ -265,7 +265,7 @@ export class Embeds {
 
 	minionNightActionDM(players: Player[], player: Player) {
 		return this.base({
-			...this.nightActionDMCommon,
+			...this.nightActionDMCommon("minion"),
 			title: "Minion, these are the werewolves:",
 			description: this.nightTeammatesDescription(
 				players,
@@ -287,7 +287,7 @@ export class Embeds {
 				const target = this.findPlayerById(players, seer.action.player)!;
 
 				return this.base({
-					...this.nightActionDMCommon,
+					...this.nightActionDMCommon("seer"),
 					title: `Seer, this is ${target.member.displayName}'s role:`,
 					description: capitalize(target.role!),
 					image: {
@@ -296,7 +296,7 @@ export class Embeds {
 				});
 			} else if (seer.action.first !== null && seer.action.second === null) {
 				return this.base({
-					...this.nightActionDMCommon,
+					...this.nightActionDMCommon("seer"),
 					title: "Seer, choose another center role to view.",
 					description: `You already chose to view the role on the ${centerCardPosition(
 						seer.action.first
@@ -304,7 +304,7 @@ export class Embeds {
 				});
 			} else if (seer.action.first !== null && seer.action.second !== null) {
 				return this.base({
-					...this.nightActionDMCommon,
+					...this.nightActionDMCommon("seer"),
 					title: "Seer, these are the center roles you chose to view:",
 					fields: [
 						{
@@ -321,7 +321,7 @@ export class Embeds {
 		}
 
 		return this.base({
-			...this.nightActionDMCommon,
+			...this.nightActionDMCommon("seer"),
 			title:
 				"Seer, choose a player to view their role, or view two roles from the center:",
 			fields: [
@@ -342,7 +342,7 @@ export class Embeds {
 
 		if (robber.action === null) {
 			return this.base({
-				...this.nightActionDMCommon,
+				...this.nightActionDMCommon("robber"),
 				title: "Robber, choose another player to steal their role:",
 				fields: [
 					{
@@ -355,7 +355,7 @@ export class Embeds {
 			const target = this.findPlayerById(players, robber.action.player)!;
 
 			return this.base({
-				...this.nightActionDMCommon,
+				...this.nightActionDMCommon("robber"),
 				title: `You stole the role from ${target.member.displayName}!`,
 				description: `You became a ${capitalize(robber.role!)}.`,
 				image: {
@@ -377,7 +377,7 @@ export class Embeds {
 				const firstIndex = players.indexOf(first);
 
 				return this.base({
-					...this.nightActionDMCommon,
+					...this.nightActionDMCommon("troublemaker"),
 					title: "Troublemaker, choose two other players to swap their roles:",
 					fields: [
 						{
@@ -403,7 +403,7 @@ export class Embeds {
 				const secondIndex = players.indexOf(second);
 
 				return this.base({
-					...this.nightActionDMCommon,
+					...this.nightActionDMCommon("troublemaker"),
 					title: "Troublemaker, you swapped the roles of these two players:",
 					description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
 				});
@@ -411,7 +411,7 @@ export class Embeds {
 		}
 
 		return this.base({
-			...this.nightActionDMCommon,
+			...this.nightActionDMCommon("troublemaker"),
 			title: "Troublemaker, choose two other players to swap their roles:",
 			fields: [
 				{
@@ -431,7 +431,7 @@ export class Embeds {
 
 		if (drunk.action === null) {
 			return this.base({
-				...this.nightActionDMCommon,
+				...this.nightActionDMCommon("drunk"),
 				title: "Drunk, choose a role from the center to become that role:",
 				fields: [
 					{
@@ -442,7 +442,7 @@ export class Embeds {
 			});
 		} else {
 			return this.base({
-				...this.nightActionDMCommon,
+				...this.nightActionDMCommon("drunk"),
 				title: `Drunk, you chose to become the role in the ${centerCardPosition(
 					drunk.action.center
 				)}.`,
@@ -452,7 +452,7 @@ export class Embeds {
 
 	insomniacNightActionDM(player: Player) {
 		return this.base({
-			...this.nightActionDMCommon,
+			...this.nightActionDMCommon("insomniac"),
 			title: "Insomniac, this is your role:",
 			description: capitalize(player.role!),
 			image: {
