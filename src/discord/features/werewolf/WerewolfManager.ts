@@ -164,10 +164,17 @@ export class WerewolfManager {
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
+		let max = 1;
+		if (character === "werewolf" || character === "mason") {
+			max = 2;
+		} else if (character === "villager") {
+			max = 3;
+		}
+
 		this.characters.set(curr =>
 			curr.map(c =>
 				c.character === character
-					? { ...c, amount: clamp(c.amount + (add ? 1 : -1), 0, 3) }
+					? { ...c, amount: clamp(c.amount + (add ? 1 : -1), 0, max) }
 					: c
 			)
 		);
