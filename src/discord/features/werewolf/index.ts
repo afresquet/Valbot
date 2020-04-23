@@ -41,7 +41,7 @@ export const werewolf: DiscordFeature = discord => {
 					break;
 				}
 				case "!start": {
-					if (!gameManager.isMaster(message.author.id)) return;
+					if (!gameManager.isMaster(message.author.id)) break;
 
 					await gameManager.start();
 
@@ -58,13 +58,13 @@ export const werewolf: DiscordFeature = discord => {
 					break;
 				}
 				case "!kick": {
-					if (!gameManager.isMaster(message.author.id)) return;
+					if (!gameManager.isMaster(message.author.id)) break;
 
 					const member = message.mentions.users.first();
 
 					if (!member) break;
 
-					await gameManager.leave(member.id);
+					await gameManager.leave(member.id, true);
 
 					break;
 				}
@@ -72,9 +72,9 @@ export const werewolf: DiscordFeature = discord => {
 				case "!remove": {
 					const character = value.toLowerCase();
 
-					if (!gameManager.isMaster(message.author.id)) return;
+					if (!gameManager.isMaster(message.author.id)) break;
 
-					if (!Characters.includes(character as any)) return;
+					if (!Characters.includes(character as any)) break;
 
 					await gameManager.manageCharacter(
 						character as Character,
@@ -113,14 +113,14 @@ export const werewolf: DiscordFeature = discord => {
 					break;
 				}
 				case "!expert": {
-					if (!gameManager.isMaster(message.author.id)) return;
+					if (!gameManager.isMaster(message.author.id)) break;
 
 					await gameManager.toggleExpert();
 
 					break;
 				}
 				case "!timer": {
-					if (!gameManager.isMaster(message.author.id)) return;
+					if (!gameManager.isMaster(message.author.id)) break;
 
 					const [timer, seconds] = messageSplitter(value, 2);
 
@@ -128,7 +128,7 @@ export const werewolf: DiscordFeature = discord => {
 						!["game", "role"].includes(timer) ||
 						Number.isNaN(parseInt(seconds, 10))
 					)
-						return;
+						break;
 
 					await gameManager.changeTimer(
 						timer as "game" | "role",
@@ -144,9 +144,9 @@ export const werewolf: DiscordFeature = discord => {
 
 		switch (command) {
 			case "!volume": {
-				if (!gameManager.isMaster(message.author.id)) return;
+				if (!gameManager.isMaster(message.author.id)) break;
 
-				if (Number.isNaN(parseInt(value, 10))) return;
+				if (Number.isNaN(parseInt(value, 10))) break;
 
 				await gameManager.changeVolume(parseInt(value, 10));
 

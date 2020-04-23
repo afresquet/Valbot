@@ -125,7 +125,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 	}
 
-	async leave(memberId: string) {
+	async leave(memberId: string, kick: boolean = false) {
 		const player = this.findPlayerById(memberId);
 
 		if (!player) return;
@@ -133,6 +133,13 @@ export class WerewolfManager {
 		this.players.set(curr => curr.filter(p => p.member.id !== memberId));
 
 		player.member.roles.remove(this.playerRole!);
+
+		if (
+			kick &&
+			this.audioManager.isUserInVoiceChannel(player.member.voice.channelID!)
+		) {
+			await player.member.voice.kick();
+		}
 
 		if (this.players.current.length <= 0) {
 			this.audioManager.leave();

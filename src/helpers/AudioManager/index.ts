@@ -17,6 +17,12 @@ export class AudioManager {
 		return this.voiceChannel !== null;
 	}
 
+	isUserInVoiceChannel(voiceChannelId: string) {
+		if (!this.voiceChannel) return false;
+
+		return this.voiceChannel.id === voiceChannelId;
+	}
+
 	setup(guild: Discord.Guild, voiceChannelName: string) {
 		const voiceChannel = guild.channels.cache.find(
 			c => c.name === voiceChannelName
