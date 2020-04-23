@@ -86,8 +86,17 @@ export const werewolf: DiscordFeature = discord => {
 
 				break;
 			}
-			case "!master": {
-				if (!gameManager.isMaster(message.author.id)) return;
+			case "!master":
+			case "!forcemaster": {
+				if (command === "!master" && !gameManager.isMaster(message.author.id))
+					break;
+
+				if (
+					command === "!forcemaster" &&
+					(!message.member?.hasPermission("ADMINISTRATOR") ||
+						!message.member?.roles.cache.find(role => role.name === "mods"))
+				)
+					break;
 
 				const member = message.mentions.users.first();
 

@@ -80,6 +80,10 @@ Stops the game at "Day" time only.
 
 Passes the "master" status to another player.
 
+### `!forcemaster <@player>` (Mod only)
+
+Like `!master`, but can be used by a server mod to force someone to be the master. Useful if the master left and the role can't be passed.
+
 ### `!expert` (Master only)
 
 Toggles "Expert Mode" on and off.
