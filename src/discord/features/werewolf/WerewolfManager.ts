@@ -7,6 +7,7 @@ import { State } from "../../../helpers/State";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
+import { centerCardPosition } from "./helpers/centerCardPosition";
 import {
 	Character,
 	Characters,
@@ -17,9 +18,6 @@ import {
 	Player,
 } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
-
-const order = (index: number) =>
-	index === 0 ? "Left" : index === 1 ? "Middle" : "Right";
 
 export class WerewolfManager {
 	private textChannel: Discord.TextChannel | null = null;
@@ -348,9 +346,9 @@ export class WerewolfManager {
 			} else if (seer.action.first !== null && seer.action.second !== null) {
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
-					value: `Viewed the roles at the ${order(
+					value: `Viewed the roles at the ${centerCardPosition(
 						seer.action.first!
-					)} and at the ${order(seer.action.second!)}.`,
+					)} and at the ${centerCardPosition(seer.action.second!)}.`,
 				});
 			}
 		}
@@ -395,7 +393,7 @@ export class WerewolfManager {
 		if (drunk && drunk.action !== null) {
 			fields.push({
 				name: `${drunk.member.displayName} (Drunk)`,
-				value: `Took the role from the center at the ${order(
+				value: `Took the role from the center at the ${centerCardPosition(
 					drunk.action.center
 				)}.`,
 			});
