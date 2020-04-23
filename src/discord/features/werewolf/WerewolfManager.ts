@@ -194,9 +194,6 @@ export class WerewolfManager {
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
-		// Will remove this when I implement it
-		if (character === "doppelganger") return;
-
 		let max = 1;
 		if (character === "werewolf" || character === "mason") {
 			max = 2;
@@ -589,6 +586,10 @@ export class WerewolfManager {
 
 		await this.handleNightActionCharacter(character);
 
+		if (character === "doppelganger") {
+			await this.handleDoppelgangerNightAction();
+		}
+
 		if (character === "minion") {
 			await this.audioManager.play(
 				this.soundPath(characters.minion.sounds.thumb)
@@ -603,7 +604,11 @@ export class WerewolfManager {
 	private async handleNightActionCharacter(character: NightActionCharacter) {
 		if (["werewolf", "mason"].includes(character)) {
 			const players = this.players.current.filter(
-				player => player.initialRole === character
+				player =>
+					(player.initialRole === "doppelganger" &&
+						(player as Player<"doppelganger">).action.role.character ===
+							character) ||
+					player.initialRole === character
 			);
 
 			const messages = await Promise.all(
@@ -635,7 +640,9 @@ export class WerewolfManager {
 			this.embeds.nightActionDM(this.players.current, player)
 		);
 
-		if (["seer", "robber", "troublemaker"].includes(character)) {
+		if (
+			["doppelganger", "seer", "robber", "troublemaker"].includes(character)
+		) {
 			for (let i = 0; i < this.players.current.length; i++) {
 				if (this.players.current[i].member.id === player.member.id) continue;
 
@@ -654,6 +661,74 @@ export class WerewolfManager {
 		await this.nightActionDM.delete();
 
 		this.nightActionDM = null;
+	}
+
+	private async handleDoppelgangerNightAction() {
+		this.players.set(curr =>
+			curr.map(p =>
+				p.initialRole === "doppelganger"
+					? ({ ...p, action: { ...p.action, ready: true } } as Player<
+							"doppelganger"
+					  >)
+					: p
+			)
+		);
+
+		const doppelganger = this.players.current.find(
+			p => p.initialRole === "doppelganger"
+		) as Player<"doppelganger">;
+
+		if (
+			doppelganger.action !== null &&
+			["seer", "robber", "troublemaker", "drunk"].includes(
+				doppelganger.action.role.character
+			)
+		) {
+			this.nightActionDM = await doppelganger.member.send(
+				this.embeds.doppelgangerCopiedNightActionDM(
+					this.players.current,
+					doppelganger
+				)
+			);
+		}
+
+		await delay(this.roleTimer.current * 1000);
+
+		if (this.nightActionDM) {
+			await this.nightActionDM.delete();
+
+			this.nightActionDM = null;
+		}
+
+		// Doppelganger Minion
+
+		await this.audioManager.play(
+			this.soundPath(
+				this.expert.current
+					? characters.minion.sounds.expert.doppelganger
+					: characters.minion.sounds.doppelganger
+			)
+		);
+
+		if (
+			doppelganger.action !== null &&
+			doppelganger.action.role.character === "minion"
+		) {
+			this.nightActionDM = await doppelganger.member.send(
+				this.embeds.doppelgangerCopiedNightActionDM(
+					this.players.current,
+					doppelganger
+				)
+			);
+		}
+
+		await delay(this.roleTimer.current * 1000);
+
+		if (this.nightActionDM) {
+			await this.nightActionDM.delete();
+
+			this.nightActionDM = null;
+		}
 	}
 
 	private async refreshEmbed() {
@@ -724,8 +799,6 @@ export class WerewolfManager {
 		if (this.gameState.current === "VOTING") {
 			if (playerIndex === -1 || player.killing !== null) return;
 
-			const target = this.players.current[playerIndex];
-
 			this.players.set(curr =>
 				curr.map(p =>
 					p.member.id === user.id ? { ...p, killing: target.member.id } : p
@@ -735,6 +808,31 @@ export class WerewolfManager {
 			await this.refreshEmbed();
 		} else if (this.gameState.current === "NIGHT") {
 			switch (player.initialRole) {
+				case "doppelganger": {
+					const doppelganger = player as Player<"doppelganger">;
+
+					if (doppelganger.action !== null || playerIndex === -1) break;
+
+					this.players.set(curr =>
+						curr.map<Player>(p =>
+							p.member.id === doppelganger.member.id
+								? {
+										...p,
+										action: {
+											player: target.member.id,
+											role: {
+												character: target.initialRole,
+												ready: false,
+												action: null,
+											},
+										},
+								  }
+								: p
+						)
+					);
+
+					break;
+				}
 				case "seer": {
 					const seer = player as Player<"seer">;
 

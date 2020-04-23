@@ -130,7 +130,17 @@ export class Embeds {
 		const placeholder = `There are no ${role} players!`;
 
 		return players.reduce((result, current, index) => {
-			if (current.initialRole !== role) return result;
+			if (
+				current.initialRole === "doppelganger" &&
+				(current as Player<"doppelganger">).action.role.character !== role
+			) {
+				return result;
+			} else if (
+				current.initialRole !== "doppelganger" &&
+				current.initialRole !== role
+			) {
+				return result;
+			}
 
 			const playerLine = `${numberEmojis[index]} ${
 				current.member.displayName
@@ -146,23 +156,30 @@ export class Embeds {
 		centerCards?: Character[]
 	): Discord.MessageEmbed {
 		switch (player.initialRole) {
-			case "doppelganger":
-				return this.doppelgangerNightActionDM();
+			case "doppelganger": {
+				const doppelganger = player as Player<"doppelganger">;
+
+				return doppelganger.action.ready
+					? this.base(
+							this.doppelgangerCopiedNightActionDM(players, doppelganger)
+					  )
+					: this.base(this.doppelgangerNightActionDM(players, doppelganger));
+			}
 			case "werewolf":
 			case "mason":
-				return this.werewolfAndMasonNightActionDM(players, player);
+				return this.base(this.werewolfAndMasonNightActionDM(players, player));
 			case "minion":
-				return this.minionNightActionDM(players, player);
+				return this.base(this.minionNightActionDM(players, player));
 			case "seer":
-				return this.seerNightActionDM(players, player, centerCards!);
+				return this.base(this.seerNightActionDM(players, player, centerCards!));
 			case "robber":
-				return this.robberNightActionDM(players, player);
+				return this.base(this.robberNightActionDM(players, player));
 			case "troublemaker":
-				return this.troublemakerNightActionDM(players, player);
+				return this.base(this.troublemakerNightActionDM(players, player));
 			case "drunk":
-				return this.drunkNightActionDM(player);
+				return this.base(this.drunkNightActionDM(player));
 			case "insomniac":
-				return this.insomniacNightActionDM(player);
+				return this.base(this.insomniacNightActionDM(player));
 			default:
 				throw new Error(
 					`Unhandled night action character "${player.initialRole}".`
@@ -244,67 +261,130 @@ export class Embeds {
 		});
 	}
 
-	doppelgangerNightActionDM() {
-		return this.base({
-			...this.nightActionDMCommon,
-			title: "Doppelganger hasn't been implemented into the game yet!",
-		});
+	doppelgangerNightActionDM(
+		players: Player[],
+		player: Player
+	): Discord.MessageEmbedOptions {
+		const doppelganger = player as Player<"doppelganger">;
+
+		if (doppelganger.action !== null) {
+			const target = this.findPlayerById(players, doppelganger.action.player)!;
+
+			const hasAction = [
+				"minion",
+				"seer",
+				"robber",
+				"troublemaker",
+				"drunk",
+			].includes(doppelganger.action.role.character);
+
+			return {
+				...this.nightActionDMCommon("doppelganger"),
+				title: `Doppelganger, you copied the role from ${target.member.displayName}:`,
+				description: `You became a ${doppelganger.action.role.character}! ${
+					hasAction ? "Your action will show up right after this message." : ""
+				}`,
+				image: { url: characters[doppelganger.action.role.character].image },
+			};
+		}
+
+		return {
+			...this.nightActionDMCommon("doppelganger"),
+			title: "Doppelganger, choose a player to become their role.",
+			description: listOfEveryone(players, [doppelganger.member.id]),
+		};
 	}
 
-	werewolfAndMasonNightActionDM(players: Player[], player: Player) {
-		return this.base({
-			...this.nightActionDMCommon,
-			title: `${capitalize(player.initialRole!)}, this is your team:`,
+	doppelgangerCopiedNightActionDM(
+		players: Player[],
+		player: Player<"doppelganger">
+	): Discord.MessageEmbedOptions {
+		switch (player.action.role.character) {
+			case "werewolf":
+			case "mason":
+				return {
+					...this.werewolfAndMasonNightActionDM(players, player),
+					title: `Doppelganger-${capitalize(
+						player.action.role.character
+					)}, this is your team:`,
+				};
+			case "minion":
+				return {
+					...this.minionNightActionDM(players, player),
+					title: "Doppelganger-Minion, these are the werewolves:",
+				};
+			default:
+				throw new Error(
+					`Unhandled Doppelganger action of character ${player.action.role.character}.`
+				);
+		}
+	}
+
+	werewolfAndMasonNightActionDM(
+		players: Player[],
+		player: Player
+	): Discord.MessageEmbedOptions {
+		const role =
+			player.initialRole === "doppelganger"
+				? (player as Player<"doppelganger">).action.role.character
+				: player.initialRole!;
+
+		return {
+			...this.nightActionDMCommon(player.initialRole!),
+			title: `${capitalize(role)}, this is your team:`,
 			description: this.nightTeammatesDescription(
 				players,
 				player.initialRole!,
 				player.member.id
 			),
-		});
+		};
 	}
 
-	minionNightActionDM(players: Player[], player: Player) {
-		return this.base({
-			...this.nightActionDMCommon,
+	minionNightActionDM(
+		players: Player[],
+		player: Player
+	): Discord.MessageEmbedOptions {
+		return {
+			...this.nightActionDMCommon("minion"),
 			title: "Minion, these are the werewolves:",
 			description: this.nightTeammatesDescription(
 				players,
 				"werewolf",
 				player.member.id
 			),
-		});
+		};
 	}
 
 	seerNightActionDM(
 		players: Player[],
 		player: Player,
 		centerCards: Character[]
-	) {
+	): Discord.MessageEmbedOptions {
 		const seer = player as Player<"seer">;
 
 		if (seer.action !== null) {
 			if (seer.action.player !== null) {
 				const target = this.findPlayerById(players, seer.action.player)!;
 
-				return this.base({
-					...this.nightActionDMCommon,
+				return {
+					...this.nightActionDMCommon("seer"),
 					title: `Seer, this is ${target.member.displayName}'s role:`,
 					description: capitalize(target.role!),
 					image: {
 						url: characters[target.role!].image,
 					},
-				});
+				};
 			} else if (seer.action.first !== null && seer.action.second === null) {
-				return this.base({
-					...this.nightActionDMCommon,
+				return {
+					...this.nightActionDMCommon("seer"),
 					title: "Seer, choose another center role to view.",
 					description: `You already chose to view the role on the ${centerCardPosition(
 						seer.action.first
 					)}.`,
-				});
+				};
 			} else if (seer.action.first !== null && seer.action.second !== null) {
-				return this.base({
-					...this.nightActionDMCommon,
+				return {
+					...this.nightActionDMCommon("seer"),
 					title: "Seer, these are the center roles you chose to view:",
 					fields: [
 						{
@@ -316,12 +396,12 @@ export class Embeds {
 							value: capitalize(centerCards[seer.action.second]),
 						},
 					],
-				});
+				};
 			}
 		}
 
-		return this.base({
-			...this.nightActionDMCommon,
+		return {
+			...this.nightActionDMCommon("seer"),
 			title:
 				"Seer, choose a player to view their role, or view two roles from the center:",
 			fields: [
@@ -334,15 +414,18 @@ export class Embeds {
 					value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
 				},
 			],
-		});
+		};
 	}
 
-	robberNightActionDM(players: Player[], player: Player) {
+	robberNightActionDM(
+		players: Player[],
+		player: Player
+	): Discord.MessageEmbedOptions {
 		const robber = player as Player<"robber">;
 
 		if (robber.action === null) {
-			return this.base({
-				...this.nightActionDMCommon,
+			return {
+				...this.nightActionDMCommon("robber"),
 				title: "Robber, choose another player to steal their role:",
 				fields: [
 					{
@@ -350,22 +433,25 @@ export class Embeds {
 						value: listOfEveryone(players, [robber.member.id]),
 					},
 				],
-			});
+			};
 		} else {
 			const target = this.findPlayerById(players, robber.action.player)!;
 
-			return this.base({
-				...this.nightActionDMCommon,
+			return {
+				...this.nightActionDMCommon("robber"),
 				title: `You stole the role from ${target.member.displayName}!`,
 				description: `You became a ${capitalize(robber.role!)}.`,
 				image: {
 					url: characters[robber.role!].image,
 				},
-			});
+			};
 		}
 	}
 
-	troublemakerNightActionDM(players: Player[], player: Player) {
+	troublemakerNightActionDM(
+		players: Player[],
+		player: Player
+	): Discord.MessageEmbedOptions {
 		const troublemaker = player as Player<"troublemaker">;
 
 		if (troublemaker.action !== null) {
@@ -376,8 +462,8 @@ export class Embeds {
 				const first = this.findPlayerById(players, troublemaker.action.first)!;
 				const firstIndex = players.indexOf(first);
 
-				return this.base({
-					...this.nightActionDMCommon,
+				return {
+					...this.nightActionDMCommon("troublemaker"),
 					title: "Troublemaker, choose two other players to swap their roles:",
 					fields: [
 						{
@@ -389,7 +475,7 @@ export class Embeds {
 							value: listOfEveryone(players, [troublemaker.member.id]),
 						},
 					],
-				});
+				};
 			} else if (
 				troublemaker.action.first !== null &&
 				troublemaker.action.second !== null
@@ -402,16 +488,16 @@ export class Embeds {
 				)!;
 				const secondIndex = players.indexOf(second);
 
-				return this.base({
-					...this.nightActionDMCommon,
+				return {
+					...this.nightActionDMCommon("troublemaker"),
 					title: "Troublemaker, you swapped the roles of these two players:",
 					description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
-				});
+				};
 			}
 		}
 
-		return this.base({
-			...this.nightActionDMCommon,
+		return {
+			...this.nightActionDMCommon("troublemaker"),
 			title: "Troublemaker, choose two other players to swap their roles:",
 			fields: [
 				{
@@ -423,15 +509,15 @@ export class Embeds {
 					value: listOfEveryone(players, [troublemaker.member.id]),
 				},
 			],
-		});
+		};
 	}
 
-	drunkNightActionDM(player: Player) {
+	drunkNightActionDM(player: Player): Discord.MessageEmbedOptions {
 		const drunk = player as Player<"drunk">;
 
 		if (drunk.action === null) {
-			return this.base({
-				...this.nightActionDMCommon,
+			return {
+				...this.nightActionDMCommon("drunk"),
 				title: "Drunk, choose a role from the center to become that role:",
 				fields: [
 					{
@@ -439,25 +525,25 @@ export class Embeds {
 						value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
 					},
 				],
-			});
+			};
 		} else {
-			return this.base({
-				...this.nightActionDMCommon,
+			return {
+				...this.nightActionDMCommon("drunk"),
 				title: `Drunk, you chose to become the role in the ${centerCardPosition(
 					drunk.action.center
 				)}.`,
-			});
+			};
 		}
 	}
 
-	insomniacNightActionDM(player: Player) {
-		return this.base({
-			...this.nightActionDMCommon,
+	insomniacNightActionDM(player: Player): Discord.MessageEmbedOptions {
+		return {
+			...this.nightActionDMCommon("insomniac"),
 			title: "Insomniac, this is your role:",
 			description: capitalize(player.role!),
 			image: {
 				url: characters[player.role!].image,
 			},
-		});
+		};
 	}
 }
