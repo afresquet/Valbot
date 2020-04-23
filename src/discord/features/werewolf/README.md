@@ -22,7 +22,7 @@ If your role has a night action, you will be asked to awake to perform your acti
 
 Once the sun rises it'll become day and everyone will awaken. A timer will start counting down, and when it hits 0 you'll have to figure out who to kill.
 
-Voting will be, again, handled through a DM that you will receive from the bot.
+Voting will be, again, handled through a DM that you will receive from the bot. If you don't vote for anyone it will default to the player to the number following yours, or player 1 in case of the last player.
 
 ## Characters
 
@@ -72,9 +72,17 @@ Adds or removes a character from the game.
 
 Starts the game from "Preparation" mode.
 
+### `!cancel` (Master only)
+
+Stops the game at "Day" time only.
+
 ### `!master <@player>` (Master only)
 
 Passes the "master" status to another player.
+
+### `!forcemaster <@player>` (Mod only)
+
+Like `!master`, but can be used by a server mod to force someone to be the master. Useful if the master left and the role can't be passed.
 
 ### `!expert` (Master only)
 

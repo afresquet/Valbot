@@ -30,44 +30,42 @@ export const Characters = [
 export type Character = typeof Characters[number];
 export type NightActionCharacter = typeof NightActionCharacters[number];
 
-export interface Player {
+export type CharactersState = { character: Character; amount: number }[];
+
+export interface Player<T extends Character | null = Character | null> {
 	master: boolean;
 	member: Discord.GuildMember;
-	initialRole: Character | null;
+	initialRole: T;
 	role: Character | null;
-	action: SeerAction | RobberAction | TroublemakerAction | DrunkAction | null;
-	killing: number | null;
+	action: Actions<T>;
+	killing: string | null;
 }
 
-export type SeerAction = {
-	player: number | null;
-	center: [number | null, number | null];
-};
+type Actions<T extends Character | null> = T extends "seer"
+	? SeerAction
+	: T extends "robber"
+	? RobberAction
+	: T extends "troublemaker"
+	? TroublemakerAction
+	: T extends "drunk"
+	? DrunkAction
+	: null;
 
-export type RobberAction = {
-	player: number;
-};
-
-export type TroublemakerAction = {
+type SeerAction = {
+	player: string | null;
 	first: number | null;
 	second: number | null;
 };
 
-export type DrunkAction = {
-	center: number;
+type RobberAction = {
+	player: string;
 };
 
-export const numberEmojis = [
-	"1️⃣",
-	"2️⃣",
-	"3️⃣",
-	"4️⃣",
-	"5️⃣",
-	"6️⃣",
-	"7️⃣",
-	"8️⃣",
-	"9️⃣",
-	"🔟",
-];
+type TroublemakerAction = {
+	first: string | null;
+	second: string | null;
+};
 
-export const centerEmojis = ["🇱", "🇲", "🇷"];
+type DrunkAction = {
+	center: number;
+};

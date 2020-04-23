@@ -13,7 +13,19 @@ export class AudioManager {
 		volume: 1,
 	});
 
-	setVoiceChannel(voiceChannel: Discord.VoiceChannel) {
+	isReady() {
+		return this.voiceChannel !== null;
+	}
+
+	setup(guild: Discord.Guild, voiceChannelName: string) {
+		const voiceChannel = guild.channels.cache.find(
+			c => c.name === voiceChannelName
+		) as Discord.VoiceChannel;
+
+		if (!voiceChannel) {
+			throw new Error(`There's no #${voiceChannelName} voice channel!`);
+		}
+
 		if (!this.voiceChannel) {
 			this.voiceChannel = voiceChannel;
 		} else if (this.voiceChannel.id !== voiceChannel.id) {
@@ -21,10 +33,6 @@ export class AudioManager {
 				`Trying to set Audio Manager to channel #${voiceChannel.name} when it's already set to #${this.voiceChannel.name}.`
 			);
 		}
-	}
-
-	isReady() {
-		return this.voiceChannel !== null;
 	}
 
 	async join() {
