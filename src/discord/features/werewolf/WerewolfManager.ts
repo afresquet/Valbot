@@ -9,15 +9,7 @@ import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { listOfEveryone } from "./helpers/listOfEveryone";
-import {
-	Character,
-	Characters,
-	CharactersState,
-	GameState,
-	NightActionCharacter,
-	NightActionCharacters,
-	Player,
-} from "./types";
+import { Character, Characters, CharactersState, GameState, NightActionCharacter, NightActionCharacters, Player } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 const order = (index: number) =>
@@ -51,7 +43,11 @@ export class WerewolfManager {
 	}
 
 	isReady() {
-		return this.textChannel !== null && this.audioManager.isReady();
+		return (
+			this.textChannel !== null &&
+			this.audioManager.isReady() &&
+			this.playerRole !== null
+		);
 	}
 
 	isPlaying() {
@@ -80,19 +76,7 @@ export class WerewolfManager {
 			this.textChannel = textChannel;
 		}
 
-		if (!this.audioManager.isReady()) {
-			const voiceChannelName = prefixChannel("vc-werewolf");
-
-			const voiceChannel = guild.channels.cache.find(
-				c => c.name === voiceChannelName
-			) as Discord.VoiceChannel;
-
-			if (!voiceChannel) {
-				throw new Error(`There's no #${voiceChannelName} voice channel!`);
-			}
-
-			this.audioManager.setVoiceChannel(voiceChannel);
-		}
+		if (!this.audioManager.isReady()) this.audioManager.setup(guild, prefixChannel("vc-werewolf"));
 
 		if (!this.playerRole) {
 			const playerRoleName = prefixRole("werewolf player");
