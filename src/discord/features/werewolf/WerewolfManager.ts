@@ -9,7 +9,15 @@ import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { listOfEveryone } from "./helpers/listOfEveryone";
-import { Character, Characters, CharactersState, GameState, NightActionCharacter, NightActionCharacters, Player } from "./types";
+import {
+	Character,
+	Characters,
+	CharactersState,
+	GameState,
+	NightActionCharacter,
+	NightActionCharacters,
+	Player,
+} from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 const order = (index: number) =>
@@ -57,8 +65,12 @@ export class WerewolfManager {
 		);
 	}
 
+	findPlayerById(id: string) {
+		return this.players.current.find(player => player.member.id === id);
+	}
+
 	isMaster(id: string) {
-		return !!this.players.current.find(p => p.member.id === id)?.master;
+		return !!this.findPlayerById(id)?.master;
 	}
 
 	setup(guild: Discord.Guild) {
@@ -76,7 +88,8 @@ export class WerewolfManager {
 			this.textChannel = textChannel;
 		}
 
-		if (!this.audioManager.isReady()) this.audioManager.setup(guild, prefixChannel("vc-werewolf"));
+		if (!this.audioManager.isReady())
+			this.audioManager.setup(guild, prefixChannel("vc-werewolf"));
 
 		if (!this.playerRole) {
 			const playerRoleName = prefixRole("werewolf player");
@@ -92,7 +105,7 @@ export class WerewolfManager {
 	}
 
 	async join(member: Discord.GuildMember) {
-		if (this.players.current.find(p => p.member.id === member.id)) return;
+		if (this.findPlayerById(member.id)) return;
 
 		const player: Player = {
 			master: false,
@@ -117,7 +130,7 @@ export class WerewolfManager {
 	}
 
 	async leave(memberId: string) {
-		const player = this.players.current.find(p => p.member.id === memberId);
+		const player = this.findPlayerById(memberId);
 
 		if (!player) return;
 
@@ -457,7 +470,7 @@ export class WerewolfManager {
 	}
 
 	async setMaster(memberId: string) {
-		if (!this.players.current.find(p => p.member.id === memberId)) return;
+		if (!this.findPlayerById(memberId)) return;
 
 		this.players.set(curr =>
 			curr.map(p => ({ ...p, master: p.member.id === memberId }))
@@ -633,9 +646,7 @@ export class WerewolfManager {
 				const seer = player as Player<"seer">;
 
 				if (seer.action.player !== null) {
-					const target = this.players.current.find(
-						p => p.member.id === seer.action.player
-					)!;
+					const target = this.findPlayerById(seer.action.player)!;
 
 					await this.nightActionDM.edit(
 						this.embeds.base({
@@ -685,9 +696,7 @@ export class WerewolfManager {
 			case "robber": {
 				const robber = player as Player<"robber">;
 
-				const target = this.players.current.find(
-					p => p.member.id === robber.action.player
-				)!;
+				const target = this.findPlayerById(robber.action.player)!;
 
 				await this.nightActionDM.edit(
 					this.embeds.base({
@@ -709,9 +718,7 @@ export class WerewolfManager {
 					troublemaker.action.first !== null &&
 					troublemaker.action.second === null
 				) {
-					const first = this.players.current.find(
-						p => p.member.id === troublemaker.action.first
-					)!;
+					const first = this.findPlayerById(troublemaker.action.first)!;
 					const firstIndex = this.players.current.indexOf(first);
 
 					await this.nightActionDM.edit(
@@ -737,13 +744,9 @@ export class WerewolfManager {
 					troublemaker.action.first !== null &&
 					troublemaker.action.second !== null
 				) {
-					const first = this.players.current.find(
-						p => p.member.id === troublemaker.action.first
-					)!;
+					const first = this.findPlayerById(troublemaker.action.first)!;
 					const firstIndex = this.players.current.indexOf(first);
-					const second = this.players.current.find(
-						p => p.member.id === troublemaker.action.second
-					)!;
+					const second = this.findPlayerById(troublemaker.action.second)!;
 					const secondIndex = this.players.current.indexOf(second);
 
 					await this.nightActionDM.edit(
@@ -892,9 +895,7 @@ export class WerewolfManager {
 					} else if (action.second === null) {
 						if (action.first === target.member.id) break;
 
-						const first = this.players.current.find(
-							p => p.member.id === action.first
-						)!;
+						const first = this.findPlayerById(action.first)!;
 						const second = target;
 
 						action.second = second.member.id;
