@@ -970,241 +970,58 @@ export class WerewolfManager {
 
 			await this.refreshEmbed();
 		} else if (this.gameState.current === "NIGHT") {
-			switch (player.initialRole) {
+			const role =
+				player.initialRole === "doppelganger" &&
+				(player as Player<"doppelganger">).action?.ready
+					? (player as Player<"doppelganger">).action.role.character
+					: player.initialRole;
+
+			switch (role) {
 				case "doppelganger": {
 					const doppelganger = player as Player<"doppelganger">;
 
-					if (doppelganger.action === null) {
-						if (playerIndex === -1) break;
+					if (playerIndex === -1 || doppelganger.action !== null) break;
 
-						this.players.set(curr =>
-							curr.map<Player>(p =>
-								p.member.id === doppelganger.member.id
-									? {
-											...p,
-											action: {
-												player: target.member.id,
-												role: {
-													character: target.initialRole,
-													ready: false,
-													action: null,
-												},
+					this.players.set(curr =>
+						curr.map<Player>(p =>
+							p.member.id === doppelganger.member.id
+								? {
+										...p,
+										action: {
+											player: target.member.id,
+											role: {
+												character: target.initialRole,
+												ready: false,
+												action: null,
 											},
-									  }
-									: p
-							)
-						);
-
-						break;
-					}
-
-					switch (doppelganger.action.role.character) {
-						case "seer": {
-							const seer = player as Player<"doppelganger", "seer">;
-
-							const action: typeof seer.action.role.action =
-								seer.action.role.action !== null
-									? { ...seer.action.role.action }
-									: { player: null, first: null, second: null };
-
-							if (playerIndex !== -1) {
-								if (
-									action.player !== null ||
-									action.first !== null ||
-									action.second !== null
-								)
-									break;
-
-								action.player = target.member.id;
-							} else if (centerIndex !== -1) {
-								if (action.player !== null) break;
-
-								if (action.first === null) {
-									action.first = centerIndex;
-								} else if (
-									action.first !== null &&
-									action.first !== centerIndex &&
-									action.second === null
-								) {
-									action.second = centerIndex;
-								} else {
-									break;
-								}
-							}
-
-							this.players.set(curr =>
-								curr.map<Player>(p =>
-									p.member.id === seer.member.id
-										? ({
-												...p,
-												action: {
-													...p.action,
-													role: {
-														...(p as Player<"doppelganger", "seer">).action
-															.role,
-														action,
-													},
-												},
-										  } as Player<"doppelganger", "seer">)
-										: p
-								)
-							);
-
-							break;
-						}
-						case "robber": {
-							if (playerIndex === -1) break;
-
-							const robber = player as Player<"doppelganger", "robber">;
-
-							if (robber.action?.role?.action) break;
-
-							const action: typeof robber.action.role.action = {
-								player: target.member.id,
-							};
-
-							this.players.set(curr =>
-								curr.map<Player>(p => {
-									if (p.member.id === robber.member.id) {
-										return {
-											...p,
-											role: target.role,
-											action: {
-												...p.action,
-												role: {
-													...(p as Player<"doppelganger", "robber">).action
-														.role,
-													action,
-												},
-											},
-										} as Player<"doppelganger", "robber">;
-									} else if (p.member.id === target.member.id) {
-										return { ...p, role: robber.role };
-									} else {
-										return p;
-									}
-								})
-							);
-
-							break;
-						}
-						case "troublemaker": {
-							if (playerIndex === -1) break;
-
-							const troublemaker = player as Player<
-								"doppelganger",
-								"troublemaker"
-							>;
-
-							const action: typeof troublemaker.action.role.action =
-								troublemaker.action.role.action !== null
-									? { ...troublemaker.action.role.action }
-									: { first: null, second: null };
-
-							if (action.first === null) {
-								action.first = target.member.id;
-
-								this.players.set(curr =>
-									curr.map<Player>(p =>
-										p.member.id === troublemaker.member.id
-											? ({
-													...p,
-													action: {
-														...p.action,
-														role: {
-															...(p as Player<"doppelganger", "troublemaker">)
-																.action.role,
-															action,
-														},
-													},
-											  } as Player<"doppelganger", "troublemaker">)
-											: p
-									)
-								);
-							} else if (action.second === null) {
-								if (action.first === target.member.id) break;
-
-								const first = this.findPlayerById(action.first)!;
-								const second = target;
-
-								action.second = second.member.id;
-
-								this.players.set(curr =>
-									curr.map<Player>(p => {
-										if (p.member.id === troublemaker.member.id) {
-											return {
-												...p,
-												action: {
-													...p.action,
-													role: {
-														...(p as Player<"doppelganger", "troublemaker">)
-															.action.role,
-														action,
-													},
-												},
-											} as Player<"doppelganger", "troublemaker">;
-										} else if (p.member.id === action.first) {
-											return { ...p, role: second.role };
-										} else if (p.member.id === action.second) {
-											return { ...p, role: first.role };
-										} else {
-											return p;
-										}
-									})
-								);
-							}
-
-							break;
-						}
-						case "drunk": {
-							if (centerIndex === -1) break;
-
-							const drunk = doppelganger as Player<"doppelganger", "drunk">;
-
-							if (drunk.action?.role?.action) break;
-
-							const action: typeof drunk.action.role.action = {
-								center: centerIndex,
-							};
-
-							this.players.set(curr =>
-								curr.map<Player>(p =>
-									p.member.id === drunk.member.id
-										? ({
-												...p,
-												role: this.centerCards.current[centerIndex],
-												action: {
-													...p.action,
-													role: {
-														...(p as Player<"doppelganger", "drunk">).action
-															.role,
-														action,
-													},
-												},
-										  } as Player<"doppelganger", "drunk">)
-										: p
-								)
-							);
-
-							this.centerCards.set(curr =>
-								curr.map((c, i) => (i === centerIndex ? drunk.role! : c))
-							);
-
-							break;
-						}
-						default:
-							break;
-					}
+										},
+								  }
+								: p
+						)
+					);
 
 					break;
 				}
 				case "seer": {
 					const seer = player as Player<"seer">;
+					const doppelgangerSeer = player as Player<"doppelganger", "seer">;
 
-					const action: typeof seer.action =
-						seer.action !== null
-							? { ...seer.action }
-							: { player: null, first: null, second: null };
+					let action: typeof seer.action = {
+						player: null,
+						first: null,
+						second: null,
+					};
+
+					if (
+						player.initialRole === "doppelganger" &&
+						doppelgangerSeer.action?.role?.action
+					) {
+						action = {
+							...doppelgangerSeer.action.role.action,
+						};
+					} else if (seer.action) {
+						action = { ...seer.action };
+					}
 
 					if (playerIndex !== -1) {
 						if (
@@ -1232,9 +1049,22 @@ export class WerewolfManager {
 					}
 
 					this.players.set(curr =>
-						curr.map<Player>(p =>
-							p.member.id === seer.member.id ? { ...p, action } : p
-						)
+						curr.map<Player>(p => {
+							if (p.member.id !== player.member.id) return p;
+
+							return p.initialRole === "doppelganger"
+								? ({
+										...p,
+										action: {
+											...p.action,
+											role: {
+												...(p as typeof doppelgangerSeer).action.role,
+												action,
+											},
+										},
+								  } as typeof doppelgangerSeer)
+								: { ...p, action };
+						})
 					);
 
 					break;
@@ -1243,20 +1073,38 @@ export class WerewolfManager {
 					if (playerIndex === -1) break;
 
 					const robber = player as Player<"robber">;
+					const doppelgangerRobber = player as Player<"doppelganger", "robber">;
 
-					if (robber.action !== null) break;
+					if (
+						(player.initialRole === "doppelganger" &&
+							doppelgangerRobber.action?.role?.action) ||
+						robber.action
+					)
+						break;
 
 					const action: typeof robber.action = { player: target.member.id };
 
 					this.players.set(curr =>
 						curr.map<Player>(p => {
 							if (p.member.id === robber.member.id) {
-								return { ...p, role: target.role, action };
+								return p.initialRole === "doppelganger"
+									? ({
+											...p,
+											role: target.role,
+											action: {
+												...p.action,
+												role: {
+													...(p as typeof doppelgangerRobber).action.role,
+													action,
+												},
+											},
+									  } as typeof doppelgangerRobber)
+									: { ...p, role: target.role, action };
 							} else if (p.member.id === target.member.id) {
 								return { ...p, role: robber.role };
-							} else {
-								return p;
 							}
+
+							return p;
 						})
 					);
 
@@ -1266,19 +1114,45 @@ export class WerewolfManager {
 					if (playerIndex === -1) break;
 
 					const troublemaker = player as Player<"troublemaker">;
+					const doppelgangerTroublemaker = player as Player<
+						"doppelganger",
+						"troublemaker"
+					>;
 
-					const action: typeof troublemaker.action =
-						troublemaker.action !== null
-							? { ...troublemaker.action }
-							: { first: null, second: null };
+					let action: typeof troublemaker.action = {
+						first: null,
+						second: null,
+					};
+
+					if (
+						player.initialRole === "doppelganger" &&
+						doppelgangerTroublemaker.action?.role?.action
+					) {
+						action = { ...doppelgangerTroublemaker.action.role.action };
+					} else if (troublemaker.action) {
+						action = { ...troublemaker.action };
+					}
 
 					if (action.first === null) {
 						action.first = target.member.id;
 
 						this.players.set(curr =>
-							curr.map<Player>(p =>
-								p.member.id === troublemaker.member.id ? { ...p, action } : p
-							)
+							curr.map<Player>(p => {
+								if (p.member.id === troublemaker.member.id) return p;
+
+								return p.initialRole === "doppelganger"
+									? ({
+											...p,
+											action: {
+												...p.action,
+												role: {
+													...(p as typeof doppelgangerTroublemaker).action.role,
+													action,
+												},
+											},
+									  } as typeof doppelgangerTroublemaker)
+									: { ...p, action };
+							})
 						);
 					} else if (action.second === null) {
 						if (action.first === target.member.id) break;
@@ -1291,14 +1165,26 @@ export class WerewolfManager {
 						this.players.set(curr =>
 							curr.map<Player>(p => {
 								if (p.member.id === troublemaker.member.id) {
-									return { ...p, action };
+									return p.initialRole === "doppelganger"
+										? ({
+												...p,
+												action: {
+													...p.action,
+													role: {
+														...(p as typeof doppelgangerTroublemaker).action
+															.role,
+														action,
+													},
+												},
+										  } as typeof doppelgangerTroublemaker)
+										: { ...p, action };
 								} else if (p.member.id === action.first) {
 									return { ...p, role: second.role };
 								} else if (p.member.id === action.second) {
 									return { ...p, role: first.role };
-								} else {
-									return p;
 								}
+
+								return p;
 							})
 						);
 					}
@@ -1309,21 +1195,45 @@ export class WerewolfManager {
 					if (centerIndex === -1) break;
 
 					const drunk = player as Player<"drunk">;
+					const doppelgangerDrunk = player as Player<"doppelganger", "drunk">;
 
-					if (drunk.action !== null) break;
+					if (
+						(player.initialRole === "doppelganger" &&
+							doppelgangerDrunk.action?.role?.action) ||
+						drunk.action
+					)
+						break;
 
 					const action: typeof drunk.action = { center: centerIndex };
 
 					this.players.set(curr =>
-						curr.map<Player>(p =>
-							p.member.id === drunk.member.id
-								? { ...p, role: this.centerCards.current[centerIndex], action }
-								: p
-						)
+						curr.map<Player>(p => {
+							if (p.member.id !== drunk.member.id) return p;
+
+							return p.initialRole === "doppelganger"
+								? ({
+										...p,
+										role: this.centerCards.current[centerIndex],
+										action: {
+											...p.action,
+											role: {
+												...(p as typeof doppelgangerDrunk).action.role,
+												action,
+											},
+										},
+								  } as typeof doppelgangerDrunk)
+								: { ...p, role: this.centerCards.current[centerIndex], action };
+						})
 					);
 
 					this.centerCards.set(curr =>
-						curr.map((c, i) => (i === centerIndex ? drunk.role! : c))
+						curr.map((c, i) => {
+							if (i !== centerIndex) return c;
+
+							return player.initialRole === "doppelganger"
+								? doppelgangerDrunk.role!
+								: drunk.role!;
+						})
 					);
 
 					break;
