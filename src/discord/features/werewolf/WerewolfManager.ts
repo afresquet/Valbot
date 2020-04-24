@@ -713,12 +713,10 @@ export class WerewolfManager {
 			);
 
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.base(
-					this.embeds.doppelgangerCopiedNightActionDM(
-						this.players.current,
-						doppelganger,
-						this.centerCards.current
-					)
+				this.embeds.nightActionDM(
+					this.players.current,
+					doppelganger,
+					this.centerCards.current
 				)
 			);
 
@@ -819,12 +817,10 @@ export class WerewolfManager {
 			)
 		) {
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.base(
-					this.embeds.doppelgangerCopiedNightActionDM(
-						this.players.current,
-						doppelganger,
-						this.centerCards.current
-					)
+				this.embeds.nightActionDM(
+					this.players.current,
+					doppelganger,
+					this.centerCards.current
 				)
 			);
 
@@ -875,12 +871,10 @@ export class WerewolfManager {
 			doppelganger?.action?.role?.character === "minion"
 		) {
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.base(
-					this.embeds.doppelgangerCopiedNightActionDM(
-						this.players.current,
-						doppelganger,
-						this.centerCards.current
-					)
+				this.embeds.nightActionDM(
+					this.players.current,
+					doppelganger,
+					this.centerCards.current
 				)
 			);
 		}
