@@ -935,6 +935,74 @@ export class WerewolfManager {
 
 							break;
 						}
+						case "troublemaker": {
+							if (playerIndex === -1) break;
+
+							const troublemaker = player as Player<
+								"doppelganger",
+								"troublemaker"
+							>;
+
+							const action: typeof troublemaker.action.role.action =
+								troublemaker.action.role.action !== null
+									? { ...troublemaker.action.role.action }
+									: { first: null, second: null };
+
+							if (action.first === null) {
+								action.first = target.member.id;
+
+								this.players.set(curr =>
+									curr.map<Player>(p =>
+										p.member.id === troublemaker.member.id
+											? ({
+													...p,
+													action: {
+														...p.action,
+														role: {
+															...(p as Player<"doppelganger", "troublemaker">)
+																.action.role,
+															action,
+														},
+													},
+											  } as Player<"doppelganger", "troublemaker">)
+											: p
+									)
+								);
+							} else if (action.second === null) {
+								if (action.first === target.member.id) break;
+
+								const first = this.findPlayerById(action.first)!;
+								const second = target;
+
+								action.second = second.member.id;
+
+								this.players.set(curr =>
+									curr.map<Player>(p => {
+										if (p.member.id === troublemaker.member.id) {
+											return {
+												...p,
+												action: {
+													...p.action,
+													role: {
+														...(p as Player<"doppelganger", "troublemaker">)
+															.action.role,
+														action,
+													},
+												},
+											} as Player<"doppelganger", "troublemaker">;
+										} else if (p.member.id === action.first) {
+											return { ...p, role: second.role };
+										} else if (p.member.id === action.second) {
+											return { ...p, role: first.role };
+										} else {
+											return p;
+										}
+									})
+								);
+							}
+
+							break;
+						}
 						case "drunk": {
 							if (centerIndex === -1) break;
 

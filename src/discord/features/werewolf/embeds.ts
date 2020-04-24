@@ -344,6 +344,74 @@ export class Embeds {
 					};
 				}
 			}
+			case "troublemaker": {
+				const troublemaker = player as Player<"doppelganger", "troublemaker">;
+
+				if (troublemaker.action.role.action !== null) {
+					if (
+						troublemaker.action.role.action.first !== null &&
+						troublemaker.action.role.action.second === null
+					) {
+						const first = this.findPlayerById(
+							players,
+							troublemaker.action.role.action.first
+						)!;
+						const firstIndex = players.indexOf(first);
+
+						return {
+							...this.nightActionDMCommon(troublemaker.initialRole!),
+							title:
+								"Doppelganger-Troublemaker, choose two other players to swap their roles:",
+							fields: [
+								{
+									name: "Picked",
+									value: `${numberEmojis[firstIndex]} ${first.member.displayName}`,
+								},
+								{
+									name: "Players",
+									value: listOfEveryone(players, [troublemaker.member.id]),
+								},
+							],
+						};
+					} else if (
+						troublemaker.action.role.action.first !== null &&
+						troublemaker.action.role.action.second !== null
+					) {
+						const first = this.findPlayerById(
+							players,
+							troublemaker.action.role.action.first
+						)!;
+						const firstIndex = players.indexOf(first);
+						const second = this.findPlayerById(
+							players,
+							troublemaker.action.role.action.second
+						)!;
+						const secondIndex = players.indexOf(second);
+
+						return {
+							...this.nightActionDMCommon(troublemaker.initialRole!),
+							title:
+								"Troublemaker, you swapped the roles of these two players:",
+							description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
+						};
+					}
+				}
+
+				return {
+					...this.nightActionDMCommon(troublemaker.initialRole!),
+					title: "Troublemaker, choose two other players to swap their roles:",
+					fields: [
+						{
+							name: "Picked",
+							value: "No players have been picked yet.",
+						},
+						{
+							name: "Players",
+							value: listOfEveryone(players, [troublemaker.member.id]),
+						},
+					],
+				};
+			}
 			case "drunk": {
 				const drunk = player as Player<"doppelganger", "drunk">;
 
@@ -523,7 +591,7 @@ export class Embeds {
 				const firstIndex = players.indexOf(first);
 
 				return {
-					...this.nightActionDMCommon("troublemaker"),
+					...this.nightActionDMCommon(player.initialRole!),
 					title: "Troublemaker, choose two other players to swap their roles:",
 					fields: [
 						{
@@ -549,7 +617,7 @@ export class Embeds {
 				const secondIndex = players.indexOf(second);
 
 				return {
-					...this.nightActionDMCommon("troublemaker"),
+					...this.nightActionDMCommon(player.initialRole!),
 					title: "Troublemaker, you swapped the roles of these two players:",
 					description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
 				};
@@ -557,7 +625,7 @@ export class Embeds {
 		}
 
 		return {
-			...this.nightActionDMCommon("troublemaker"),
+			...this.nightActionDMCommon(player.initialRole!),
 			title: "Troublemaker, choose two other players to swap their roles:",
 			fields: [
 				{
