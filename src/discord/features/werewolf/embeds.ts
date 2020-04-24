@@ -275,7 +275,7 @@ export class Embeds {
 	): Discord.MessageEmbed {
 		const doppelganger = player as Player<"doppelganger">;
 
-		if (doppelganger.action !== null) {
+		if (doppelganger.action) {
 			const target = this.findPlayerById(players, doppelganger.action.player)!;
 
 			const hasAction = [
@@ -344,83 +344,75 @@ export class Embeds {
 		const doppelgangerSeer = player as Player<"doppelganger", "seer">;
 
 		if (
-			(player.initialRole === "doppelganger" &&
-				doppelgangerSeer.action?.role?.action) ||
-			seer.action
+			player.initialRole === "doppelganger"
+				? doppelgangerSeer.action?.role?.action?.player
+				: seer.action?.player
 		) {
-			if (
-				(player.initialRole === "doppelganger" &&
-					doppelgangerSeer.action.role.action.player !== null) ||
-				seer.action.player !== null
-			) {
-				const targetId =
-					player.initialRole === "doppelganger"
-						? doppelgangerSeer.action.role.action.player!
-						: seer.action.player!;
-				const target = this.findPlayerById(players, targetId)!;
+			const targetId =
+				player.initialRole === "doppelganger"
+					? doppelgangerSeer.action.role.action.player!
+					: seer.action.player!;
+			const target = this.findPlayerById(players, targetId)!;
 
-				return this.base({
-					...this.nightActionDMCommon(player.initialRole!),
-					title: `${this.titleRole(player)}, this is ${
-						target.member.displayName
-					}'s role:`,
-					description: capitalize(target.role!),
-					image: {
-						url: characters[target.role!].image,
+			return this.base({
+				...this.nightActionDMCommon(player.initialRole!),
+				title: `${this.titleRole(player)}, this is ${
+					target.member.displayName
+				}'s role:`,
+				description: capitalize(target.role!),
+				image: {
+					url: characters[target.role!].image,
+				},
+			});
+		} else if (
+			player.initialRole === "doppelganger"
+				? doppelgangerSeer.action?.role?.action?.first &&
+				  doppelgangerSeer.action?.role?.action?.second === null
+				: seer.action?.first !== null && seer.action?.second === null
+		) {
+			const first =
+				player.initialRole === "doppelganger"
+					? doppelgangerSeer.action.role.action.first!
+					: seer.action.first!;
+
+			return this.base({
+				...this.nightActionDMCommon(player.initialRole!),
+				title: `${this.titleRole(player)}, choose another center role to view.`,
+				description: `You already chose to view the role on the ${centerCardPosition(
+					first
+				)}.`,
+			});
+		} else if (
+			player.initialRole === "doppelganger"
+				? doppelgangerSeer.action?.role?.action?.first &&
+				  doppelgangerSeer.action?.role?.action?.second
+				: seer.action?.first && seer.action?.second
+		) {
+			const first =
+				player.initialRole === "doppelganger"
+					? doppelgangerSeer.action.role.action.first!
+					: seer.action.first!;
+			const second =
+				player.initialRole === "doppelganger"
+					? doppelgangerSeer.action.role.action.second!
+					: seer.action.second!;
+
+			return this.base({
+				...this.nightActionDMCommon(player.initialRole!),
+				title: `${this.titleRole(
+					player
+				)}, these are the center roles you chose to view:`,
+				fields: [
+					{
+						name: centerCardPosition(first),
+						value: capitalize(centerCards[first]),
 					},
-				});
-			} else if (
-				(player.initialRole === "doppelganger" &&
-					doppelgangerSeer.action.role.action.first !== null &&
-					doppelgangerSeer.action.role.action.first === null) ||
-				(seer.action.first !== null && seer.action.second === null)
-			) {
-				const first =
-					player.initialRole === "doppelganger"
-						? doppelgangerSeer.action.role.action.first!
-						: seer.action.first!;
-
-				return this.base({
-					...this.nightActionDMCommon(player.initialRole!),
-					title: `${this.titleRole(
-						player
-					)}, choose another center role to view.`,
-					description: `You already chose to view the role on the ${centerCardPosition(
-						first
-					)}.`,
-				});
-			} else if (
-				(player.initialRole === "doppelganger" &&
-					doppelgangerSeer.action.role.action.first !== null &&
-					doppelgangerSeer.action.role.action.second !== null) ||
-				(seer.action.first !== null && seer.action.second !== null)
-			) {
-				const first =
-					player.initialRole === "doppelganger"
-						? doppelgangerSeer.action.role.action.first!
-						: seer.action.first!;
-				const second =
-					player.initialRole === "doppelganger"
-						? doppelgangerSeer.action.role.action.second!
-						: seer.action.second!;
-
-				return this.base({
-					...this.nightActionDMCommon(player.initialRole!),
-					title: `${this.titleRole(
-						player
-					)}, these are the center roles you chose to view:`,
-					fields: [
-						{
-							name: centerCardPosition(first),
-							value: capitalize(centerCards[first]),
-						},
-						{
-							name: centerCardPosition(second),
-							value: capitalize(centerCards[second]),
-						},
-					],
-				});
-			}
+					{
+						name: centerCardPosition(second),
+						value: capitalize(centerCards[second]),
+					},
+				],
+			});
 		}
 
 		return this.base({
@@ -447,13 +439,13 @@ export class Embeds {
 
 		if (
 			player.initialRole === "doppelganger"
-				? doppelgangerRobber.action?.role?.action
-				: robber.action
+				? doppelgangerRobber.action?.role?.action?.player
+				: robber.action?.player
 		) {
 			const targetId =
 				player.initialRole === "doppelganger"
-					? doppelgangerRobber.action.role.action.player!
-					: robber.action.player!;
+					? doppelgangerRobber.action.role.action.player
+					: robber.action.player;
 			const target = this.findPlayerById(players, targetId)!;
 
 			return this.base({
@@ -492,68 +484,60 @@ export class Embeds {
 
 		if (
 			player.initialRole === "doppelganger"
-				? doppelgangerTroublemaker.action?.role?.action
-				: troublemaker.action
+				? doppelgangerTroublemaker.action?.role?.action?.first &&
+				  doppelgangerTroublemaker.action?.role?.action?.second === null
+				: troublemaker.action?.first && troublemaker.action?.second === null
 		) {
-			if (
+			const firstId =
 				player.initialRole === "doppelganger"
-					? doppelgangerTroublemaker.action.role.action.first !== null &&
-					  doppelgangerTroublemaker.action.role.action.second === null
-					: troublemaker.action.first !== null &&
-					  troublemaker.action.second === null
-			) {
-				const firstId =
-					player.initialRole === "doppelganger"
-						? doppelgangerTroublemaker.action.role.action.first!
-						: troublemaker.action.first!;
-				const first = this.findPlayerById(players, firstId)!;
-				const firstIndex = players.indexOf(first);
+					? doppelgangerTroublemaker.action.role.action.first!
+					: troublemaker.action.first!;
+			const first = this.findPlayerById(players, firstId)!;
+			const firstIndex = players.indexOf(first);
 
-				return this.base({
-					...this.nightActionDMCommon(player.initialRole!),
-					title: `${this.titleRole(
-						player
-					)}, choose two other players to swap their roles:`,
-					fields: [
-						{
-							name: "Picked",
-							value: `${numberEmojis[firstIndex]} ${first.member.displayName}`,
-						},
-						{
-							name: "Players",
-							value: listOfEveryone(players, [player.member.id]),
-						},
-					],
-				});
-			} else if (
+			return this.base({
+				...this.nightActionDMCommon(player.initialRole!),
+				title: `${this.titleRole(
+					player
+				)}, choose two other players to swap their roles:`,
+				fields: [
+					{
+						name: "Picked",
+						value: `${numberEmojis[firstIndex]} ${first.member.displayName}`,
+					},
+					{
+						name: "Players",
+						value: listOfEveryone(players, [player.member.id]),
+					},
+				],
+			});
+		} else if (
+			player.initialRole === "doppelganger"
+				? doppelgangerTroublemaker.action?.role?.action?.first &&
+				  doppelgangerTroublemaker.action?.role?.action?.second !== null
+				: troublemaker.action?.first && troublemaker.action?.second !== null
+		) {
+			const firstId =
 				player.initialRole === "doppelganger"
-					? doppelgangerTroublemaker.action.role.action.first !== null &&
-					  doppelgangerTroublemaker.action.role.action.second !== null
-					: troublemaker.action.first !== null &&
-					  troublemaker.action.second !== null
-			) {
-				const firstId =
-					player.initialRole === "doppelganger"
-						? doppelgangerTroublemaker.action.role.action.first!
-						: troublemaker.action.first!;
-				const first = this.findPlayerById(players, firstId)!;
-				const firstIndex = players.indexOf(first);
+					? doppelgangerTroublemaker.action.role.action.first!
+					: troublemaker.action.first!;
+			const first = this.findPlayerById(players, firstId)!;
+			const firstIndex = players.indexOf(first);
 
-				const secondId =
-					player.initialRole === "doppelganger"
-						? doppelgangerTroublemaker.action.role.action.second!
-						: troublemaker.action.second!;
-				const second = this.findPlayerById(players, secondId)!;
-				const secondIndex = players.indexOf(second);
+			const secondId =
+				player.initialRole === "doppelganger"
+					? doppelgangerTroublemaker.action.role.action.second!
+					: troublemaker.action.second!;
+			const second = this.findPlayerById(players, secondId)!;
+			const secondIndex = players.indexOf(second);
 
-				return this.base({
-					...this.nightActionDMCommon(player.initialRole!),
-					title: `${this.titleRole(
-						player
-					)}, you swapped the roles of these two players:`,
-					description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
-				});
-			}
+			return this.base({
+				...this.nightActionDMCommon(player.initialRole!),
+				title: `${this.titleRole(
+					player
+				)}, you swapped the roles of these two players:`,
+				description: `${numberEmojis[firstIndex]} ${first.member.displayName}\n${numberEmojis[secondIndex]} ${second.member.displayName}`,
+			});
 		}
 
 		return this.base({
@@ -580,8 +564,8 @@ export class Embeds {
 
 		if (
 			player.initialRole === "doppelganger"
-				? doppelgangerDrunk.action?.role?.action
-				: drunk.action
+				? doppelgangerDrunk.action?.role?.action?.center
+				: drunk.action?.center
 		) {
 			const centerCard =
 				player.initialRole === "doppelganger"
