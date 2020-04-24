@@ -313,6 +313,37 @@ export class Embeds {
 					...this.minionNightActionDM(players, player),
 					title: "Doppelganger-Minion, these are the werewolves:",
 				};
+			case "robber": {
+				const robber = player as Player<"doppelganger", "robber">;
+
+				if (robber.action.role.action === null) {
+					return {
+						...this.nightActionDMCommon(robber.initialRole!),
+						title:
+							"Doppelganger-Robber, choose another player to steal their role:",
+						fields: [
+							{
+								name: "Players",
+								value: listOfEveryone(players, [robber.member.id]),
+							},
+						],
+					};
+				} else {
+					const target = this.findPlayerById(
+						players,
+						robber.action.role.action.player
+					)!;
+
+					return {
+						...this.nightActionDMCommon(robber.initialRole!),
+						title: `You stole the role from ${target.member.displayName}!`,
+						description: `You became a ${capitalize(robber.role!)}.`,
+						image: {
+							url: characters[robber.role!].image,
+						},
+					};
+				}
+			}
 			case "drunk": {
 				const drunk = player as Player<"doppelganger", "drunk">;
 
@@ -331,7 +362,7 @@ export class Embeds {
 				} else {
 					return {
 						...this.nightActionDMCommon(player.initialRole!),
-						title: `Drunk, you chose to become the role in the ${centerCardPosition(
+						title: `Doppelganger-Drunk, you chose to become the role in the ${centerCardPosition(
 							drunk.action.role.action.center
 						)}.`,
 					};
@@ -454,7 +485,7 @@ export class Embeds {
 
 		if (robber.action === null) {
 			return {
-				...this.nightActionDMCommon("robber"),
+				...this.nightActionDMCommon(player.initialRole!),
 				title: "Robber, choose another player to steal their role:",
 				fields: [
 					{
@@ -467,7 +498,7 @@ export class Embeds {
 			const target = this.findPlayerById(players, robber.action.player)!;
 
 			return {
-				...this.nightActionDMCommon("robber"),
+				...this.nightActionDMCommon(player.initialRole!),
 				title: `You stole the role from ${target.member.displayName}!`,
 				description: `You became a ${capitalize(robber.role!)}.`,
 				image: {

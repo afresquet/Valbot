@@ -899,6 +899,42 @@ export class WerewolfManager {
 					}
 
 					switch (doppelganger.action.role.character) {
+						case "robber": {
+							if (playerIndex === -1) break;
+
+							const robber = player as Player<"doppelganger", "robber">;
+
+							if (robber.action?.role?.action) break;
+
+							const action: typeof robber.action.role.action = {
+								player: target.member.id,
+							};
+
+							this.players.set(curr =>
+								curr.map<Player>(p => {
+									if (p.member.id === robber.member.id) {
+										return {
+											...p,
+											role: target.role,
+											action: {
+												...p.action,
+												role: {
+													...(p as Player<"doppelganger", "robber">).action
+														.role,
+													action,
+												},
+											},
+										} as Player<"doppelganger", "robber">;
+									} else if (p.member.id === target.member.id) {
+										return { ...p, role: robber.role };
+									} else {
+										return p;
+									}
+								})
+							);
+
+							break;
+						}
 						case "drunk": {
 							if (centerIndex === -1) break;
 
