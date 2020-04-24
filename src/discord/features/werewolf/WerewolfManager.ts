@@ -391,7 +391,7 @@ export class WerewolfManager {
 		const doppelganger = players.find(
 			p => p.initialRole === "doppelganger"
 		) as Player<"doppelganger">;
-		if (doppelganger?.action !== null) {
+		if (doppelganger && doppelganger?.action !== null) {
 			switch (doppelganger.action.role.character) {
 				case "seer": {
 					const seer = doppelganger as Player<"doppelganger", "seer">;
@@ -1132,7 +1132,7 @@ export class WerewolfManager {
 
 						this.players.set(curr =>
 							curr.map<Player>(p => {
-								if (p.member.id === troublemaker.member.id) return p;
+								if (p.member.id !== troublemaker.member.id) return p;
 
 								return p.initialRole === "doppelganger"
 									? ({
@@ -1158,7 +1158,7 @@ export class WerewolfManager {
 
 						this.players.set(curr =>
 							curr.map<Player>(p => {
-								if (p.member.id === troublemaker.member.id) {
+								if (p.member.id === player.member.id) {
 									return p.initialRole === "doppelganger"
 										? ({
 												...p,

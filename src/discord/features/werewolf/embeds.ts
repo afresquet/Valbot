@@ -367,8 +367,8 @@ export class Embeds {
 		} else if (
 			player.initialRole === "doppelganger"
 				? doppelgangerSeer.action?.role?.action?.first &&
-				  doppelgangerSeer.action?.role?.action?.second === null
-				: seer.action?.first !== null && seer.action?.second === null
+				  !doppelgangerSeer.action?.role?.action?.second
+				: seer.action?.first && !seer.action?.second
 		) {
 			const first =
 				player.initialRole === "doppelganger"
@@ -485,8 +485,8 @@ export class Embeds {
 		if (
 			player.initialRole === "doppelganger"
 				? doppelgangerTroublemaker.action?.role?.action?.first &&
-				  doppelgangerTroublemaker.action?.role?.action?.second === null
-				: troublemaker.action?.first && troublemaker.action?.second === null
+				  !doppelgangerTroublemaker.action?.role?.action?.second
+				: troublemaker.action?.first && !troublemaker.action?.second
 		) {
 			const firstId =
 				player.initialRole === "doppelganger"
@@ -514,8 +514,8 @@ export class Embeds {
 		} else if (
 			player.initialRole === "doppelganger"
 				? doppelgangerTroublemaker.action?.role?.action?.first &&
-				  doppelgangerTroublemaker.action?.role?.action?.second !== null
-				: troublemaker.action?.first && troublemaker.action?.second !== null
+				  doppelgangerTroublemaker.action?.role?.action?.second
+				: troublemaker.action?.first && troublemaker.action?.second
 		) {
 			const firstId =
 				player.initialRole === "doppelganger"
