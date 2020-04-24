@@ -313,6 +313,30 @@ export class Embeds {
 					...this.minionNightActionDM(players, player),
 					title: "Doppelganger-Minion, these are the werewolves:",
 				};
+			case "drunk": {
+				const drunk = player as Player<"doppelganger", "drunk">;
+
+				if (drunk.action.role.action === null) {
+					return {
+						...this.nightActionDMCommon(player.initialRole!),
+						title:
+							"Doppelganger-Drunk, choose a role from the center to become that role:",
+						fields: [
+							{
+								name: "Center roles",
+								value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+							},
+						],
+					};
+				} else {
+					return {
+						...this.nightActionDMCommon(player.initialRole!),
+						title: `Drunk, you chose to become the role in the ${centerCardPosition(
+							drunk.action.role.action.center
+						)}.`,
+					};
+				}
+			}
 			case "insomniac":
 				return {
 					...this.insomniacNightActionDM(player),
@@ -522,7 +546,7 @@ export class Embeds {
 
 		if (drunk.action === null) {
 			return {
-				...this.nightActionDMCommon("drunk"),
+				...this.nightActionDMCommon(player.initialRole!),
 				title: "Drunk, choose a role from the center to become that role:",
 				fields: [
 					{
@@ -533,7 +557,7 @@ export class Embeds {
 			};
 		} else {
 			return {
-				...this.nightActionDMCommon("drunk"),
+				...this.nightActionDMCommon(player.initialRole!),
 				title: `Drunk, you chose to become the role in the ${centerCardPosition(
 					drunk.action.center
 				)}.`,

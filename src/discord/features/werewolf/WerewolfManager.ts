@@ -715,17 +715,38 @@ export class WerewolfManager {
 		) as Player<"doppelganger">;
 
 		if (
-			doppelganger.action !== null &&
+			doppelganger?.action !== null &&
 			["seer", "robber", "troublemaker", "drunk"].includes(
-				doppelganger.action.role.character
+				doppelganger?.action?.role?.character
 			)
 		) {
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.doppelgangerCopiedNightActionDM(
-					this.players.current,
-					doppelganger
+				this.embeds.base(
+					this.embeds.doppelgangerCopiedNightActionDM(
+						this.players.current,
+						doppelganger
+					)
 				)
 			);
+
+			if (
+				["doppelganger", "seer", "robber", "troublemaker"].includes(
+					doppelganger.action.role.character
+				)
+			) {
+				for (let i = 0; i < this.players.current.length; i++) {
+					if (this.players.current[i].member.id === doppelganger.member.id)
+						continue;
+
+					await this.nightActionDM!.react(numberEmojis[i]);
+				}
+			}
+
+			if (["seer", "drunk"].includes(doppelganger.action.role.character)) {
+				for (let i = 0; i < centerEmojis.length; i++) {
+					await this.nightActionDM!.react(centerEmojis[i]);
+				}
+			}
 		}
 
 		await delay(this.roleTimer.current * 1000);
@@ -751,8 +772,8 @@ export class WerewolfManager {
 		);
 
 		if (
-			doppelganger.action !== null &&
-			doppelganger.action.role.character === "minion"
+			doppelganger?.action !== null &&
+			doppelganger?.action?.role?.character === "minion"
 		) {
 			this.nightActionDM = await doppelganger.member.send(
 				this.embeds.base(
@@ -853,25 +874,70 @@ export class WerewolfManager {
 				case "doppelganger": {
 					const doppelganger = player as Player<"doppelganger">;
 
-					if (doppelganger.action !== null || playerIndex === -1) break;
+					if (doppelganger.action === null) {
+						if (playerIndex === -1) break;
 
-					this.players.set(curr =>
-						curr.map<Player>(p =>
-							p.member.id === doppelganger.member.id
-								? {
-										...p,
-										action: {
-											player: target.member.id,
-											role: {
-												character: target.initialRole,
-												ready: false,
-												action: null,
+						this.players.set(curr =>
+							curr.map<Player>(p =>
+								p.member.id === doppelganger.member.id
+									? {
+											...p,
+											action: {
+												player: target.member.id,
+												role: {
+													character: target.initialRole,
+													ready: false,
+													action: null,
+												},
 											},
-										},
-								  }
-								: p
-						)
-					);
+									  }
+									: p
+							)
+						);
+
+						break;
+					}
+
+					switch (doppelganger.action.role.character) {
+						case "drunk": {
+							if (centerIndex === -1) break;
+
+							const drunk = doppelganger as Player<"doppelganger", "drunk">;
+
+							if (drunk.action?.role?.action) break;
+
+							const action: typeof drunk.action.role.action = {
+								center: centerIndex,
+							};
+
+							this.players.set(curr =>
+								curr.map<Player>(p =>
+									p.member.id === drunk.member.id
+										? ({
+												...p,
+												role: this.centerCards.current[centerIndex],
+												action: {
+													...p.action,
+													role: {
+														...(p as Player<"doppelganger", "drunk">).action
+															.role,
+														action,
+													},
+												},
+										  } as Player<"doppelganger", "drunk">)
+										: p
+								)
+							);
+
+							this.centerCards.set(curr =>
+								curr.map((c, i) => (i === centerIndex ? drunk.role! : c))
+							);
+
+							break;
+						}
+						default:
+							break;
+					}
 
 					break;
 				}
