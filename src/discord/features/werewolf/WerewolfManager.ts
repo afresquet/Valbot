@@ -388,21 +388,118 @@ export class WerewolfManager {
 
 		const fields: Discord.EmbedFieldData[] = [];
 
+		const doppelganger = players.find(
+			p => p.initialRole === "doppelganger"
+		) as Player<"doppelganger">;
+		if (doppelganger?.action !== null) {
+			switch (doppelganger.action.role.character) {
+				case "seer": {
+					const seer = doppelganger as Player<"doppelganger", "seer">;
+					const originalSeer = this.findPlayerById(seer.action.player)!;
+
+					if (seer.action.role.action?.player !== null) {
+						const target = this.findPlayerById(seer.action.role.action.player)!;
+
+						fields.push({
+							name: `${seer.member.displayName} (Doppelganger-Seer from ${originalSeer.member.displayName})`,
+							value: `Viewed the role of ${target.member.displayName}.`,
+						});
+					} else if (
+						seer.action.role.action?.first !== null &&
+						seer.action.role.action?.second !== null
+					) {
+						fields.push({
+							name: `${seer.member.displayName} (Doppelganger-Seer from ${originalSeer.member.displayName})`,
+							value: `Viewed the roles at the ${centerCardPosition(
+								seer.action.role.action.first
+							)} and at the ${centerCardPosition(
+								seer.action.role.action.second
+							)}.`,
+						});
+					}
+
+					break;
+				}
+				case "robber": {
+					const robber = doppelganger as Player<"doppelganger", "robber">;
+					const originalRobber = this.findPlayerById(robber.action.player)!;
+
+					if (robber.action.role.action?.player !== null) {
+						const target = this.findPlayerById(
+							robber.action.role.action.player
+						)!;
+
+						fields.push({
+							name: `${robber.member.displayName} (Doppelganger-Robber from ${originalRobber.member.displayName})`,
+							value: `Stole the role from ${target.member.displayName}.`,
+						});
+					}
+
+					break;
+				}
+				case "troublemaker": {
+					const troublemaker = doppelganger as Player<
+						"doppelganger",
+						"troublemaker"
+					>;
+					const originalTroublemaker = this.findPlayerById(
+						troublemaker.action.player
+					)!;
+
+					if (
+						troublemaker.action.role.action?.first !== null &&
+						troublemaker.action.role.action?.second !== null
+					) {
+						const first = players.find(
+							p => p.member.id === troublemaker.action.role.action.first
+						)!;
+						const second = players.find(
+							p => p.member.id === troublemaker.action.role.action.second
+						)!;
+
+						fields.push({
+							name: `${troublemaker.member.displayName} (Doppelganger-Troublemaker from ${originalTroublemaker.member.displayName})`,
+							value: `Swapped the roles of ${first.member.displayName} and ${second.member.displayName}.`,
+						});
+					}
+
+					break;
+				}
+				case "drunk": {
+					const drunk = doppelganger as Player<"doppelganger", "drunk">;
+					const originalDrunk = this.findPlayerById(drunk.action.player)!;
+
+					if (drunk.action.role.action?.center !== null) {
+						fields.push({
+							name: `${drunk.member.displayName} (Doppelganger-Drunk from ${originalDrunk.member.displayName})`,
+							value: `Took the role from the center at the ${centerCardPosition(
+								drunk.action.role.action.center
+							)}.`,
+						});
+					}
+
+					break;
+				}
+				default:
+					break;
+			}
+		}
+
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
 		if (seer && seer.action !== null) {
 			if (seer.action.player !== null) {
-				const player = this.findPlayerById(seer.action.player)!;
+				const target = this.findPlayerById(seer.action.player)!;
 
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
-					value: `Viewed the role of ${player.member.displayName}.`,
+					value: `Viewed the role of ${target.member.displayName}.`,
 				});
 			} else if (seer.action.first !== null && seer.action.second !== null) {
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
 					value: `Viewed the roles at the ${centerCardPosition(
-						seer.action.first!
-					)} and at the ${centerCardPosition(seer.action.second!)}.`,
+						seer.action.first
+					)} and at the ${centerCardPosition(seer.action.second)}.`,
 				});
 			}
 		}
@@ -411,11 +508,11 @@ export class WerewolfManager {
 			"robber"
 		>;
 		if (robber && robber.action !== null) {
-			const player = this.findPlayerById(robber.action.player)!;
+			const target = this.findPlayerById(robber.action.player)!;
 
 			fields.push({
 				name: `${robber.member.displayName} (Robber)`,
-				value: `Stole the role from ${player.member.displayName}.`,
+				value: `Stole the role from ${target.member.displayName}.`,
 			});
 		}
 
