@@ -619,7 +619,8 @@ export class WerewolfManager {
 				this.embeds.base(
 					this.embeds.doppelgangerCopiedNightActionDM(
 						this.players.current,
-						doppelganger
+						doppelganger,
+						this.centerCards.current
 					)
 				)
 			);
@@ -724,7 +725,8 @@ export class WerewolfManager {
 				this.embeds.base(
 					this.embeds.doppelgangerCopiedNightActionDM(
 						this.players.current,
-						doppelganger
+						doppelganger,
+						this.centerCards.current
 					)
 				)
 			);
@@ -779,7 +781,8 @@ export class WerewolfManager {
 				this.embeds.base(
 					this.embeds.doppelgangerCopiedNightActionDM(
 						this.players.current,
-						doppelganger
+						doppelganger,
+						this.centerCards.current
 					)
 				)
 			);
@@ -899,6 +902,59 @@ export class WerewolfManager {
 					}
 
 					switch (doppelganger.action.role.character) {
+						case "seer": {
+							const seer = player as Player<"doppelganger", "seer">;
+
+							const action: typeof seer.action.role.action =
+								seer.action.role.action !== null
+									? { ...seer.action.role.action }
+									: { player: null, first: null, second: null };
+
+							if (playerIndex !== -1) {
+								if (
+									action.player !== null ||
+									action.first !== null ||
+									action.second !== null
+								)
+									break;
+
+								action.player = target.member.id;
+							} else if (centerIndex !== -1) {
+								if (action.player !== null) break;
+
+								if (action.first === null) {
+									action.first = centerIndex;
+								} else if (
+									action.first !== null &&
+									action.first !== centerIndex &&
+									action.second === null
+								) {
+									action.second = centerIndex;
+								} else {
+									break;
+								}
+							}
+
+							this.players.set(curr =>
+								curr.map<Player>(p =>
+									p.member.id === seer.member.id
+										? ({
+												...p,
+												action: {
+													...p.action,
+													role: {
+														...(p as Player<"doppelganger", "seer">).action
+															.role,
+														action,
+													},
+												},
+										  } as Player<"doppelganger", "seer">)
+										: p
+								)
+							);
+
+							break;
+						}
 						case "robber": {
 							if (playerIndex === -1) break;
 

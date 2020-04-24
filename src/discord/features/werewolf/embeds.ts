@@ -161,7 +161,11 @@ export class Embeds {
 
 				return doppelganger.action?.ready
 					? this.base(
-							this.doppelgangerCopiedNightActionDM(players, doppelganger)
+							this.doppelgangerCopiedNightActionDM(
+								players,
+								doppelganger,
+								centerCards!
+							)
 					  )
 					: this.base(this.doppelgangerNightActionDM(players, doppelganger));
 			}
@@ -297,7 +301,8 @@ export class Embeds {
 
 	doppelgangerCopiedNightActionDM(
 		players: Player[],
-		player: Player<"doppelganger">
+		player: Player<"doppelganger">,
+		centerCards: Character[]
 	): Discord.MessageEmbedOptions {
 		switch (player.action.role.character) {
 			case "werewolf":
@@ -313,6 +318,75 @@ export class Embeds {
 					...this.minionNightActionDM(players, player),
 					title: "Doppelganger-Minion, these are the werewolves:",
 				};
+			case "seer": {
+				const seer = player as Player<"doppelganger", "seer">;
+
+				if (seer.action.role.action !== null) {
+					if (seer.action.role.action.player !== null) {
+						const target = this.findPlayerById(
+							players,
+							seer.action.role.action.player
+						)!;
+
+						return {
+							...this.nightActionDMCommon(seer.initialRole!),
+							title: `Doppelganger-Seer, this is ${target.member.displayName}'s role:`,
+							description: capitalize(target.role!),
+							image: {
+								url: characters[target.role!].image,
+							},
+						};
+					} else if (
+						seer.action.role.action.first !== null &&
+						seer.action.role.action.second === null
+					) {
+						return {
+							...this.nightActionDMCommon(seer.initialRole!),
+							title: "Doppelganger-Seer, choose another center role to view.",
+							description: `You already chose to view the role on the ${centerCardPosition(
+								seer.action.role.action.first
+							)}.`,
+						};
+					} else if (
+						seer.action.role.action.first !== null &&
+						seer.action.role.action.second !== null
+					) {
+						return {
+							...this.nightActionDMCommon(seer.initialRole!),
+							title:
+								"Doppelganger-Seer, these are the center roles you chose to view:",
+							fields: [
+								{
+									name: centerCardPosition(seer.action.role.action.first),
+									value: capitalize(centerCards[seer.action.role.action.first]),
+								},
+								{
+									name: centerCardPosition(seer.action.role.action.second),
+									value: capitalize(
+										centerCards[seer.action.role.action.second]
+									),
+								},
+							],
+						};
+					}
+				}
+
+				return {
+					...this.nightActionDMCommon(seer.initialRole!),
+					title:
+						"Doppelganger-Seer, choose a player to view their role, or view two roles from the center:",
+					fields: [
+						{
+							name: "Players",
+							value: listOfEveryone(players, [seer.member.id]),
+						},
+						{
+							name: "Center",
+							value: `${centerEmojis[0]} Left\n${centerEmojis[1]} Middle\n${centerEmojis[2]} Right`,
+						},
+					],
+				};
+			}
 			case "robber": {
 				const robber = player as Player<"doppelganger", "robber">;
 
@@ -495,7 +569,7 @@ export class Embeds {
 				const target = this.findPlayerById(players, seer.action.player)!;
 
 				return {
-					...this.nightActionDMCommon("seer"),
+					...this.nightActionDMCommon(player.initialRole!),
 					title: `Seer, this is ${target.member.displayName}'s role:`,
 					description: capitalize(target.role!),
 					image: {
@@ -504,7 +578,7 @@ export class Embeds {
 				};
 			} else if (seer.action.first !== null && seer.action.second === null) {
 				return {
-					...this.nightActionDMCommon("seer"),
+					...this.nightActionDMCommon(player.initialRole!),
 					title: "Seer, choose another center role to view.",
 					description: `You already chose to view the role on the ${centerCardPosition(
 						seer.action.first
@@ -512,7 +586,7 @@ export class Embeds {
 				};
 			} else if (seer.action.first !== null && seer.action.second !== null) {
 				return {
-					...this.nightActionDMCommon("seer"),
+					...this.nightActionDMCommon(player.initialRole!),
 					title: "Seer, these are the center roles you chose to view:",
 					fields: [
 						{
@@ -529,7 +603,7 @@ export class Embeds {
 		}
 
 		return {
-			...this.nightActionDMCommon("seer"),
+			...this.nightActionDMCommon(player.initialRole!),
 			title:
 				"Seer, choose a player to view their role, or view two roles from the center:",
 			fields: [
