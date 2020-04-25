@@ -1015,7 +1015,7 @@ export class WerewolfManager {
 						action = {
 							...doppelgangerSeer.action.role.action,
 						};
-					} else if (seer.action) {
+					} else if (player.initialRole === "seer" && seer.action) {
 						action = { ...seer.action };
 					}
 
@@ -1125,7 +1125,10 @@ export class WerewolfManager {
 						doppelgangerTroublemaker.action?.role?.action
 					) {
 						action = { ...doppelgangerTroublemaker.action.role.action };
-					} else if (troublemaker.action) {
+					} else if (
+						player.initialRole === "troublemaker" &&
+						troublemaker.action
+					) {
 						action = { ...troublemaker.action };
 					}
 
