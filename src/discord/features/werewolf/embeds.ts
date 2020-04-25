@@ -131,12 +131,13 @@ export class Embeds {
 
 		return players.reduce((result, current, index) => {
 			if (
-				current.initialRole === "doppelganger" &&
-				(current as Player<"doppelganger">).action.role.character !== role
+				current.initialRole === Character.DOPPELGANGER &&
+				(current as Player<Character.DOPPELGANGER>).action.role.character !==
+					role
 			) {
 				return result;
 			} else if (
-				current.initialRole !== "doppelganger" &&
+				current.initialRole !== Character.DOPPELGANGER &&
 				current.initialRole !== role
 			) {
 				return result;
@@ -156,28 +157,28 @@ export class Embeds {
 		centerCards?: Character[]
 	): Discord.MessageEmbed {
 		const role =
-			player.initialRole === "doppelganger" &&
-			(player as Player<"doppelganger">).action?.ready
-				? (player as Player<"doppelganger">).action.role.character
+			player.initialRole === Character.DOPPELGANGER &&
+			(player as Player<Character.DOPPELGANGER>).action?.ready
+				? (player as Player<Character.DOPPELGANGER>).action.role.character
 				: player.initialRole;
 
 		switch (role) {
-			case "doppelganger":
+			case Character.DOPPELGANGER:
 				return this.doppelgangerNightActionDM(players, player);
-			case "werewolf":
-			case "mason":
+			case Character.WEREWOLF:
+			case Character.MASON:
 				return this.werewolfAndMasonNightActionDM(players, player);
-			case "minion":
+			case Character.MINION:
 				return this.minionNightActionDM(players, player);
-			case "seer":
+			case Character.SEER:
 				return this.seerNightActionDM(players, player, centerCards!);
-			case "robber":
+			case Character.ROBBER:
 				return this.robberNightActionDM(players, player);
-			case "troublemaker":
+			case Character.TROUBLEMAKER:
 				return this.troublemakerNightActionDM(players, player);
-			case "drunk":
+			case Character.DRUNK:
 				return this.drunkNightActionDM(player);
-			case "insomniac":
+			case Character.INSOMNIAC:
 				return this.insomniacNightActionDM(player);
 			default:
 				throw new Error(
@@ -261,11 +262,11 @@ export class Embeds {
 	}
 
 	titleRole(player: Player) {
-		if (player.initialRole !== "doppelganger")
+		if (player.initialRole !== Character.DOPPELGANGER)
 			return capitalize(player.initialRole!);
 
 		return `Doppelganger-${capitalize(
-			(player as Player<"doppelganger">).action.role.character
+			(player as Player<Character.DOPPELGANGER>).action.role.character
 		)}`;
 	}
 
@@ -273,21 +274,21 @@ export class Embeds {
 		players: Player[],
 		player: Player
 	): Discord.MessageEmbed {
-		const doppelganger = player as Player<"doppelganger">;
+		const doppelganger = player as Player<Character.DOPPELGANGER>;
 
 		if (doppelganger.action) {
 			const target = this.findPlayerById(players, doppelganger.action.player)!;
 
 			const hasAction = [
-				"minion",
-				"seer",
-				"robber",
-				"troublemaker",
-				"drunk",
+				Character.MINION,
+				Character.SEER,
+				Character.ROBBER,
+				Character.TROUBLEMAKER,
+				Character.DRUNK,
 			].includes(doppelganger.action.role.character);
 
 			return this.base({
-				...this.nightActionDMCommon("doppelganger"),
+				...this.nightActionDMCommon(Character.DOPPELGANGER),
 				title: `Doppelganger, you copied the role from ${target.member.displayName}:`,
 				description: `You became a ${doppelganger.action.role.character}! ${
 					hasAction ? "Your action will show up right after this message." : ""
@@ -297,7 +298,7 @@ export class Embeds {
 		}
 
 		return this.base({
-			...this.nightActionDMCommon("doppelganger"),
+			...this.nightActionDMCommon(player.initialRole!),
 			title: "Doppelganger, choose a player to become their role.",
 			description: listOfEveryone(players, [doppelganger.member.id]),
 		});
@@ -308,8 +309,8 @@ export class Embeds {
 		player: Player
 	): Discord.MessageEmbed {
 		const role =
-			player.initialRole === "doppelganger"
-				? (player as Player<"doppelganger">).action.role.character
+			player.initialRole === Character.DOPPELGANGER
+				? (player as Player<Character.DOPPELGANGER>).action.role.character
 				: player.initialRole!;
 
 		return this.base({
@@ -329,7 +330,7 @@ export class Embeds {
 			title: `${this.titleRole(player)}, these are the werewolves:`,
 			description: this.nightTeammatesDescription(
 				players,
-				"werewolf",
+				Character.WEREWOLF,
 				player.member.id
 			),
 		});
@@ -340,16 +341,19 @@ export class Embeds {
 		player: Player,
 		centerCards: Character[]
 	): Discord.MessageEmbed {
-		const seer = player as Player<"seer">;
-		const doppelgangerSeer = player as Player<"doppelganger", "seer">;
+		const seer = player as Player<Character.SEER>;
+		const doppelgangerSeer = player as Player<
+			Character.DOPPELGANGER,
+			Character.SEER
+		>;
 
 		if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerSeer.action?.role?.action?.player
 				: seer.action?.player
 		) {
 			const targetId =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerSeer.action.role.action.player!
 					: seer.action.player!;
 			const target = this.findPlayerById(players, targetId)!;
@@ -365,13 +369,13 @@ export class Embeds {
 				},
 			});
 		} else if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerSeer.action?.role?.action?.first &&
 				  !doppelgangerSeer.action?.role?.action?.second
 				: seer.action?.first && !seer.action?.second
 		) {
 			const first =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerSeer.action.role.action.first!
 					: seer.action.first!;
 
@@ -383,17 +387,17 @@ export class Embeds {
 				)}.`,
 			});
 		} else if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerSeer.action?.role?.action?.first &&
 				  doppelgangerSeer.action?.role?.action?.second
 				: seer.action?.first && seer.action?.second
 		) {
 			const first =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerSeer.action.role.action.first!
 					: seer.action.first!;
 			const second =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerSeer.action.role.action.second!
 					: seer.action.second!;
 
@@ -434,16 +438,19 @@ export class Embeds {
 	}
 
 	robberNightActionDM(players: Player[], player: Player): Discord.MessageEmbed {
-		const robber = player as Player<"robber">;
-		const doppelgangerRobber = player as Player<"doppelganger", "robber">;
+		const robber = player as Player<Character.ROBBER>;
+		const doppelgangerRobber = player as Player<
+			Character.DOPPELGANGER,
+			Character.ROBBER
+		>;
 
 		if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerRobber.action?.role?.action?.player
 				: robber.action?.player
 		) {
 			const targetId =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerRobber.action.role.action.player
 					: robber.action.player;
 			const target = this.findPlayerById(players, targetId)!;
@@ -476,20 +483,20 @@ export class Embeds {
 		players: Player[],
 		player: Player
 	): Discord.MessageEmbed {
-		const troublemaker = player as Player<"troublemaker">;
+		const troublemaker = player as Player<Character.TROUBLEMAKER>;
 		const doppelgangerTroublemaker = player as Player<
-			"doppelganger",
-			"troublemaker"
+			Character.DOPPELGANGER,
+			Character.TROUBLEMAKER
 		>;
 
 		if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerTroublemaker.action?.role?.action?.first &&
 				  !doppelgangerTroublemaker.action?.role?.action?.second
 				: troublemaker.action?.first && !troublemaker.action?.second
 		) {
 			const firstId =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerTroublemaker.action.role.action.first!
 					: troublemaker.action.first!;
 			const first = this.findPlayerById(players, firstId)!;
@@ -512,20 +519,20 @@ export class Embeds {
 				],
 			});
 		} else if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerTroublemaker.action?.role?.action?.first &&
 				  doppelgangerTroublemaker.action?.role?.action?.second
 				: troublemaker.action?.first && troublemaker.action?.second
 		) {
 			const firstId =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerTroublemaker.action.role.action.first!
 					: troublemaker.action.first!;
 			const first = this.findPlayerById(players, firstId)!;
 			const firstIndex = players.indexOf(first);
 
 			const secondId =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerTroublemaker.action.role.action.second!
 					: troublemaker.action.second!;
 			const second = this.findPlayerById(players, secondId)!;
@@ -559,16 +566,19 @@ export class Embeds {
 	}
 
 	drunkNightActionDM(player: Player): Discord.MessageEmbed {
-		const drunk = player as Player<"drunk">;
-		const doppelgangerDrunk = player as Player<"doppelganger", "drunk">;
+		const drunk = player as Player<Character.DRUNK>;
+		const doppelgangerDrunk = player as Player<
+			Character.DOPPELGANGER,
+			Character.DRUNK
+		>;
 
 		if (
-			player.initialRole === "doppelganger"
+			player.initialRole === Character.DOPPELGANGER
 				? doppelgangerDrunk.action?.role?.action?.center
 				: drunk.action?.center
 		) {
 			const centerCard =
-				player.initialRole === "doppelganger"
+				player.initialRole === Character.DOPPELGANGER
 					? doppelgangerDrunk.action.role.action.center
 					: drunk.action.center;
 
