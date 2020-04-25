@@ -29,7 +29,7 @@ export class WerewolfManager {
 	private embeds = new Embeds(this.audioManager);
 
 	private players = new State<Player[]>([]);
-	private centerCards = new State<Character[]>([]);
+	private centerCards: Character[] = [];
 
 	private gameState: GameState = "NOT_PLAYING";
 
@@ -270,7 +270,7 @@ export class WerewolfManager {
 			})
 		);
 
-		this.centerCards.set(() => roles);
+		this.centerCards = roles;
 
 		await this.refreshEmbed();
 
@@ -567,11 +567,9 @@ export class WerewolfManager {
 			}, ""),
 		});
 
-		const centerCards = this.centerCards.current;
-
 		fields.push({
 			name: "Center roles",
-			value: `${centerEmojis[0]} ${centerCards[0]}\n${centerEmojis[1]} ${centerCards[1]}\n${centerEmojis[2]} ${centerCards[2]}`,
+			value: `${centerEmojis[0]} ${this.centerCards[0]}\n${centerEmojis[1]} ${this.centerCards[1]}\n${centerEmojis[2]} ${this.centerCards[2]}`,
 		});
 
 		await this.gameMessage.edit(
@@ -611,7 +609,7 @@ export class WerewolfManager {
 			}))
 		);
 
-		this.centerCards.set(() => []);
+		this.centerCards = [];
 	}
 
 	async rules(character: Character) {
@@ -718,7 +716,7 @@ export class WerewolfManager {
 					this.embeds.nightActionDM(
 						this.players.current,
 						doppelganger,
-						this.centerCards.current
+						this.centerCards
 					)
 				);
 			}
@@ -822,7 +820,7 @@ export class WerewolfManager {
 				this.embeds.nightActionDM(
 					this.players.current,
 					doppelganger,
-					this.centerCards.current
+					this.centerCards
 				)
 			);
 
@@ -871,7 +869,7 @@ export class WerewolfManager {
 				this.embeds.nightActionDM(
 					this.players.current,
 					doppelganger,
-					this.centerCards.current
+					this.centerCards
 				)
 			);
 		}
@@ -926,11 +924,7 @@ export class WerewolfManager {
 		if (!player) return;
 
 		await this.nightActionDM.edit(
-			this.embeds.nightActionDM(
-				this.players.current,
-				player,
-				this.centerCards.current
-			)
+			this.embeds.nightActionDM(this.players.current, player, this.centerCards)
 		);
 	}
 
@@ -1198,7 +1192,7 @@ export class WerewolfManager {
 							return p.initialRole === "doppelganger"
 								? ({
 										...p,
-										role: this.centerCards.current[centerIndex],
+										role: this.centerCards[centerIndex],
 										action: {
 											...p.action,
 											role: {
@@ -1207,19 +1201,11 @@ export class WerewolfManager {
 											},
 										},
 								  } as typeof doppelgangerDrunk)
-								: { ...p, role: this.centerCards.current[centerIndex], action };
+								: { ...p, role: this.centerCards[centerIndex], action };
 						})
 					);
 
-					this.centerCards.set(curr =>
-						curr.map((c, i) => {
-							if (i !== centerIndex) return c;
-
-							return player.initialRole === "doppelganger"
-								? doppelgangerDrunk.role!
-								: drunk.role!;
-						})
-					);
+					this.centerCards[centerIndex] = player.role!;
 
 					break;
 				}
