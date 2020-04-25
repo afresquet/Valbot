@@ -35,10 +35,10 @@ export class WerewolfManager {
 	private gameMessage: Discord.Message | null = null;
 	private nightActionDM: Discord.Message | null = null;
 
-	private expert = new State(false);
+	private expert = false;
 
-	private gameTimer = new State(300);
-	private roleTimer = new State(10);
+	private gameTimer = 300;
+	private roleTimer = 10;
 
 	private characters = new State<CharactersState>(
 		Characters.map(character => ({ character, amount: 0 }))
@@ -181,9 +181,9 @@ export class WerewolfManager {
 			this.embeds.preparation(
 				this.players.current,
 				this.characters.current,
-				this.gameTimer.current,
-				this.roleTimer.current,
-				this.expert.current
+				this.gameTimer,
+				this.roleTimer,
+				this.expert
 			)
 		);
 
@@ -283,7 +283,7 @@ export class WerewolfManager {
 			)
 		);
 
-		await delay(this.roleTimer.current * 1000);
+		await delay(this.roleTimer * 1000);
 
 		await Promise.all(messages.map(message => message.delete()));
 	}
@@ -320,7 +320,7 @@ export class WerewolfManager {
 
 		await this.muteAll(false);
 
-		await delay(this.gameTimer.current * 1000);
+		await delay(this.gameTimer * 1000);
 	}
 
 	private async voting() {
@@ -350,7 +350,7 @@ export class WerewolfManager {
 
 		await this.refreshEmbed();
 
-		await delay(this.roleTimer.current * 1000);
+		await delay(this.roleTimer * 1000);
 
 		await Promise.all(messages.map(message => message.delete()));
 	}
@@ -651,16 +651,16 @@ export class WerewolfManager {
 	}
 
 	async toggleExpert() {
-		this.expert.set(curr => !curr);
+		this.expert = !this.expert;
 
 		await this.refreshEmbed();
 	}
 
 	async changeTimer(timer: "game" | "role", seconds: number) {
 		if (timer === "game") {
-			this.gameTimer.set(() => (seconds > 0 ? seconds : 0));
+			this.gameTimer = seconds > 0 ? seconds : 0;
 		} else if (timer === "role") {
-			this.roleTimer.set(() => (seconds > 0 ? seconds : 0));
+			this.roleTimer = seconds > 0 ? seconds : 0;
 		}
 
 		await this.refreshEmbed();
@@ -680,7 +680,7 @@ export class WerewolfManager {
 
 		await this.audioManager.play(
 			this.soundPath(
-				this.expert.current
+				this.expert
 					? characters[character].sounds.expert.wake
 					: characters[character].sounds.wake
 			)
@@ -713,7 +713,7 @@ export class WerewolfManager {
 
 			await this.audioManager.play(
 				this.soundPath(
-					this.expert.current
+					this.expert
 						? characters.insomniac.sounds.expert.doppelganger
 						: characters.insomniac.sounds.doppelganger
 				)
@@ -729,7 +729,7 @@ export class WerewolfManager {
 				);
 			}
 
-			await delay(this.roleTimer.current * 1000);
+			await delay(this.roleTimer * 1000);
 
 			await Promise.all([
 				this.audioManager.play(
@@ -760,7 +760,7 @@ export class WerewolfManager {
 				)
 			);
 
-			await delay(this.roleTimer.current * 1000);
+			await delay(this.roleTimer * 1000);
 
 			await Promise.all(messages.map(message => message.delete()));
 
@@ -772,7 +772,7 @@ export class WerewolfManager {
 		)!;
 
 		if (!player) {
-			await delay(this.roleTimer.current * 1000);
+			await delay(this.roleTimer * 1000);
 
 			return;
 		}
@@ -797,7 +797,7 @@ export class WerewolfManager {
 			}
 		}
 
-		await delay(this.roleTimer.current * 1000);
+		await delay(this.roleTimer * 1000);
 
 		await this.nightActionDM.delete();
 
@@ -852,7 +852,7 @@ export class WerewolfManager {
 			}
 		}
 
-		await delay(this.roleTimer.current * 1000);
+		await delay(this.roleTimer * 1000);
 
 		if (this.nightActionDM) {
 			await this.nightActionDM.delete();
@@ -868,7 +868,7 @@ export class WerewolfManager {
 
 		await this.audioManager.play(
 			this.soundPath(
-				this.expert.current
+				this.expert
 					? characters.minion.sounds.expert.doppelganger
 					: characters.minion.sounds.doppelganger
 			)
@@ -884,7 +884,7 @@ export class WerewolfManager {
 			);
 		}
 
-		await delay(this.roleTimer.current * 1000);
+		await delay(this.roleTimer * 1000);
 
 		if (this.nightActionDM) {
 			await this.nightActionDM.delete();
@@ -902,9 +902,9 @@ export class WerewolfManager {
 					this.embeds.preparation(
 						this.players.current,
 						this.characters.current,
-						this.gameTimer.current,
-						this.roleTimer.current,
-						this.expert.current
+						this.gameTimer,
+						this.roleTimer,
+						this.expert
 					)
 				);
 				break;

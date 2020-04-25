@@ -194,7 +194,7 @@ export class Embeds {
 	}
 
 	voting(players: Player[]) {
-		const votedValue = players.reduce((result, player, _) => {
+		const votedValue = players.reduce((result, player) => {
 			if (!player.killing) return result;
 
 			const target = this.findPlayerById(players, player.killing)!;
