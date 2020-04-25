@@ -916,7 +916,7 @@ export class WerewolfManager {
 				await this.gameMessage.edit(this.embeds.night());
 				break;
 			case GameState.DAY:
-				await this.gameMessage.edit(this.embeds.day());
+				await this.gameMessage.edit(this.embeds.day(this.characters));
 				break;
 			case GameState.VOTING:
 				await this.gameMessage.edit(this.embeds.voting(this.players));
