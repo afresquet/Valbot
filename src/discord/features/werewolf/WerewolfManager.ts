@@ -488,7 +488,7 @@ export class WerewolfManager {
 				default:
 					break;
 			}
-		} else if (doppelganger.action?.role?.character) {
+		} else if (doppelganger?.action?.role?.character) {
 			const originalRoleHolder = this.findPlayerById(
 				doppelganger.action.player
 			)!;
