@@ -1,12 +1,13 @@
 import Discord from "discord.js";
 
-export type GameState =
-	| "NOT_PLAYING"
-	| "PREPARATION"
-	| "ROLE_ASSIGNING"
-	| "NIGHT"
-	| "DAY"
-	| "VOTING";
+export enum GameState {
+	NOT_PLAYING,
+	PREPARATION,
+	ROLE_ASSIGNING,
+	NIGHT,
+	DAY,
+	VOTING,
+}
 
 export const NightActionCharacters = [
 	"doppelganger",

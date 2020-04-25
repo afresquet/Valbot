@@ -30,7 +30,7 @@ export class WerewolfManager {
 	private players: Player[] = [];
 	private centerCards: Character[] = [];
 
-	private gameState: GameState = "NOT_PLAYING";
+	private gameState: GameState = GameState.NOT_PLAYING;
 
 	private gameMessage: Discord.Message | null = null;
 	private nightActionDM: Discord.Message | null = null;
@@ -54,7 +54,10 @@ export class WerewolfManager {
 	}
 
 	isPlaying() {
-		return this.gameState !== "NOT_PLAYING" && this.gameState !== "PREPARATION";
+		return (
+			this.gameState !== GameState.NOT_PLAYING &&
+			this.gameState !== GameState.PREPARATION
+		);
 	}
 
 	findPlayerById(id: string) {
@@ -173,7 +176,7 @@ export class WerewolfManager {
 	async newGame() {
 		if (!this.textChannel) return;
 
-		if (this.gameState !== "NOT_PLAYING") return;
+		if (this.gameState !== GameState.NOT_PLAYING) return;
 
 		this.gameMessage = await this.textChannel.send(
 			this.embeds.preparation(
@@ -185,7 +188,7 @@ export class WerewolfManager {
 			)
 		);
 
-		this.gameState = "PREPARATION";
+		this.gameState = GameState.PREPARATION;
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
@@ -206,7 +209,7 @@ export class WerewolfManager {
 	}
 
 	async start(forcedRoles?: Character[]) {
-		if (this.gameState !== "PREPARATION") return;
+		if (this.gameState !== GameState.PREPARATION) return;
 
 		const charactersAmount = this.characters.reduce(
 			(result, current) => result + current.amount,
@@ -232,9 +235,9 @@ export class WerewolfManager {
 	}
 
 	async cancel() {
-		if (this.gameState !== "DAY") return;
+		if (this.gameState !== GameState.DAY) return;
 
-		this.gameState = "NOT_PLAYING";
+		this.gameState = GameState.NOT_PLAYING;
 
 		if (this.gameMessage) {
 			await this.gameMessage.delete();
@@ -244,9 +247,9 @@ export class WerewolfManager {
 	}
 
 	private async assignRoles(forcedRoles: Character[] = []) {
-		if (this.gameState !== "PREPARATION") return;
+		if (this.gameState !== GameState.PREPARATION) return;
 
-		this.gameState = "ROLE_ASSIGNING";
+		this.gameState = GameState.ROLE_ASSIGNING;
 
 		const roles = this.characters.reduce<Character[]>(
 			(result, current) => [
@@ -281,9 +284,9 @@ export class WerewolfManager {
 	}
 
 	private async night() {
-		if (this.gameState !== "ROLE_ASSIGNING") return;
+		if (this.gameState !== GameState.ROLE_ASSIGNING) return;
 
-		this.gameState = "NIGHT";
+		this.gameState = GameState.NIGHT;
 
 		await this.refreshEmbed();
 
@@ -300,9 +303,9 @@ export class WerewolfManager {
 	}
 
 	private async day() {
-		if (this.gameState !== "NIGHT") return;
+		if (this.gameState !== GameState.NIGHT) return;
 
-		this.gameState = "DAY";
+		this.gameState = GameState.DAY;
 
 		this.refreshEmbed();
 
@@ -316,9 +319,9 @@ export class WerewolfManager {
 	}
 
 	private async voting() {
-		if (this.gameState !== "DAY") return;
+		if (this.gameState !== GameState.DAY) return;
 
-		this.gameState = "VOTING";
+		this.gameState = GameState.VOTING;
 
 		await this.audioManager.play(
 			this.soundPath(characters.everyone.sounds.timeisup)
@@ -348,9 +351,9 @@ export class WerewolfManager {
 	}
 
 	private async finish() {
-		if (this.gameState !== "VOTING") return;
+		if (this.gameState !== GameState.VOTING) return;
 
-		this.gameState = "NOT_PLAYING";
+		this.gameState = GameState.NOT_PLAYING;
 
 		if (!this.gameMessage) return;
 
@@ -860,9 +863,9 @@ export class WerewolfManager {
 		if (!this.gameMessage) return;
 
 		switch (this.gameState) {
-			case "NOT_PLAYING":
+			case GameState.NOT_PLAYING:
 				break;
-			case "PREPARATION":
+			case GameState.PREPARATION:
 				await this.gameMessage.edit(
 					this.embeds.preparation(
 						this.players,
@@ -873,25 +876,25 @@ export class WerewolfManager {
 					)
 				);
 				break;
-			case "ROLE_ASSIGNING":
+			case GameState.ROLE_ASSIGNING:
 				await this.gameMessage.edit(this.embeds.roleAssigning());
 				break;
-			case "NIGHT":
+			case GameState.NIGHT:
 				await this.gameMessage.edit(this.embeds.night());
 				break;
-			case "DAY":
+			case GameState.DAY:
 				await this.gameMessage.edit(this.embeds.day());
 				break;
-			case "VOTING":
+			case GameState.VOTING:
 				await this.gameMessage.edit(this.embeds.voting(this.players));
 				break;
 			default:
-				throw new Error(`Unhandled game state "${this.gameState}".`);
+				throw new Error("Unhandled game state.");
 		}
 	}
 
 	private async refreshDM(character: Character) {
-		if (!this.nightActionDM || this.gameState !== "NIGHT") return;
+		if (!this.nightActionDM || this.gameState !== GameState.NIGHT) return;
 
 		const player = this.players.find(p => p.initialRole === character);
 
@@ -918,7 +921,7 @@ export class WerewolfManager {
 
 		if (playerIndex !== -1 && !target) return;
 
-		if (this.gameState === "NIGHT") {
+		if (this.gameState === GameState.NIGHT) {
 			const role =
 				player.initialRole === "doppelganger" &&
 				(player as Player<"doppelganger">).action?.ready
@@ -1096,7 +1099,7 @@ export class WerewolfManager {
 			}
 
 			await this.refreshDM(player.initialRole!);
-		} else if (this.gameState === "VOTING") {
+		} else if (this.gameState === GameState.VOTING) {
 			if (playerIndex === -1 || player.killing) return;
 
 			player.killing = target.member.id;
