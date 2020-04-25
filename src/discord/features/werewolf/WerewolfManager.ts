@@ -49,11 +49,7 @@ export class WerewolfManager {
 	}
 
 	isReady() {
-		return (
-			this.textChannel !== null &&
-			this.audioManager.isReady() &&
-			this.playerRole !== null
-		);
+		return this.textChannel && this.audioManager.isReady() && this.playerRole;
 	}
 
 	isPlaying() {
@@ -502,15 +498,15 @@ export class WerewolfManager {
 		}
 
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
-		if (seer && seer.action !== null) {
-			if (seer.action.player !== null) {
+		if (seer?.action) {
+			if (seer.action.player) {
 				const target = this.findPlayerById(seer.action.player)!;
 
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
 					value: `Viewed the role of ${target.member.displayName}.`,
 				});
-			} else if (seer.action.first !== null && seer.action.second !== null) {
+			} else if (seer.action.first && seer.action.second) {
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
 					value: `Viewed the roles at the ${centerCardPosition(
@@ -523,7 +519,7 @@ export class WerewolfManager {
 		const robber = players.find(p => p.initialRole === "robber") as Player<
 			"robber"
 		>;
-		if (robber && robber.action !== null) {
+		if (robber?.action) {
 			const target = this.findPlayerById(robber.action.player)!;
 
 			fields.push({
@@ -535,12 +531,7 @@ export class WerewolfManager {
 		const troublemaker = players.find(
 			p => p.initialRole === "troublemaker"
 		) as Player<"troublemaker">;
-		if (
-			troublemaker &&
-			troublemaker.action !== null &&
-			troublemaker.action.first !== null &&
-			troublemaker.action.second !== null
-		) {
+		if (troublemaker?.action?.first && troublemaker?.action?.second) {
 			const first = players.find(
 				p => p.member.id === troublemaker.action.first
 			)!;
@@ -557,7 +548,7 @@ export class WerewolfManager {
 		const drunk = players.find(p => p.initialRole === "drunk") as Player<
 			"drunk"
 		>;
-		if (drunk && drunk.action !== null) {
+		if (drunk?.action) {
 			fields.push({
 				name: `${drunk.member.displayName} (Drunk)`,
 				value: `Took the role from the center at the ${centerCardPosition(
@@ -968,7 +959,7 @@ export class WerewolfManager {
 		if (playerIndex !== -1 && !target) return;
 
 		if (this.gameState.current === "VOTING") {
-			if (playerIndex === -1 || player.killing !== null) return;
+			if (playerIndex === -1 || player.killing) return;
 
 			this.players.set(curr =>
 				curr.map(p =>
@@ -988,7 +979,7 @@ export class WerewolfManager {
 				case "doppelganger": {
 					const doppelganger = player as Player<"doppelganger">;
 
-					if (playerIndex === -1 || doppelganger.action !== null) break;
+					if (playerIndex === -1 || doppelganger.action) break;
 
 					this.players.set(curr =>
 						curr.map<Player>(p => {
@@ -1032,24 +1023,15 @@ export class WerewolfManager {
 					}
 
 					if (playerIndex !== -1) {
-						if (
-							action.player !== null ||
-							action.first !== null ||
-							action.second !== null
-						)
-							break;
+						if (action.player || action.first || action.second) break;
 
 						action.player = target.member.id;
 					} else if (centerIndex !== -1) {
-						if (action.player !== null) break;
+						if (action.player) break;
 
-						if (action.first === null) {
+						if (!action.first) {
 							action.first = centerIndex;
-						} else if (
-							action.first !== null &&
-							action.first !== centerIndex &&
-							action.second === null
-						) {
+						} else if (action.first !== centerIndex && !action.second) {
 							action.second = centerIndex;
 						} else {
 							break;
@@ -1144,7 +1126,7 @@ export class WerewolfManager {
 						action = { ...troublemaker.action };
 					}
 
-					if (action.first === null) {
+					if (!action.first) {
 						action.first = target.member.id;
 
 						this.players.set(curr =>
@@ -1165,7 +1147,7 @@ export class WerewolfManager {
 									: { ...p, action };
 							})
 						);
-					} else if (action.second === null) {
+					} else if (!action.second) {
 						if (action.first === target.member.id) break;
 
 						const first = this.findPlayerById(action.first)!;

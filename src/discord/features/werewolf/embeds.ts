@@ -195,7 +195,7 @@ export class Embeds {
 
 	voting(players: Player[]) {
 		const votedValue = players.reduce((result, player, _) => {
-			if (player.killing === null) return result;
+			if (!player.killing) return result;
 
 			const target = this.findPlayerById(players, player.killing)!;
 
@@ -207,7 +207,7 @@ export class Embeds {
 		}, "No one has voted yet.");
 
 		const pendingValue = players.reduce((result, player) => {
-			if (player.killing !== null) return result;
+			if (player.killing) return result;
 
 			const playerLine = `${player.member.displayName} is choosing who to kill.`;
 
