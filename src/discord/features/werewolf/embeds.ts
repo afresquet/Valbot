@@ -248,7 +248,7 @@ export class Embeds {
 						const playerLine = `${numberEmojis[index]} ${
 							current.member.displayName
 						} ${
-							(index + 1) % array.length === playerIndex ? "(Default vote)" : ""
+							index === (playerIndex + 1) % array.length ? "(Default vote)" : ""
 						}`;
 
 						return result === "There are no players."
