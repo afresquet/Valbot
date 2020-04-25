@@ -632,17 +632,7 @@ export class WerewolfManager {
 
 	private async muteAll(on: boolean) {
 		await Promise.all(
-			this.players.map(player => {
-				if (
-					on &&
-					!this.audioManager.isUserInVoiceChannel(
-						player.member.voice.channelID!
-					)
-				)
-					return;
-
-				return player.member.voice.setMute(on);
-			})
+			this.players.map(player => player.member.voice.setMute(on))
 		);
 	}
 
