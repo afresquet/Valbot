@@ -68,6 +68,10 @@ export class WerewolfManager {
 		return !!this.findPlayerById(id)?.master;
 	}
 
+	private isDoppelganger(player: Player) {
+		return player.initialRole === Character.DOPPELGANGER;
+	}
+
 	setup(guild: Discord.Guild) {
 		if (!this.textChannel) {
 			const textChannelName = prefixChannel("werewolf");
@@ -741,7 +745,7 @@ export class WerewolfManager {
 		if ([Character.WEREWOLF, Character.MASON].includes(character)) {
 			const players = this.players.filter(
 				player =>
-					(player.initialRole === Character.DOPPELGANGER &&
+					(this.isDoppelganger(player) &&
 						(player as Player<Character.DOPPELGANGER>).action.role.character ===
 							character) ||
 					player.initialRole === character
@@ -950,7 +954,7 @@ export class WerewolfManager {
 
 		if (this.gameState === GameState.NIGHT) {
 			const role =
-				player.initialRole === Character.DOPPELGANGER &&
+				this.isDoppelganger(player) &&
 				(player as Player<Character.DOPPELGANGER>).action?.ready
 					? (player as Player<Character.DOPPELGANGER>).action.role.character
 					: player.initialRole;
@@ -986,7 +990,7 @@ export class WerewolfManager {
 					};
 
 					if (
-						player.initialRole === Character.DOPPELGANGER &&
+						this.isDoppelganger(player) &&
 						doppelgangerSeer.action?.role?.action
 					) {
 						action = {
@@ -1012,7 +1016,7 @@ export class WerewolfManager {
 						}
 					}
 
-					if (player.initialRole === Character.DOPPELGANGER) {
+					if (this.isDoppelganger(player)) {
 						doppelgangerSeer.action.role.action = action;
 					} else {
 						seer.action = action;
@@ -1030,7 +1034,7 @@ export class WerewolfManager {
 					>;
 
 					if (
-						player.initialRole === Character.DOPPELGANGER
+						this.isDoppelganger(player)
 							? doppelgangerRobber.action?.role?.action
 							: robber.action
 					)
@@ -1038,7 +1042,7 @@ export class WerewolfManager {
 
 					const action: typeof robber.action = { player: target.member.id };
 
-					if (player.initialRole === Character.DOPPELGANGER) {
+					if (this.isDoppelganger(player)) {
 						doppelgangerRobber.action.role.action = action;
 					} else {
 						robber.action = action;
@@ -1063,14 +1067,11 @@ export class WerewolfManager {
 					};
 
 					if (
-						player.initialRole === Character.DOPPELGANGER &&
+						this.isDoppelganger(player) &&
 						doppelgangerTroublemaker.action?.role?.action
 					) {
 						action = { ...doppelgangerTroublemaker.action.role.action };
-					} else if (
-						player.initialRole === Character.TROUBLEMAKER &&
-						troublemaker.action
-					) {
+					} else if (this.isDoppelganger(player) && troublemaker.action) {
 						action = { ...troublemaker.action };
 					}
 
@@ -1089,7 +1090,7 @@ export class WerewolfManager {
 						break;
 					}
 
-					if (player.initialRole === Character.DOPPELGANGER) {
+					if (this.isDoppelganger(player)) {
 						doppelgangerTroublemaker.action.role.action = action;
 					} else {
 						troublemaker.action = action;
@@ -1107,7 +1108,7 @@ export class WerewolfManager {
 					>;
 
 					if (
-						player.initialRole === Character.DOPPELGANGER
+						this.isDoppelganger(player)
 							? doppelgangerDrunk.action?.role?.action
 							: drunk.action
 					)
@@ -1115,7 +1116,7 @@ export class WerewolfManager {
 
 					const action: typeof drunk.action = { center: centerIndex };
 
-					if (player.initialRole === Character.DOPPELGANGER) {
+					if (this.isDoppelganger(player)) {
 						doppelgangerDrunk.action.role.action = action;
 					} else {
 						drunk.action = action;
