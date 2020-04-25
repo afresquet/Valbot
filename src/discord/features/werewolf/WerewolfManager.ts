@@ -41,9 +41,10 @@ export class WerewolfManager {
 	private gameTimer = 300;
 	private roleTimer = 10;
 
-	private characters = new State<CharactersState>(
-		Characters.map(character => ({ character, amount: 0 }))
-	);
+	private characters: CharactersState = Characters.map(character => ({
+		character,
+		amount: 0,
+	}));
 
 	private soundPath(sound: string) {
 		return join(__dirname, `../../../../assets/werewolf/sounds/${sound}.mp3`);
@@ -178,7 +179,7 @@ export class WerewolfManager {
 		this.gameMessage = await this.textChannel.send(
 			this.embeds.preparation(
 				this.players.current,
-				this.characters.current,
+				this.characters,
 				this.gameTimer,
 				this.roleTimer,
 				this.expert
@@ -196,12 +197,10 @@ export class WerewolfManager {
 			max = 3;
 		}
 
-		this.characters.set(curr =>
-			curr.map(c =>
-				c.character === character
-					? { ...c, amount: clamp(c.amount + (add ? 1 : -1), 0, max) }
-					: c
-			)
+		this.characters = this.characters.map(c =>
+			c.character === character
+				? { ...c, amount: clamp(c.amount + (add ? 1 : -1), 0, max) }
+				: c
 		);
 
 		await this.refreshEmbed();
@@ -210,7 +209,7 @@ export class WerewolfManager {
 	async start(forcedRoles?: Character[]) {
 		if (this.gameState !== "PREPARATION") return;
 
-		const charactersAmount = this.characters.current.reduce(
+		const charactersAmount = this.characters.reduce(
 			(result, current) => result + current.amount,
 			0
 		);
@@ -250,7 +249,7 @@ export class WerewolfManager {
 
 		this.gameState = "ROLE_ASSIGNING";
 
-		const roles = this.characters.current.reduce<Character[]>(
+		const roles = this.characters.reduce<Character[]>(
 			(result, current) => [
 				...result,
 				...new Array(current.amount).fill(current.character),
@@ -671,9 +670,7 @@ export class WerewolfManager {
 	}
 
 	private async playCharacter(character: NightActionCharacter) {
-		if (
-			this.characters.current.find(c => c.character === character)!.amount <= 0
-		)
+		if (this.characters.find(c => c.character === character)!.amount <= 0)
 			return;
 
 		await this.audioManager.play(
@@ -702,8 +699,7 @@ export class WerewolfManager {
 
 		if (
 			character === "insomniac" &&
-			this.characters.current.find(c => c.character === "doppelganger")!
-				.amount > 0
+			this.characters.find(c => c.character === "doppelganger")!.amount > 0
 		) {
 			const doppelganger = this.players.current.find(
 				p => p.initialRole === "doppelganger"
@@ -859,9 +855,7 @@ export class WerewolfManager {
 		}
 
 		// Doppelganger Minion
-		if (
-			this.characters.current.find(c => c.character === "minion")!.amount <= 0
-		)
+		if (this.characters.find(c => c.character === "minion")!.amount <= 0)
 			return;
 
 		await this.audioManager.play(
@@ -899,7 +893,7 @@ export class WerewolfManager {
 				await this.gameMessage.edit(
 					this.embeds.preparation(
 						this.players.current,
-						this.characters.current,
+						this.characters,
 						this.gameTimer,
 						this.roleTimer,
 						this.expert
