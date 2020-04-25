@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { join } from "path";
+import { capitalize } from "../../../helpers/capitalize";
 import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
@@ -194,9 +195,6 @@ export class WerewolfManager {
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
-		// Will remove this when I implement it
-		if (character === "doppelganger") return;
-
 		let max = 1;
 		if (character === "werewolf" || character === "mason") {
 			max = 2;
@@ -215,7 +213,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 	}
 
-	async start() {
+	async start(forcedRoles?: Character[]) {
 		if (this.gameState.current !== "PREPARATION") return;
 
 		const charactersAmount = this.characters.current.reduce(
@@ -224,11 +222,11 @@ export class WerewolfManager {
 		);
 		const playersAmount = this.players.current.length;
 
-		if (playersAmount < 3) return;
+		if (playersAmount < 3 || playersAmount > 10) return;
 
 		if (charactersAmount !== playersAmount + 3) return;
 
-		await this.assignRoles();
+		await this.assignRoles(forcedRoles);
 
 		await this.night();
 
@@ -253,7 +251,7 @@ export class WerewolfManager {
 		this.cleanUp();
 	}
 
-	private async assignRoles() {
+	private async assignRoles(forcedRoles: Character[] = []) {
 		if (this.gameState.current !== "PREPARATION") return;
 
 		this.gameState.set(() => "ROLE_ASSIGNING");
@@ -267,9 +265,13 @@ export class WerewolfManager {
 		);
 
 		this.players.set(curr =>
-			curr.map(player => {
-				const randomIndex = Math.floor(Math.random() * roles.length);
-				const [role] = roles.splice(randomIndex, 1);
+			curr.map((player, i) => {
+				const index =
+					i < forcedRoles.length && roles.includes(forcedRoles[i])
+						? roles.indexOf(forcedRoles[i])
+						: Math.floor(Math.random() * roles.length);
+
+				const [role] = roles.splice(index, 1);
 
 				return { ...player, initialRole: role, role };
 			})
@@ -391,21 +393,129 @@ export class WerewolfManager {
 
 		const fields: Discord.EmbedFieldData[] = [];
 
+		const doppelganger = players.find(
+			p => p.initialRole === "doppelganger"
+		) as Player<"doppelganger">;
+		if (doppelganger?.action?.role?.action) {
+			switch (doppelganger.action.role.character) {
+				case "seer": {
+					const seer = doppelganger as Player<"doppelganger", "seer">;
+					const originalSeer = this.findPlayerById(seer.action.player)!;
+
+					if (seer.action.role.action.player) {
+						const target = this.findPlayerById(seer.action.role.action.player)!;
+
+						fields.push({
+							name: `${seer.member.displayName} (Doppelganger-Seer from ${originalSeer.member.displayName})`,
+							value: `Viewed the role of ${target.member.displayName}.`,
+						});
+					} else if (
+						seer.action.role.action.first &&
+						seer.action.role.action.second
+					) {
+						fields.push({
+							name: `${seer.member.displayName} (Doppelganger-Seer from ${originalSeer.member.displayName})`,
+							value: `Viewed the roles at the ${centerCardPosition(
+								seer.action.role.action.first
+							)} and at the ${centerCardPosition(
+								seer.action.role.action.second
+							)}.`,
+						});
+					}
+
+					break;
+				}
+				case "robber": {
+					const robber = doppelganger as Player<"doppelganger", "robber">;
+					const originalRobber = this.findPlayerById(robber.action.player)!;
+
+					if (robber.action.role.action.player) {
+						const target = this.findPlayerById(
+							robber.action.role.action.player
+						)!;
+
+						fields.push({
+							name: `${robber.member.displayName} (Doppelganger-Robber from ${originalRobber.member.displayName})`,
+							value: `Stole the role from ${target.member.displayName}.`,
+						});
+					}
+
+					break;
+				}
+				case "troublemaker": {
+					const troublemaker = doppelganger as Player<
+						"doppelganger",
+						"troublemaker"
+					>;
+					const originalTroublemaker = this.findPlayerById(
+						troublemaker.action.player
+					)!;
+
+					if (
+						troublemaker.action.role.action.first &&
+						troublemaker.action.role.action.second
+					) {
+						const first = players.find(
+							p => p.member.id === troublemaker.action.role.action.first
+						)!;
+						const second = players.find(
+							p => p.member.id === troublemaker.action.role.action.second
+						)!;
+
+						fields.push({
+							name: `${troublemaker.member.displayName} (Doppelganger-Troublemaker from ${originalTroublemaker.member.displayName})`,
+							value: `Swapped the roles of ${first.member.displayName} and ${second.member.displayName}.`,
+						});
+					}
+
+					break;
+				}
+				case "drunk": {
+					const drunk = doppelganger as Player<"doppelganger", "drunk">;
+					const originalDrunk = this.findPlayerById(drunk.action.player)!;
+
+					if (drunk.action.role.action.center) {
+						fields.push({
+							name: `${drunk.member.displayName} (Doppelganger-Drunk from ${originalDrunk.member.displayName})`,
+							value: `Took the role from the center at the ${centerCardPosition(
+								drunk.action.role.action.center
+							)}.`,
+						});
+					}
+
+					break;
+				}
+				default:
+					break;
+			}
+		} else if (doppelganger?.action?.role?.character) {
+			const originalRoleHolder = this.findPlayerById(
+				doppelganger.action.player
+			)!;
+
+			const role = capitalize(doppelganger.action.role.character);
+
+			fields.push({
+				name: `${doppelganger.member.displayName} (Doppelganger-${role})`,
+				value: `Became ${role} from ${originalRoleHolder.member.displayName}.`,
+			});
+		}
+
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
 		if (seer && seer.action !== null) {
 			if (seer.action.player !== null) {
-				const player = this.findPlayerById(seer.action.player)!;
+				const target = this.findPlayerById(seer.action.player)!;
 
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
-					value: `Viewed the role of ${player.member.displayName}.`,
+					value: `Viewed the role of ${target.member.displayName}.`,
 				});
 			} else if (seer.action.first !== null && seer.action.second !== null) {
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
 					value: `Viewed the roles at the ${centerCardPosition(
-						seer.action.first!
-					)} and at the ${centerCardPosition(seer.action.second!)}.`,
+						seer.action.first
+					)} and at the ${centerCardPosition(seer.action.second)}.`,
 				});
 			}
 		}
@@ -414,11 +524,11 @@ export class WerewolfManager {
 			"robber"
 		>;
 		if (robber && robber.action !== null) {
-			const player = this.findPlayerById(robber.action.player)!;
+			const target = this.findPlayerById(robber.action.player)!;
 
 			fields.push({
 				name: `${robber.member.displayName} (Robber)`,
-				value: `Stole the role from ${player.member.displayName}.`,
+				value: `Stole the role from ${target.member.displayName}.`,
 			});
 		}
 
@@ -577,17 +687,19 @@ export class WerewolfManager {
 		)
 			return;
 
-		if (this.expert.current) {
-			await this.audioManager.play(
-				this.soundPath(characters[character].sounds.expert.wake)
-			);
-		} else {
-			await this.audioManager.play(
-				this.soundPath(characters[character].sounds.wake)
-			);
-		}
+		await this.audioManager.play(
+			this.soundPath(
+				this.expert.current
+					? characters[character].sounds.expert.wake
+					: characters[character].sounds.wake
+			)
+		);
 
 		await this.handleNightActionCharacter(character);
+
+		if (character === "doppelganger") {
+			await this.handleDoppelgangerNightAction();
+		}
 
 		if (character === "minion") {
 			await this.audioManager.play(
@@ -598,12 +710,55 @@ export class WerewolfManager {
 		await this.audioManager.play(
 			this.soundPath(characters[character].sounds.close)
 		);
+
+		if (
+			character === "insomniac" &&
+			this.characters.current.find(c => c.character === "doppelganger")!
+				.amount > 0
+		) {
+			const doppelganger = this.players.current.find(
+				p => p.initialRole === "doppelganger"
+			)! as Player<"doppelganger", "insomniac">;
+
+			await this.audioManager.play(
+				this.soundPath(
+					this.expert.current
+						? characters.insomniac.sounds.expert.doppelganger
+						: characters.insomniac.sounds.doppelganger
+				)
+			);
+
+			if (doppelganger?.action?.role?.character === "insomniac") {
+				this.nightActionDM = await doppelganger.member.send(
+					this.embeds.nightActionDM(
+						this.players.current,
+						doppelganger,
+						this.centerCards.current
+					)
+				);
+			}
+
+			await delay(this.roleTimer.current * 1000);
+
+			await Promise.all([
+				this.audioManager.play(
+					this.soundPath(characters.doppelganger.sounds.close)
+				),
+				this.nightActionDM?.delete(),
+			]);
+
+			this.nightActionDM = null;
+		}
 	}
 
 	private async handleNightActionCharacter(character: NightActionCharacter) {
 		if (["werewolf", "mason"].includes(character)) {
 			const players = this.players.current.filter(
-				player => player.initialRole === character
+				player =>
+					(player.initialRole === "doppelganger" &&
+						(player as Player<"doppelganger">).action.role.character ===
+							character) ||
+					player.initialRole === character
 			);
 
 			const messages = await Promise.all(
@@ -635,7 +790,9 @@ export class WerewolfManager {
 			this.embeds.nightActionDM(this.players.current, player)
 		);
 
-		if (["seer", "robber", "troublemaker"].includes(character)) {
+		if (
+			["doppelganger", "seer", "robber", "troublemaker"].includes(character)
+		) {
 			for (let i = 0; i < this.players.current.length; i++) {
 				if (this.players.current[i].member.id === player.member.id) continue;
 
@@ -654,6 +811,95 @@ export class WerewolfManager {
 		await this.nightActionDM.delete();
 
 		this.nightActionDM = null;
+	}
+
+	private async handleDoppelgangerNightAction() {
+		this.players.set(curr =>
+			curr.map(p =>
+				p.initialRole === "doppelganger"
+					? ({ ...p, action: { ...p.action, ready: true } } as Player<
+							"doppelganger"
+					  >)
+					: p
+			)
+		);
+
+		const doppelganger = this.players.current.find(
+			p => p.initialRole === "doppelganger"
+		) as Player<"doppelganger">;
+
+		if (
+			["seer", "robber", "troublemaker", "drunk"].includes(
+				doppelganger?.action?.role?.character
+			)
+		) {
+			this.nightActionDM = await doppelganger.member.send(
+				this.embeds.nightActionDM(
+					this.players.current,
+					doppelganger,
+					this.centerCards.current
+				)
+			);
+
+			if (
+				["doppelganger", "seer", "robber", "troublemaker"].includes(
+					doppelganger.action.role.character
+				)
+			) {
+				for (let i = 0; i < this.players.current.length; i++) {
+					if (this.players.current[i].member.id === doppelganger.member.id)
+						continue;
+
+					await this.nightActionDM.react(numberEmojis[i]);
+				}
+			}
+
+			if (["seer", "drunk"].includes(doppelganger.action.role.character)) {
+				for (let i = 0; i < centerEmojis.length; i++) {
+					await this.nightActionDM.react(centerEmojis[i]);
+				}
+			}
+		}
+
+		await delay(this.roleTimer.current * 1000);
+
+		if (this.nightActionDM) {
+			await this.nightActionDM.delete();
+
+			this.nightActionDM = null;
+		}
+
+		// Doppelganger Minion
+		if (
+			this.characters.current.find(c => c.character === "minion")!.amount <= 0
+		)
+			return;
+
+		await this.audioManager.play(
+			this.soundPath(
+				this.expert.current
+					? characters.minion.sounds.expert.doppelganger
+					: characters.minion.sounds.doppelganger
+			)
+		);
+
+		if (doppelganger?.action?.role?.character === "minion") {
+			this.nightActionDM = await doppelganger.member.send(
+				this.embeds.nightActionDM(
+					this.players.current,
+					doppelganger,
+					this.centerCards.current
+				)
+			);
+		}
+
+		await delay(this.roleTimer.current * 1000);
+
+		if (this.nightActionDM) {
+			await this.nightActionDM.delete();
+
+			this.nightActionDM = null;
+		}
 	}
 
 	private async refreshEmbed() {
@@ -724,8 +970,6 @@ export class WerewolfManager {
 		if (this.gameState.current === "VOTING") {
 			if (playerIndex === -1 || player.killing !== null) return;
 
-			const target = this.players.current[playerIndex];
-
 			this.players.set(curr =>
 				curr.map(p =>
 					p.member.id === user.id ? { ...p, killing: target.member.id } : p
@@ -734,14 +978,58 @@ export class WerewolfManager {
 
 			await this.refreshEmbed();
 		} else if (this.gameState.current === "NIGHT") {
-			switch (player.initialRole) {
+			const role =
+				player.initialRole === "doppelganger" &&
+				(player as Player<"doppelganger">).action?.ready
+					? (player as Player<"doppelganger">).action.role.character
+					: player.initialRole;
+
+			switch (role) {
+				case "doppelganger": {
+					const doppelganger = player as Player<"doppelganger">;
+
+					if (playerIndex === -1 || doppelganger.action !== null) break;
+
+					this.players.set(curr =>
+						curr.map<Player>(p => {
+							if (p.member.id !== doppelganger.member.id) return p;
+
+							return {
+								...p,
+								action: {
+									player: target.member.id,
+									role: {
+										character: target.initialRole,
+										ready: false,
+										action: null,
+									},
+								},
+							};
+						})
+					);
+
+					break;
+				}
 				case "seer": {
 					const seer = player as Player<"seer">;
+					const doppelgangerSeer = player as Player<"doppelganger", "seer">;
 
-					const action: typeof seer.action =
-						seer.action !== null
-							? { ...seer.action }
-							: { player: null, first: null, second: null };
+					let action: typeof seer.action = {
+						player: null,
+						first: null,
+						second: null,
+					};
+
+					if (
+						player.initialRole === "doppelganger" &&
+						doppelgangerSeer.action?.role?.action
+					) {
+						action = {
+							...doppelgangerSeer.action.role.action,
+						};
+					} else if (player.initialRole === "seer" && seer.action) {
+						action = { ...seer.action };
+					}
 
 					if (playerIndex !== -1) {
 						if (
@@ -769,9 +1057,22 @@ export class WerewolfManager {
 					}
 
 					this.players.set(curr =>
-						curr.map<Player>(p =>
-							p.member.id === seer.member.id ? { ...p, action } : p
-						)
+						curr.map<Player>(p => {
+							if (p.member.id !== player.member.id) return p;
+
+							return p.initialRole === "doppelganger"
+								? ({
+										...p,
+										action: {
+											...p.action,
+											role: {
+												...(p as typeof doppelgangerSeer).action.role,
+												action,
+											},
+										},
+								  } as typeof doppelgangerSeer)
+								: { ...p, action };
+						})
 					);
 
 					break;
@@ -780,20 +1081,38 @@ export class WerewolfManager {
 					if (playerIndex === -1) break;
 
 					const robber = player as Player<"robber">;
+					const doppelgangerRobber = player as Player<"doppelganger", "robber">;
 
-					if (robber.action !== null) break;
+					if (
+						player.initialRole === "doppelganger"
+							? doppelgangerRobber.action?.role?.action
+							: robber.action
+					)
+						break;
 
 					const action: typeof robber.action = { player: target.member.id };
 
 					this.players.set(curr =>
 						curr.map<Player>(p => {
-							if (p.member.id === robber.member.id) {
-								return { ...p, role: target.role, action };
+							if (p.member.id === player.member.id) {
+								return p.initialRole === "doppelganger"
+									? ({
+											...p,
+											role: target.role,
+											action: {
+												...p.action,
+												role: {
+													...(p as typeof doppelgangerRobber).action.role,
+													action,
+												},
+											},
+									  } as typeof doppelgangerRobber)
+									: { ...p, role: target.role, action };
 							} else if (p.member.id === target.member.id) {
 								return { ...p, role: robber.role };
-							} else {
-								return p;
 							}
+
+							return p;
 						})
 					);
 
@@ -803,19 +1122,48 @@ export class WerewolfManager {
 					if (playerIndex === -1) break;
 
 					const troublemaker = player as Player<"troublemaker">;
+					const doppelgangerTroublemaker = player as Player<
+						"doppelganger",
+						"troublemaker"
+					>;
 
-					const action: typeof troublemaker.action =
-						troublemaker.action !== null
-							? { ...troublemaker.action }
-							: { first: null, second: null };
+					let action: typeof troublemaker.action = {
+						first: null,
+						second: null,
+					};
+
+					if (
+						player.initialRole === "doppelganger" &&
+						doppelgangerTroublemaker.action?.role?.action
+					) {
+						action = { ...doppelgangerTroublemaker.action.role.action };
+					} else if (
+						player.initialRole === "troublemaker" &&
+						troublemaker.action
+					) {
+						action = { ...troublemaker.action };
+					}
 
 					if (action.first === null) {
 						action.first = target.member.id;
 
 						this.players.set(curr =>
-							curr.map<Player>(p =>
-								p.member.id === troublemaker.member.id ? { ...p, action } : p
-							)
+							curr.map<Player>(p => {
+								if (p.member.id !== player.member.id) return p;
+
+								return p.initialRole === "doppelganger"
+									? ({
+											...p,
+											action: {
+												...p.action,
+												role: {
+													...(p as typeof doppelgangerTroublemaker).action.role,
+													action,
+												},
+											},
+									  } as typeof doppelgangerTroublemaker)
+									: { ...p, action };
+							})
 						);
 					} else if (action.second === null) {
 						if (action.first === target.member.id) break;
@@ -827,15 +1175,27 @@ export class WerewolfManager {
 
 						this.players.set(curr =>
 							curr.map<Player>(p => {
-								if (p.member.id === troublemaker.member.id) {
-									return { ...p, action };
+								if (p.member.id === player.member.id) {
+									return p.initialRole === "doppelganger"
+										? ({
+												...p,
+												action: {
+													...p.action,
+													role: {
+														...(p as typeof doppelgangerTroublemaker).action
+															.role,
+														action,
+													},
+												},
+										  } as typeof doppelgangerTroublemaker)
+										: { ...p, action };
 								} else if (p.member.id === action.first) {
 									return { ...p, role: second.role };
 								} else if (p.member.id === action.second) {
 									return { ...p, role: first.role };
-								} else {
-									return p;
 								}
+
+								return p;
 							})
 						);
 					}
@@ -846,21 +1206,45 @@ export class WerewolfManager {
 					if (centerIndex === -1) break;
 
 					const drunk = player as Player<"drunk">;
+					const doppelgangerDrunk = player as Player<"doppelganger", "drunk">;
 
-					if (drunk.action !== null) break;
+					if (
+						player.initialRole === "doppelganger"
+							? doppelgangerDrunk.action?.role?.action
+							: drunk.action
+					)
+						break;
 
 					const action: typeof drunk.action = { center: centerIndex };
 
 					this.players.set(curr =>
-						curr.map<Player>(p =>
-							p.member.id === drunk.member.id
-								? { ...p, role: this.centerCards.current[centerIndex], action }
-								: p
-						)
+						curr.map<Player>(p => {
+							if (p.member.id !== drunk.member.id) return p;
+
+							return p.initialRole === "doppelganger"
+								? ({
+										...p,
+										role: this.centerCards.current[centerIndex],
+										action: {
+											...p.action,
+											role: {
+												...(p as typeof doppelgangerDrunk).action.role,
+												action,
+											},
+										},
+								  } as typeof doppelgangerDrunk)
+								: { ...p, role: this.centerCards.current[centerIndex], action };
+						})
 					);
 
 					this.centerCards.set(curr =>
-						curr.map((c, i) => (i === centerIndex ? drunk.role! : c))
+						curr.map((c, i) => {
+							if (i !== centerIndex) return c;
+
+							return player.initialRole === "doppelganger"
+								? doppelgangerDrunk.role!
+								: drunk.role!;
+						})
 					);
 
 					break;

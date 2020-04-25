@@ -1,4 +1,5 @@
 import Discord from "discord.js";
+import { isProduction } from "../../../helpers/isProduction";
 import { prefixChannel } from "../../../helpers/prefixString";
 import { messageSplitter } from "../../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../../types/Feature";
@@ -43,7 +44,14 @@ export const werewolf: DiscordFeature = discord => {
 				case "!start": {
 					if (!gameManager.isMaster(message.author.id)) break;
 
-					await gameManager.start();
+					const forcedRoles = isProduction
+						? undefined
+						: (value
+								.split(/\s+/g)
+								.map(x => x.toLowerCase())
+								.filter(x => Characters.includes(x as any)) as Character[]);
+
+					await gameManager.start(forcedRoles);
 
 					break;
 				}
