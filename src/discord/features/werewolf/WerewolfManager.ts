@@ -10,8 +10,8 @@ import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import {
 	Character,
+	CharacterCount,
 	Characters,
-	CharactersState,
 	GameState,
 	NightActionCharacter,
 	NightActionCharacters,
@@ -40,7 +40,7 @@ export class WerewolfManager {
 	private gameTimer = 300;
 	private roleTimer = 10;
 
-	private characters: CharactersState = Characters.map(character => ({
+	private characters = Characters.map<CharacterCount>(character => ({
 		character,
 		amount: 0,
 	}));

@@ -5,7 +5,7 @@ import { characters } from "./characters";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { listOfEveryone } from "./helpers/listOfEveryone";
-import { Character, CharactersState, Player } from "./types";
+import { Character, CharacterCount, Player } from "./types";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}
@@ -38,7 +38,7 @@ export class Embeds {
 
 	preparation(
 		players: Player[],
-		characters: CharactersState,
+		characters: CharacterCount[],
 		gameTimer: number,
 		roleTimer: number,
 		expert: boolean
