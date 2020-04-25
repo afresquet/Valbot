@@ -212,7 +212,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 	}
 
-	async start() {
+	async start(forcedRoles?: Character[]) {
 		if (this.gameState.current !== "PREPARATION") return;
 
 		const charactersAmount = this.characters.current.reduce(
@@ -221,11 +221,11 @@ export class WerewolfManager {
 		);
 		const playersAmount = this.players.current.length;
 
-		if (playersAmount < 3) return;
+		if (playersAmount < 3 || playersAmount > 10) return;
 
 		if (charactersAmount !== playersAmount + 3) return;
 
-		await this.assignRoles();
+		await this.assignRoles(forcedRoles);
 
 		await this.night();
 
@@ -250,7 +250,7 @@ export class WerewolfManager {
 		this.cleanUp();
 	}
 
-	private async assignRoles() {
+	private async assignRoles(forcedRoles: Character[] = []) {
 		if (this.gameState.current !== "PREPARATION") return;
 
 		this.gameState.set(() => "ROLE_ASSIGNING");
@@ -264,9 +264,13 @@ export class WerewolfManager {
 		);
 
 		this.players.set(curr =>
-			curr.map(player => {
-				const randomIndex = Math.floor(Math.random() * roles.length);
-				const [role] = roles.splice(randomIndex, 1);
+			curr.map((player, i) => {
+				const index =
+					i < forcedRoles.length && roles.includes(forcedRoles[i])
+						? roles.indexOf(forcedRoles[i])
+						: Math.floor(Math.random() * roles.length);
+
+				const [role] = roles.splice(index, 1);
 
 				return { ...player, initialRole: role, role };
 			})
