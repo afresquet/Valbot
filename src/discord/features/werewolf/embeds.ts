@@ -191,10 +191,24 @@ export class Embeds {
 		}
 	}
 
-	day() {
+	day(characters: CharacterCount[]) {
+		const tokens = characters.reduce<Character[]>(
+			(result, current) => [
+				...result,
+				...new Array(current.amount).fill(current.character),
+			],
+			[]
+		);
+
 		return this.base({
 			title:
 				"I'm hoping to make a timer that counts down here idk how I'll do it.",
+			fields: [
+				{
+					name: "Tokens",
+					value: tokens.join("\n"),
+				},
+			],
 		});
 	}
 
@@ -405,6 +419,7 @@ export class Embeds {
 				title: `${this.titleRole(
 					player
 				)}, these are the center roles you chose to view:`,
+				description: undefined,
 				fields: [
 					{
 						name: centerCardPosition(first),
@@ -583,6 +598,7 @@ export class Embeds {
 				)}, you chose to become the role in the ${centerCardPosition(
 					centerCard
 				)}.`,
+				description: undefined,
 			});
 		}
 
