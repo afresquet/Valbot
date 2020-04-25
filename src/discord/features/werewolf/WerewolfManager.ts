@@ -31,7 +31,8 @@ export class WerewolfManager {
 	private players = new State<Player[]>([]);
 	private centerCards = new State<Character[]>([]);
 
-	private gameState = new State<GameState>("NOT_PLAYING");
+	private gameState: GameState = "NOT_PLAYING";
+
 	private gameMessage: Discord.Message | null = null;
 	private nightActionDM: Discord.Message | null = null;
 
@@ -53,10 +54,7 @@ export class WerewolfManager {
 	}
 
 	isPlaying() {
-		return (
-			this.gameState.current !== "NOT_PLAYING" &&
-			this.gameState.current !== "PREPARATION"
-		);
+		return this.gameState !== "NOT_PLAYING" && this.gameState !== "PREPARATION";
 	}
 
 	findPlayerById(id: string) {
@@ -175,7 +173,7 @@ export class WerewolfManager {
 	async newGame() {
 		if (!this.textChannel) return;
 
-		if (this.gameState.current !== "NOT_PLAYING") return;
+		if (this.gameState !== "NOT_PLAYING") return;
 
 		this.gameMessage = await this.textChannel.send(
 			this.embeds.preparation(
@@ -187,7 +185,7 @@ export class WerewolfManager {
 			)
 		);
 
-		this.gameState.set(() => "PREPARATION");
+		this.gameState = "PREPARATION";
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
@@ -210,7 +208,7 @@ export class WerewolfManager {
 	}
 
 	async start(forcedRoles?: Character[]) {
-		if (this.gameState.current !== "PREPARATION") return;
+		if (this.gameState !== "PREPARATION") return;
 
 		const charactersAmount = this.characters.current.reduce(
 			(result, current) => result + current.amount,
@@ -236,9 +234,9 @@ export class WerewolfManager {
 	}
 
 	async cancel() {
-		if (this.gameState.current !== "DAY") return;
+		if (this.gameState !== "DAY") return;
 
-		this.gameState.set(() => "NOT_PLAYING");
+		this.gameState = "NOT_PLAYING";
 
 		if (this.gameMessage) {
 			await this.gameMessage.delete();
@@ -248,9 +246,9 @@ export class WerewolfManager {
 	}
 
 	private async assignRoles(forcedRoles: Character[] = []) {
-		if (this.gameState.current !== "PREPARATION") return;
+		if (this.gameState !== "PREPARATION") return;
 
-		this.gameState.set(() => "ROLE_ASSIGNING");
+		this.gameState = "ROLE_ASSIGNING";
 
 		const roles = this.characters.current.reduce<Character[]>(
 			(result, current) => [
@@ -289,9 +287,9 @@ export class WerewolfManager {
 	}
 
 	private async night() {
-		if (this.gameState.current !== "ROLE_ASSIGNING") return;
+		if (this.gameState !== "ROLE_ASSIGNING") return;
 
-		this.gameState.set(() => "NIGHT");
+		this.gameState = "NIGHT";
 
 		await this.refreshEmbed();
 
@@ -308,9 +306,9 @@ export class WerewolfManager {
 	}
 
 	private async day() {
-		if (this.gameState.current !== "NIGHT") return;
+		if (this.gameState !== "NIGHT") return;
 
-		this.gameState.set(() => "DAY");
+		this.gameState = "DAY";
 
 		this.refreshEmbed();
 
@@ -324,9 +322,9 @@ export class WerewolfManager {
 	}
 
 	private async voting() {
-		if (this.gameState.current !== "DAY") return;
+		if (this.gameState !== "DAY") return;
 
-		this.gameState.set(() => "VOTING");
+		this.gameState = "VOTING";
 
 		await this.audioManager.play(
 			this.soundPath(characters.everyone.sounds.timeisup)
@@ -356,9 +354,9 @@ export class WerewolfManager {
 	}
 
 	private async finish() {
-		if (this.gameState.current !== "VOTING") return;
+		if (this.gameState !== "VOTING") return;
 
-		this.gameState.set(() => "NOT_PLAYING");
+		this.gameState = "NOT_PLAYING";
 
 		if (!this.gameMessage) return;
 
@@ -896,7 +894,7 @@ export class WerewolfManager {
 	private async refreshEmbed() {
 		if (!this.gameMessage) return;
 
-		switch (this.gameState.current) {
+		switch (this.gameState) {
 			case "PREPARATION":
 				await this.gameMessage.edit(
 					this.embeds.preparation(
@@ -927,7 +925,7 @@ export class WerewolfManager {
 	}
 
 	private async refreshDM(character: Character) {
-		if (!this.nightActionDM || this.gameState.current !== "NIGHT") return;
+		if (!this.nightActionDM || this.gameState !== "NIGHT") return;
 
 		const player = this.players.current.find(p => p.initialRole === character);
 
@@ -958,7 +956,7 @@ export class WerewolfManager {
 
 		if (playerIndex !== -1 && !target) return;
 
-		if (this.gameState.current === "VOTING") {
+		if (this.gameState === "VOTING") {
 			if (playerIndex === -1 || player.killing) return;
 
 			this.players.set(curr =>
@@ -968,7 +966,7 @@ export class WerewolfManager {
 			);
 
 			await this.refreshEmbed();
-		} else if (this.gameState.current === "NIGHT") {
+		} else if (this.gameState === "NIGHT") {
 			const role =
 				player.initialRole === "doppelganger" &&
 				(player as Player<"doppelganger">).action?.ready
