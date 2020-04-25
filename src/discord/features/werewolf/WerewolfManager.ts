@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { join } from "path";
+import { capitalize } from "../../../helpers/capitalize";
 import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
@@ -487,6 +488,17 @@ export class WerewolfManager {
 				default:
 					break;
 			}
+		} else if (doppelganger.action?.role?.character) {
+			const originalRoleHolder = this.findPlayerById(
+				doppelganger.action.player
+			)!;
+
+			const role = capitalize(doppelganger.action.role.character);
+
+			fields.push({
+				name: `${doppelganger.member.displayName} (Doppelganger-${role})`,
+				value: `Became ${role} from ${originalRoleHolder.member.displayName}.`,
+			});
 		}
 
 		const seer = players.find(p => p.initialRole === "seer") as Player<"seer">;
