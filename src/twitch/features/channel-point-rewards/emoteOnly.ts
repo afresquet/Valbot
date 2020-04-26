@@ -2,7 +2,7 @@ import { fetchPyramid } from "../../../firebase/fetchPyramid";
 import { prefixChannelReward } from "../../../helpers/prefixString";
 import { State } from "../../../helpers/State";
 import { TwitchFeature } from "../../../types/Feature";
-import { PubSubListener } from "../../../types/PubSubListener";
+import { PubSubEventListeners, PubSubEvents } from "../../../types/PubSub";
 import { logTwitchError } from "../../helpers/twitchEventErrorHandler";
 
 export const emoteOnly: TwitchFeature = twitch => {
@@ -23,81 +23,78 @@ export const emoteOnly: TwitchFeature = twitch => {
 		}
 	};
 
-	const listener: PubSubListener = async (
-		channel,
-		userstate,
-		redemption,
-		self
-	) => {
-		if (
-			redemption.rewardName !==
-			prefixChannelReward("Emote only mode for a minute")
-		)
-			return;
-
-		try {
-			if (active.current) throw "already_emote_only_on";
-
-			await twitch.emoteonly(channel);
-
-			await makePyramid(channel);
-		} catch (error) {
-			if (error === "already_emote_only_on") {
-				await twitch.say(
-					channel,
-					`@${userstate.name}, emote only mode is already enabled, you fool!`
-				);
-
-				// This means the error comes from the api call
-				if (!active.current) {
-					active.set(() => true);
-				}
-
+	twitch.on(
+		PubSubEvents.REDEMPTION as any,
+		(async (channel, userstate, redemption, self) => {
+			if (
+				redemption.rewardName !==
+				prefixChannelReward("Emote only mode for a minute")
+			)
 				return;
-			} else if (error === "No response from Twitch.") {
-				// For whatever reason this error means
-				// "it worked, but we are going to complain about repeated calls" 🤷🏻‍♂️
-				await makePyramid(channel);
-			} else {
-				throw error;
-			}
-		}
 
-		const id = setTimeout(async () => {
 			try {
-				timeoutId.set(() => null);
+				if (active.current) throw "already_emote_only_on";
 
-				await twitch.emoteonlyoff(channel);
+				await twitch.emoteonly(channel);
 
-				await twitch.say(channel, "FREEDOM! widepeepoHappy");
+				await makePyramid(channel);
 			} catch (error) {
-				if (error === "already_emote_only_off") {
-					if (active.current) {
-						active.set(() => false);
+				if (error === "already_emote_only_on") {
+					await twitch.say(
+						channel,
+						`@${userstate.name}, emote only mode is already enabled, you fool!`
+					);
+
+					// This means the error comes from the api call
+					if (!active.current) {
+						active.set(() => true);
 					}
+
+					return;
 				} else if (error === "No response from Twitch.") {
 					// For whatever reason this error means
 					// "it worked, but we are going to complain about repeated calls" 🤷🏻‍♂️
-					await twitch.say(channel, "FREEDOM! widepeepoHappy");
+					await makePyramid(channel);
 				} else {
-					await logTwitchError(error, "pubsub", [
-						channel,
-						userstate,
-						redemption,
-						self,
-					]);
-
-					await twitch.say(
-						channel,
-						"An error ocurred, check the logs on Discord!"
-					);
+					throw error;
 				}
 			}
-		}, 60 * 1000);
 
-		timeoutId.set(() => id);
-	};
-	twitch.on("pubsub" as any, listener);
+			const id = setTimeout(async () => {
+				try {
+					timeoutId.set(() => null);
+
+					await twitch.emoteonlyoff(channel);
+
+					await twitch.say(channel, "FREEDOM! widepeepoHappy");
+				} catch (error) {
+					if (error === "already_emote_only_off") {
+						if (active.current) {
+							active.set(() => false);
+						}
+					} else if (error === "No response from Twitch.") {
+						// For whatever reason this error means
+						// "it worked, but we are going to complain about repeated calls" 🤷🏻‍♂️
+						await twitch.say(channel, "FREEDOM! widepeepoHappy");
+					} else {
+						await logTwitchError(error, "pubsub", [
+							channel,
+							userstate,
+							redemption,
+							self,
+						]);
+
+						await twitch.say(
+							channel,
+							"An error ocurred, check the logs on Discord!"
+						);
+					}
+				}
+			}, 60 * 1000);
+
+			timeoutId.set(() => id);
+		}) as PubSubEventListeners[PubSubEvents.REDEMPTION]
+	);
 
 	twitch.on("emoteonly", (_, enabled) => {
 		const id = timeoutId.current;

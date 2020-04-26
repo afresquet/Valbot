@@ -7,6 +7,7 @@ import {
 	setTwitchAccessToken,
 } from "../firebase/twitchClientCredentials";
 import { isProduction } from "../helpers/isProduction";
+import { PubSubEventListeners, PubSubEvents } from "../types/PubSub";
 
 export const setupTwitchClient = async () => {
 	const clientId = isProduction
@@ -37,5 +38,12 @@ export const pubsubOnRedemption = (twitch: tmi.Client) => async (
 	const userstate = await redemption.getUser();
 	const self = redemption.userName === twitch.getUsername();
 
-	twitch.emit("pubsub" as any, channelName, userstate, redemption, self);
+	const args: Parameters<PubSubEventListeners[PubSubEvents.REDEMPTION]> = [
+		channelName,
+		userstate!,
+		redemption,
+		self,
+	];
+
+	twitch.emit(PubSubEvents.REDEMPTION as any, ...args);
 };

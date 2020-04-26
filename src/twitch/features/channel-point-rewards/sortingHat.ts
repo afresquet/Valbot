@@ -2,7 +2,7 @@ import seedrandom from "seedrandom";
 import { fetchHouseQuote } from "../../../firebase/fetchHouseQuote";
 import { prefixChannelReward } from "../../../helpers/prefixString";
 import { TwitchFeature } from "../../../types/Feature";
-import { PubSubListener } from "../../../types/PubSubListener";
+import { PubSubEventListeners, PubSubEvents } from "../../../types/PubSub";
 
 enum Houses {
 	Gryffindor,
@@ -20,15 +20,17 @@ const seededHouse = (seed: string) => {
 };
 
 export const sortingHat: TwitchFeature = twitch => {
-	const listener: PubSubListener = async (channel, userstate, reaction) => {
-		if (reaction.rewardName !== prefixChannelReward("Hogwarts' Sorting Hat"))
-			return;
+	twitch.on(
+		PubSubEvents.REDEMPTION as any,
+		(async (channel, userstate, reaction) => {
+			if (reaction.rewardName !== prefixChannelReward("Hogwarts' Sorting Hat"))
+				return;
 
-		const house = seededHouse(userstate.id);
+			const house = seededHouse(userstate.id);
 
-		const quote = await fetchHouseQuote(house);
+			const quote = await fetchHouseQuote(house);
 
-		await twitch.say(channel, `@${userstate.name}, ${quote}`);
-	};
-	twitch.on("pubsub" as any, listener);
+			await twitch.say(channel, `@${userstate.name}, ${quote}`);
+		}) as PubSubEventListeners[PubSubEvents.REDEMPTION]
+	);
 };
