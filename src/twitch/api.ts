@@ -17,12 +17,12 @@ export const setupTwitchClient = async () => {
 		? process.env.TWITCH_CLIENT_SECRET!
 		: process.env.TWITCH_DEV_CLIENT_SECRET!;
 
-	const credentials = await fetchTwitchAccessToken();
+	const accessToken = await fetchTwitchAccessToken();
 
-	return TwitchClient.withCredentials(clientId, undefined, credentials.scope, {
+	return TwitchClient.withCredentials(clientId, undefined, accessToken.scope, {
 		clientSecret,
-		refreshToken: credentials.refreshToken,
-		expiry: credentials.expiryDate,
+		refreshToken: accessToken.refreshToken,
+		expiry: accessToken.expiryDate,
 		onRefresh: setTwitchAccessToken,
 	});
 };
