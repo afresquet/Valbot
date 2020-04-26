@@ -100,3 +100,7 @@ Changes the timer duration of the day period (game) or for each night action (ro
 ### `!volume <value>` (Master only)
 
 Changes the volume. Value has to be a number from 0 to 200. Can be used even if a game is currently running.
+
+### `!emoji add` and `!emoji remove` (Mod only)
+
+Adds or removes the character emojis from the server.

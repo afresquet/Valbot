@@ -52,6 +52,13 @@ export class WerewolfManager {
 		return join(__dirname, `../../../../assets/werewolf/sounds/${sound}.mp3`);
 	}
 
+	private iconPath(character: Character) {
+		return join(
+			__dirname,
+			`../../../../assets/werewolf/images/icons/${character}.png`
+		);
+	}
+
 	isReady() {
 		return this.textChannel && this.audioManager.isReady() && this.playerRole;
 	}
@@ -127,9 +134,13 @@ export class WerewolfManager {
 			for (const character of Characters) {
 				const emoji = guild.emojis.cache.find(e => e.name === character);
 
-				if (!emoji) throw new Error(`There's no "${character}" emoji!`);
+				if (!emoji) continue;
 
 				characterEmojis.push({ character, emoji });
+			}
+
+			if (characterEmojis.length !== Characters.length) {
+				characterEmojis.length = 0;
 			}
 
 			this.characterEmojis = characterEmojis;
@@ -735,6 +746,27 @@ export class WerewolfManager {
 		this.audioManager.setVolume(volume);
 
 		await this.refreshEmbed();
+	}
+
+	async mangageEmojis(guild: Discord.Guild, add: boolean) {
+		for (const character of Characters) {
+			let guildEmoji = guild.emojis.cache.find(e => e.name === character);
+
+			if (add && !guildEmoji) {
+				const emoji = await guild.emojis.create(
+					this.iconPath(character),
+					character
+				);
+
+				this.characterEmojis.push({ character, emoji });
+			} else if (!add && guildEmoji) {
+				await guildEmoji.delete();
+			}
+		}
+
+		if (!add) {
+			this.characterEmojis.length = 0;
+		}
 	}
 
 	private async playCharacter(character: NightActionCharacter) {

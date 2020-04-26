@@ -156,6 +156,18 @@ export const werewolf: DiscordFeature = discord => {
 
 					break;
 				}
+				case "!emoji": {
+					if (!message.member?.roles.cache.find(role => role.name === "mods"))
+						break;
+
+					const action = value.toLowerCase();
+
+					if (action !== "add" && action !== "remove") break;
+
+					await gameManager.mangageEmojis(message.guild!, action === "add");
+
+					break;
+				}
 				default:
 					break;
 			}
