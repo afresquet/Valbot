@@ -7,11 +7,6 @@ type ListenerType<T> = [T] extends [(...args: infer U) => any]
 	? []
 	: [T];
 
-type TwitchOnEvent = <T extends keyof tmi.Events>(
-	event: T,
-	listener: (...args: ListenerType<tmi.Events[T]>) => void
-) => tmi.Client;
-
 export const logTwitchError = async (
 	error: any,
 	event: string,
@@ -33,13 +28,16 @@ export const logTwitchError = async (
 	);
 };
 
-export const twitchEventErrorHandler = (twitch: tmi.Client): TwitchOnEvent => {
-	const originalOn: TwitchOnEvent = twitch.on.bind(twitch);
+export const twitchEventErrorHandler = (twitch: tmi.Client) => {
+	const originalOn: typeof twitch.on = twitch.on.bind(twitch);
 
-	return (event, listener) => {
+	return <T extends keyof tmi.Events>(
+		event: T,
+		listener: (...args: ListenerType<tmi.Events[T]>) => void | Promise<void>
+	) => {
 		originalOn(event, async (...args) => {
 			try {
-				await listener.call(twitch, ...args);
+				await listener.apply(twitch, args);
 			} catch (error) {
 				await logTwitchError(error, event, args);
 

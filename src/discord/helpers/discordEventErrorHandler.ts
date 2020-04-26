@@ -1,11 +1,6 @@
 import Discord from "discord.js";
 import { logFromDiscord } from "../../helpers/logging/logFromDiscord";
 
-type DiscordOnEvent = <T extends keyof Discord.ClientEvents>(
-	event: T,
-	listener: (...args: Discord.ClientEvents[T]) => void | Promise<void>
-) => Discord.Client;
-
 export const logDiscordError = async (
 	error: any,
 	event: string,
@@ -27,12 +22,13 @@ export const logDiscordError = async (
 	);
 };
 
-export const discordEventErrorHandler = (
-	discord: Discord.Client
-): DiscordOnEvent => {
-	const originalOn: DiscordOnEvent = discord.on.bind(discord);
+export const discordEventErrorHandler = (discord: Discord.Client) => {
+	const originalOn: typeof discord.on = discord.on.bind(discord);
 
-	return (event, listener) => {
+	return <T extends keyof Discord.ClientEvents>(
+		event: T,
+		listener: (...args: Discord.ClientEvents[T]) => void | Promise<void>
+	) => {
 		originalOn(event, async (...args) => {
 			try {
 				await listener(...args);
