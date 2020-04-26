@@ -3,8 +3,8 @@ import TwitchClient from "twitch";
 import PubSubClient from "twitch-pubsub-client";
 import PubSubRedemptionMessage from "twitch-pubsub-client/lib/Messages/PubSubRedemptionMessage";
 import {
-	fetchTwitchClientCredentials,
-	setTwitchClientCredentials,
+	fetchTwitchAccessToken,
+	setTwitchAccessToken,
 } from "../firebase/twitchClientCredentials";
 import { isProduction } from "../helpers/isProduction";
 
@@ -17,13 +17,13 @@ export const setupTwitchClient = async () => {
 		? process.env.TWITCH_CLIENT_SECRET!
 		: process.env.TWITCH_DEV_CLIENT_SECRET!;
 
-	const credentials = await fetchTwitchClientCredentials();
+	const credentials = await fetchTwitchAccessToken();
 
 	return TwitchClient.withCredentials(clientId, undefined, credentials.scope, {
 		clientSecret,
 		refreshToken: credentials.refreshToken,
 		expiry: credentials.expiryDate,
-		onRefresh: setTwitchClientCredentials,
+		onRefresh: setTwitchAccessToken,
 	});
 };
 
