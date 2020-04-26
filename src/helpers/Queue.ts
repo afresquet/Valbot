@@ -1,11 +1,7 @@
 export class Queue<T> {
-	queue: T[];
+	constructor(private queue: T[] = []) {}
 
-	constructor(initialQueue: T[]) {
-		this.queue = initialQueue;
-	}
-
-	get current() {
+	get array(): T[] {
 		return this.queue;
 	}
 
@@ -14,19 +10,15 @@ export class Queue<T> {
 	}
 
 	enqueue(element: T) {
-		this.queue = [...this.queue, element];
+		this.queue.push(element);
 	}
 
-	dequeue() {
-		const [element, ...newQueue] = this.queue;
-
-		this.queue = newQueue;
-
-		return element;
+	dequeue(): T | undefined {
+		return this.queue.shift();
 	}
 
 	remove(index: number) {
-		this.queue = this.queue.filter((_, i) => i !== index);
+		this.queue.splice(index, 1);
 	}
 
 	clear() {
