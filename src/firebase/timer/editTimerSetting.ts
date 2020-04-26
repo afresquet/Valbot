@@ -11,7 +11,7 @@ export const editTimerSetting = async (setting: string, value: number) => {
 		throw new Error("invalid value provided, it must be a number.");
 	}
 
-	const snapshot = await firebase.collection("settings").doc("timer");
+	const ref = firebase.collection("settings").doc("timer");
 
-	return snapshot.update({ [setting]: value });
+	return ref.update({ [setting]: value });
 };

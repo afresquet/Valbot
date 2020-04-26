@@ -1,13 +1,12 @@
 import { fetchPyramid } from "../../../firebase/fetchPyramid";
 import { prefixChannelReward } from "../../../helpers/prefixString";
-import { State } from "../../../helpers/State";
 import { TwitchFeature } from "../../../types/Feature";
 import { PubSubEventListeners, PubSubEvents } from "../../../types/PubSub";
 import { logTwitchError } from "../../helpers/twitchEventErrorHandler";
 
 export const emoteOnly: TwitchFeature = twitch => {
-	const active = new State(false);
-	const timeoutId = new State<NodeJS.Timeout | null>(null);
+	let active = false;
+	let timeoutId: NodeJS.Timeout | null = null;
 
 	const makePyramid = async (channel: string) => {
 		const pyramid = await fetchPyramid();
@@ -33,7 +32,7 @@ export const emoteOnly: TwitchFeature = twitch => {
 				return;
 
 			try {
-				if (active.current) throw "already_emote_only_on";
+				if (active) throw "already_emote_only_on";
 
 				await twitch.emoteonly(channel);
 
@@ -46,8 +45,8 @@ export const emoteOnly: TwitchFeature = twitch => {
 					);
 
 					// This means the error comes from the api call
-					if (!active.current) {
-						active.set(() => true);
+					if (!active) {
+						active = true;
 					}
 
 					return;
@@ -62,15 +61,15 @@ export const emoteOnly: TwitchFeature = twitch => {
 
 			const id = setTimeout(async () => {
 				try {
-					timeoutId.set(() => null);
+					timeoutId = null;
 
 					await twitch.emoteonlyoff(channel);
 
 					await twitch.say(channel, "FREEDOM! widepeepoHappy");
 				} catch (error) {
 					if (error === "already_emote_only_off") {
-						if (active.current) {
-							active.set(() => false);
+						if (active) {
+							active = false;
 						}
 					} else if (error === "No response from Twitch.") {
 						// For whatever reason this error means
@@ -92,19 +91,17 @@ export const emoteOnly: TwitchFeature = twitch => {
 				}
 			}, 60 * 1000);
 
-			timeoutId.set(() => id);
+			timeoutId = id;
 		}) as PubSubEventListeners[PubSubEvents.REDEMPTION]
 	);
 
 	twitch.on("emoteonly", (_, enabled) => {
-		const id = timeoutId.current;
+		if (!enabled && timeoutId !== null) {
+			clearTimeout(timeoutId);
 
-		if (!enabled && id !== null) {
-			clearTimeout(id);
-
-			timeoutId.set(() => null);
+			timeoutId = null;
 		}
 
-		active.set(() => enabled);
+		active = enabled;
 	});
 };

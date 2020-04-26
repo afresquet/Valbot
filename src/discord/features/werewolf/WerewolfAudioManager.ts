@@ -6,7 +6,7 @@ import { ErrorOnChat } from "../../../helpers/ErrorOnChat";
 export class WerewolfAudioManager extends AudioManager {
 	play(
 		input: string | Readable | Discord.VoiceBroadcast,
-		options: Discord.StreamOptions = this.streamOptions.current
+		options: Discord.StreamOptions = this.streamOptions
 	): Promise<void> {
 		return new Promise((resolve, reject) => {
 			if (!this.voiceChannel) {

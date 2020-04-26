@@ -2,16 +2,15 @@ import Discord from "discord.js";
 import { Readable } from "stream";
 import { clamp } from "../clamp";
 import { ErrorOnChat } from "../ErrorOnChat";
-import { State } from "../State";
 
 export class AudioManager {
 	protected voiceChannel: Discord.VoiceChannel | null = null;
 	protected connection: Discord.VoiceConnection | null = null;
 	protected dispatcher: Discord.StreamDispatcher | null = null;
 
-	protected streamOptions = new State<Discord.StreamOptions>({
+	protected streamOptions: Discord.StreamOptions = {
 		volume: 1,
-	});
+	};
 
 	isReady() {
 		return this.voiceChannel !== null;
@@ -115,12 +114,12 @@ export class AudioManager {
 	getOption<T extends keyof Discord.StreamOptions>(
 		option: T
 	): Discord.StreamOptions[T] {
-		return this.streamOptions.current[option];
+		return this.streamOptions[option];
 	}
 
 	protected setOption<T extends keyof Discord.StreamOptions>(
 		option: T,
-		value: Discord.StreamOptions[T]
+		value: NonNullable<Discord.StreamOptions[T]>
 	) {
 		switch (option) {
 			case "bitrate": {
@@ -144,7 +143,7 @@ export class AudioManager {
 			}
 		}
 
-		this.streamOptions.set(curr => ({ ...curr, [option]: value }));
+		this.streamOptions[option] = value;
 	}
 
 	setVolume(volume: number) {
