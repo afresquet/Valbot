@@ -1,22 +1,19 @@
 import { AccessToken } from "twitch";
 import { firebase } from ".";
 
-interface TwitchClientCredentials {
-	refreshToken: string;
-	expiryDate: Date | null;
-	scope: string[];
-}
+type AccessTokenKeys = "refreshToken" | "expiryDate" | "scope";
+type TwitchAccessToken = Pick<AccessToken, AccessTokenKeys>;
 
-export const fetchTwitchClientCredentials = async (): Promise<TwitchClientCredentials> => {
+export const fetchTwitchAccessToken = async (): Promise<TwitchAccessToken> => {
 	const snapshot = await firebase
 		.collection("settings")
 		.doc("client-credentials")
 		.get();
 
-	return snapshot.data() as TwitchClientCredentials;
+	return snapshot.data() as TwitchAccessToken;
 };
 
-export const setTwitchClientCredentials = (token: AccessToken) => {
+export const setTwitchAccessToken = (token: AccessToken) => {
 	const ref = firebase.collection("settings").doc("client-credentials");
 
 	return ref.update({
