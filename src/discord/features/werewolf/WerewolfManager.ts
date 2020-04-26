@@ -1096,7 +1096,10 @@ export class WerewolfManager {
 						doppelgangerTroublemaker.action?.role?.action
 					) {
 						action = { ...doppelgangerTroublemaker.action.role.action };
-					} else if (this.isDoppelganger(player) && troublemaker.action) {
+					} else if (
+						player.initialRole === Character.TROUBLEMAKER &&
+						troublemaker.action
+					) {
 						action = { ...troublemaker.action };
 					}
 
