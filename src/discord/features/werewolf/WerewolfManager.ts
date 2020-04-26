@@ -11,6 +11,7 @@ import { centerCardPosition } from "./helpers/centerCardPosition";
 import {
 	Character,
 	CharacterCount,
+	CharacterEmoji,
 	Characters,
 	GameState,
 	NightActionCharacter,
@@ -24,6 +25,7 @@ export class WerewolfManager {
 	private audioManager = new WerewolfAudioManager();
 	private playerRole: Discord.Role | null = null;
 	private bannedRole: Discord.Role | null = null;
+	private characterEmojis: CharacterEmoji[] = [];
 
 	private embeds = new Embeds(this.audioManager);
 
@@ -116,6 +118,20 @@ export class WerewolfManager {
 			}
 
 			this.bannedRole = bannedRole;
+		}
+
+		if (this.characterEmojis) {
+			const characterEmojis: CharacterEmoji[] = [];
+
+			for (const character of Characters) {
+				const emoji = guild.emojis.cache.find(e => e.name === character);
+
+				if (!emoji) throw new Error(`There's no "${character}" emoji!`);
+
+				characterEmojis.push({ character, emoji });
+			}
+
+			this.characterEmojis = characterEmojis;
 		}
 	}
 
@@ -315,15 +331,22 @@ export class WerewolfManager {
 
 		this.gameState = GameState.DAY;
 
-		this.refreshEmbed();
-
 		await this.audioManager.play(
 			this.soundPath(characters.everyone.sounds.wake)
 		);
 
-		await this.muteAll(false);
+		await Promise.all([this.refreshEmbed(), this.muteAll(false)]);
+
+		for (const { character, emoji } of this.characterEmojis) {
+			if (this.characters.find(c => c.character === character)!.amount <= 0)
+				continue;
+
+			await this.gameMessage?.react(emoji);
+		}
 
 		await delay(this.gameTimer * 1000);
+
+		await this.gameMessage?.reactions.removeAll();
 	}
 
 	private async voting() {

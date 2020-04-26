@@ -101,3 +101,8 @@ type TroublemakerAction = {
 type DrunkAction = {
 	center: number;
 };
+
+export type CharacterEmoji = {
+	character: Character;
+	emoji: Discord.GuildEmoji;
+};
