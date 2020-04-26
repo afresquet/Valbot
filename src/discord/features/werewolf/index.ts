@@ -179,15 +179,18 @@ export const werewolf: DiscordFeature = discord => {
 	discord.on("messageReactionAdd", async (reaction, user) => {
 		if (user.bot) return;
 
-		const canHandleNightAction =
-			reaction.message.channel.type === "dm" &&
-			gameManager.currentState === GameState.NIGHT;
-
-		const canHandleVoting =
-			reaction.message.channel.type === "text" &&
-			gameManager.currentState === GameState.VOTING;
-
-		if (!canHandleNightAction && !canHandleVoting) return;
+		switch (gameManager.currentState) {
+			case GameState.DAY:
+			case GameState.VOTING:
+				if (reaction.message.channel.type !== "text") return;
+				if (reaction.message.channel.name !== prefixChannel("werewolf")) return;
+				break;
+			case GameState.NIGHT:
+				if (reaction.message.channel.type !== "dm") return;
+				break;
+			default:
+				return;
+		}
 
 		await gameManager.handleReaction(reaction, user as Discord.User);
 	});

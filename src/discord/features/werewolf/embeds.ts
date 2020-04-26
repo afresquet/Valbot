@@ -191,7 +191,7 @@ export class Embeds {
 		}
 	}
 
-	day(characters: CharacterCount[]) {
+	day(players: Player[], characters: CharacterCount[]) {
 		const tokens = characters.reduce<Character[]>(
 			(result, current) => [
 				...result,
@@ -204,6 +204,22 @@ export class Embeds {
 			title:
 				"I'm hoping to make a timer that counts down here idk how I'll do it.",
 			fields: [
+				{
+					name: "Players",
+					value: players.reduce((result, current, index) => {
+						const playerLine = `${numberEmojis[index]} ${
+							current.member.displayName
+						} ${
+							current.claimedRole
+								? `- Claims to be ${capitalize(current.claimedRole)}.`
+								: ""
+						}`;
+
+						return result === "There are no players."
+							? playerLine
+							: `${result}\n${playerLine}`;
+					}, "There are no players."),
+				},
 				{
 					name: "Tokens",
 					value: tokens.map(token => capitalize(token)).join("\n"),

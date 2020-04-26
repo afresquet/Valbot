@@ -20,7 +20,7 @@ At night, everyone goes to sleep. There is no real way to prevent cheating (unle
 
 If your role has a night action, you will be asked to awake to perform your action. The bot will send you a DM with your action. You'll have a limited amount of time to perform it, so make sure to do it in time.
 
-Once the sun rises it'll become day and everyone will awaken. A timer will start counting down, and when it hits 0 you'll have to figure out who to kill.
+Once the sun rises it'll become day and everyone will awaken. A timer will start counting down, and when it hits 0 you'll have to figure out who to kill. You will be able to claim a "role token" by reacting to the message at the game text channel, indicating other players that you "are" that role.
 
 Voting will be handled through reactions at the game text channel. If you don't vote for anyone it will default to the player to the number following yours, or player 1 in case of the last player.
 

@@ -55,6 +55,7 @@ export interface Player<
 	member: Discord.GuildMember;
 	initialRole: T;
 	role: Character | null;
+	claimedRole: Character | null;
 	action: Actions<T, A>;
 	killing: string | null;
 }

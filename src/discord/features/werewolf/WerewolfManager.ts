@@ -150,6 +150,7 @@ export class WerewolfManager {
 			member,
 			initialRole: null,
 			role: null,
+			claimedRole: null,
 			action: null,
 			killing: null,
 		};
@@ -628,6 +629,7 @@ export class WerewolfManager {
 			...player,
 			initialRole: null,
 			role: null,
+			claimedRole: null,
 			action: null,
 			killing: null,
 		}));
@@ -939,7 +941,9 @@ export class WerewolfManager {
 				await this.gameMessage.edit(this.embeds.night());
 				break;
 			case GameState.DAY:
-				await this.gameMessage.edit(this.embeds.day(this.characters));
+				await this.gameMessage.edit(
+					this.embeds.day(this.players, this.characters)
+				);
 				break;
 			case GameState.VOTING:
 				await this.gameMessage.edit(this.embeds.voting(this.players));
@@ -964,8 +968,11 @@ export class WerewolfManager {
 	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
 		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
 		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
+		const characterEmoji = this.characterEmojis.find(
+			({ emoji }) => emoji === reaction.emoji
+		);
 
-		if (playerIndex === -1 && centerIndex === -1) return;
+		if (playerIndex === -1 && centerIndex === -1 && !characterEmoji) return;
 
 		const player = this.players.find(
 			(p, i) => p.member.id === user.id && i !== playerIndex
@@ -1164,6 +1171,12 @@ export class WerewolfManager {
 			}
 
 			await this.refreshDM(player.initialRole!);
+		} else if (this.gameState === GameState.DAY) {
+			if (!characterEmoji) return;
+
+			player.claimedRole = characterEmoji.character;
+
+			await this.refreshEmbed();
 		} else if (this.gameState === GameState.VOTING) {
 			if (playerIndex === -1 || player.killing) return;
 
