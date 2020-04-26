@@ -26,6 +26,7 @@ Voting will be handled through reactions at the game text channel. If you don't 
 
 ## Characters
 
+- Doppelganger
 - Werewolf
 - Minion
 - Mason
@@ -37,8 +38,6 @@ Voting will be handled through reactions at the game text channel. If you don't 
 - Villager
 - Hunter
 - Tanner
-
-Currently Doppelganger is not supported, but I will add it soon™.
 
 ## Commands
 
