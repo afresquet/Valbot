@@ -3,7 +3,7 @@ import { isProduction } from "../../../helpers/isProduction";
 import { prefixChannel } from "../../../helpers/prefixString";
 import { messageSplitter } from "../../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../../types/Feature";
-import { Character, Characters } from "./types";
+import { Character, Characters, GameState } from "./types";
 import { WerewolfManager } from "./WerewolfManager";
 
 export const werewolf: DiscordFeature = discord => {
@@ -179,7 +179,15 @@ export const werewolf: DiscordFeature = discord => {
 	discord.on("messageReactionAdd", async (reaction, user) => {
 		if (user.bot) return;
 
-		if (reaction.message.channel.type !== "dm") return;
+		const canHandleNightAction =
+			reaction.message.channel.type === "dm" &&
+			gameManager.currentState === GameState.NIGHT;
+
+		const canHandleVoting =
+			reaction.message.channel.type === "text" &&
+			gameManager.currentState === GameState.VOTING;
+
+		if (!canHandleNightAction && !canHandleVoting) return;
 
 		await gameManager.handleReaction(reaction, user as Discord.User);
 	});

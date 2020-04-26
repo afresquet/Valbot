@@ -60,6 +60,10 @@ export class WerewolfManager {
 		);
 	}
 
+	get currentState() {
+		return this.gameState;
+	}
+
 	findPlayerById(id: string) {
 		return this.players.find(player => player.member.id === id);
 	}
@@ -331,27 +335,14 @@ export class WerewolfManager {
 			this.soundPath(characters.everyone.sounds.timeisup)
 		);
 
-		const messages = await Promise.all(
-			this.players.map(async (player, index, array) => {
-				const message = await player.member.send(
-					this.embeds.playerVoting(this.players, player)
-				);
-
-				for (let i = 0; i < array.length; i++) {
-					if (i === index) continue;
-
-					await message.react(numberEmojis[i]);
-				}
-
-				return message;
-			})
-		);
-
-		await this.refreshEmbed();
+		await Promise.all([
+			this.refreshEmbed(),
+			this.players.map((_, index) =>
+				this.gameMessage?.react(numberEmojis[index])
+			),
+		]);
 
 		await delay(this.roleTimer * 1000);
-
-		await Promise.all(messages.map(message => message.delete()));
 	}
 
 	private async finish() {
@@ -632,7 +623,16 @@ export class WerewolfManager {
 
 	private async muteAll(on: boolean) {
 		await Promise.all(
-			this.players.map(player => player.member.voice.setMute(on))
+			this.players.map(player => {
+				if (
+					!this.audioManager.isUserInVoiceChannel(
+						player.member.voice.channelID!
+					)
+				)
+					return;
+
+				return player.member.voice.setMute(on);
+			})
 		);
 	}
 

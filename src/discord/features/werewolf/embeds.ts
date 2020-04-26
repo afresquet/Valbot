@@ -206,7 +206,7 @@ export class Embeds {
 			fields: [
 				{
 					name: "Tokens",
-					value: tokens.join("\n"),
+					value: tokens.map(token => capitalize(token)).join("\n"),
 				},
 			],
 		});
@@ -237,9 +237,16 @@ export class Embeds {
 
 		return this.base({
 			title: "Vote for who you want to kill!",
-			description: "Check your DMs to vote.",
-			footer: {},
+			description:
+				"If you don't vote for someone in time, the player with the next number from yours will become your vote.",
+			footer: {
+				text: "You can't vote for yourself.",
+			},
 			fields: [
+				{
+					name: "Players",
+					value: listOfEveryone(players),
+				},
 				{
 					name: "Voted",
 					value: votedValue,
@@ -247,33 +254,6 @@ export class Embeds {
 				{
 					name: "Pending",
 					value: pendingValue,
-				},
-			],
-		});
-	}
-
-	playerVoting(players: Player[], player: Player) {
-		const playerIndex = players.indexOf(player);
-
-		return this.base({
-			title: "Vote for who you want to kill!",
-			footer: { text: "This message will expire soon, act fast!" },
-			fields: [
-				{
-					name: "Players",
-					value: players.reduce((result, current, index, array) => {
-						if (current.member.id === player.member.id) return result;
-
-						const playerLine = `${numberEmojis[index]} ${
-							current.member.displayName
-						} ${
-							index === (playerIndex + 1) % array.length ? "(Default vote)" : ""
-						}`;
-
-						return result === "There are no players."
-							? playerLine
-							: `${result}\n${playerLine}`;
-					}, "There are no players."),
 				},
 			],
 		});
