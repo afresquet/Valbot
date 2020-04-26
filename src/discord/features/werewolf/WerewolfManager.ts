@@ -40,6 +40,7 @@ export class WerewolfManager {
 	private expert = false;
 
 	private gameTimer = 300;
+	private remainingTime = 0;
 	private roleTimer = 10;
 
 	private characters = Characters.map<CharacterCount>(character => ({
@@ -332,20 +333,31 @@ export class WerewolfManager {
 
 		this.gameState = GameState.DAY;
 
-		await this.audioManager.play(
-			this.soundPath(characters.everyone.sounds.wake)
-		);
+		this.remainingTime = this.gameTimer;
 
-		await Promise.all([this.refreshEmbed(), this.muteAll(false)]);
+		await Promise.all([
+			this.audioManager.play(this.soundPath(characters.everyone.sounds.wake)),
+			this.refreshEmbed(),
+			this.muteAll(false),
+			new Promise(async (resolve, reject) => {
+				try {
+					for (const { character, emoji } of this.characterEmojis) {
+						if (
+							this.characters.find(c => c.character === character)!.amount <= 0
+						)
+							continue;
 
-		for (const { character, emoji } of this.characterEmojis) {
-			if (this.characters.find(c => c.character === character)!.amount <= 0)
-				continue;
+						await this.gameMessage?.react(emoji);
+					}
 
-			await this.gameMessage?.react(emoji);
-		}
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}),
+		]);
 
-		await delay(this.gameTimer * 1000);
+		await Promise.race([delay(this.gameTimer * 1000), this.dayTimer()]);
 
 		await this.gameMessage?.reactions.removeAll();
 	}
@@ -355,15 +367,22 @@ export class WerewolfManager {
 
 		this.gameState = GameState.VOTING;
 
-		await this.audioManager.play(
-			this.soundPath(characters.everyone.sounds.timeisup)
-		);
-
 		await Promise.all([
-			this.refreshEmbed(),
-			this.players.map((_, index) =>
-				this.gameMessage?.react(numberEmojis[index])
+			this.audioManager.play(
+				this.soundPath(characters.everyone.sounds.timeisup)
 			),
+			this.refreshEmbed(),
+			new Promise(async (resolve, reject) => {
+				try {
+					for (let i = 0; i < this.players.length; i++) {
+						await this.gameMessage?.react(numberEmojis[i]);
+					}
+
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			}),
 		]);
 
 		await delay(this.roleTimer * 1000);
@@ -635,6 +654,24 @@ export class WerewolfManager {
 		}));
 
 		this.centerCards = [];
+	}
+
+	dayTimer() {
+		return new Promise(async (resolve, reject) => {
+			try {
+				while (this.gameState === GameState.DAY) {
+					await delay(5000);
+
+					this.remainingTime -= 5;
+
+					this.refreshEmbed().catch(reject);
+				}
+
+				resolve();
+			} catch (error) {
+				reject(error);
+			}
+		});
 	}
 
 	async rules(character: Character) {
@@ -942,7 +979,7 @@ export class WerewolfManager {
 				break;
 			case GameState.DAY:
 				await this.gameMessage.edit(
-					this.embeds.day(this.players, this.characters)
+					this.embeds.day(this.players, this.characters, this.remainingTime)
 				);
 				break;
 			case GameState.VOTING:

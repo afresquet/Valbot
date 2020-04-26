@@ -191,7 +191,7 @@ export class Embeds {
 		}
 	}
 
-	day(players: Player[], characters: CharacterCount[]) {
+	day(players: Player[], characters: CharacterCount[], remainingTime: number) {
 		const tokens = characters.reduce<Character[]>(
 			(result, current) => [
 				...result,
@@ -201,8 +201,7 @@ export class Embeds {
 		);
 
 		return this.base({
-			title:
-				"I'm hoping to make a timer that counts down here idk how I'll do it.",
+			title: `Timer: ${remainingTime} seconds remaining.`,
 			fields: [
 				{
 					name: "Players",
