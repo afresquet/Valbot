@@ -19,10 +19,10 @@ import { CharacterCount, CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
-	private textChannel: Discord.TextChannel | null = null;
+	private textChannel?: Discord.TextChannel;
 	private audioManager = new WerewolfAudioManager();
-	private playerRole: Discord.Role | null = null;
-	private bannedRole: Discord.Role | null = null;
+	private playerRole?: Discord.Role;
+	private bannedRole?: Discord.Role;
 	private characterEmojis: CharacterEmoji[] = [];
 
 	private embeds = new Embeds(this.audioManager);
@@ -32,8 +32,8 @@ export class WerewolfManager {
 
 	private gameState: GameState = GameState.NOT_PLAYING;
 
-	private gameMessage: Discord.Message | null = null;
-	private nightActionDM: Discord.Message | null = null;
+	private gameMessage?: Discord.Message;
+	private nightActionDM?: Discord.Message;
 
 	private expert = false;
 
@@ -641,7 +641,7 @@ export class WerewolfManager {
 			})
 		);
 
-		this.gameMessage = null;
+		delete this.gameMessage;
 	}
 
 	private cleanUp() {
@@ -822,7 +822,7 @@ export class WerewolfManager {
 				this.nightActionDM?.delete(),
 			]);
 
-			this.nightActionDM = null;
+			delete this.nightActionDM;
 		}
 	}
 
@@ -888,7 +888,7 @@ export class WerewolfManager {
 
 		await this.nightActionDM.delete();
 
-		this.nightActionDM = null;
+		delete this.nightActionDM;
 	}
 
 	private async handleDoppelgangerNightAction() {
@@ -943,7 +943,7 @@ export class WerewolfManager {
 		if (this.nightActionDM) {
 			await this.nightActionDM.delete();
 
-			this.nightActionDM = null;
+			delete this.nightActionDM;
 		}
 
 		// Doppelganger Minion
@@ -971,7 +971,7 @@ export class WerewolfManager {
 		if (this.nightActionDM) {
 			await this.nightActionDM.delete();
 
-			this.nightActionDM = null;
+			delete this.nightActionDM;
 		}
 	}
 
