@@ -4,12 +4,7 @@ import { capitalize } from "../../../helpers/capitalize";
 import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
-import {
-	Character,
-	Characters,
-	NightActionCharacter,
-	NightActionCharacters,
-} from "./Character";
+import { Character } from "./Character";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
@@ -18,6 +13,8 @@ import { Player } from "./Player";
 import { Sound } from "./Sounds";
 import { CharacterCount, CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
+
+const characterNames = Object.values(Character);
 
 export class WerewolfManager {
 	private textChannel?: Discord.TextChannel;
@@ -45,7 +42,7 @@ export class WerewolfManager {
 	private remainingTime = 0;
 	private roleTimer = 10;
 
-	private characters = Characters.map<CharacterCount>(character => ({
+	private characters = characterNames.map<CharacterCount>(character => ({
 		character,
 		amount: 0,
 	}));
@@ -153,7 +150,7 @@ export class WerewolfManager {
 		if (this.characterEmojis) {
 			const characterEmojis: CharacterEmoji[] = [];
 
-			for (const character of Characters) {
+			for (const character of characterNames) {
 				const emoji = guild.emojis.cache.find(e => e.name === character);
 
 				if (!emoji) continue;
@@ -161,7 +158,7 @@ export class WerewolfManager {
 				characterEmojis.push({ character, emoji });
 			}
 
-			if (characterEmojis.length !== Characters.length) {
+			if (characterEmojis.length !== characterNames.length) {
 				characterEmojis.length = 0;
 			}
 
@@ -346,8 +343,10 @@ export class WerewolfManager {
 			this.muteAll(true),
 		]);
 
-		for (const character of NightActionCharacters) {
-			await this.playCharacter(character);
+		for (const character of characterNames) {
+			if (characters[character].nightAction) {
+				await this.playCharacter(character);
+			}
 		}
 
 		await delay(2000);
@@ -756,7 +755,7 @@ export class WerewolfManager {
 	}
 
 	async mangageEmojis(guild: Discord.Guild, add: boolean) {
-		for (const character of Characters) {
+		for (const character of characterNames) {
 			let guildEmoji = guild.emojis.cache.find(e => e.name === character);
 
 			if (add && !guildEmoji) {
@@ -776,7 +775,7 @@ export class WerewolfManager {
 		}
 	}
 
-	private async playCharacter(character: NightActionCharacter) {
+	private async playCharacter(character: Character) {
 		if (this.characters.find(c => c.character === character)!.amount <= 0)
 			return;
 
@@ -826,7 +825,7 @@ export class WerewolfManager {
 		}
 	}
 
-	private async handleNightActionCharacter(character: NightActionCharacter) {
+	private async handleNightActionCharacter(character: Character) {
 		if ([Character.WEREWOLF, Character.MASON].includes(character)) {
 			const players = this.players.filter(
 				player =>

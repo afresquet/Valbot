@@ -3,12 +3,14 @@ import { isProduction } from "../../../helpers/isProduction";
 import { prefixChannel } from "../../../helpers/prefixString";
 import { messageSplitter } from "../../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../../types/Feature";
-import { Character, Characters } from "./Character";
+import { Character } from "./Character";
 import { GameState } from "./types";
 import { WerewolfManager } from "./WerewolfManager";
 
 export const werewolf: DiscordFeature = discord => {
 	const gameManager = new WerewolfManager();
+
+	const characters = Object.values(Character);
 
 	discord.on("message", async message => {
 		if (message.author.bot) return;
@@ -50,7 +52,7 @@ export const werewolf: DiscordFeature = discord => {
 						: (value
 								.split(/\s+/g)
 								.map(x => x.toLowerCase())
-								.filter(x => Characters.includes(x as any)) as Character[]);
+								.filter(x => characters.includes(x as any)) as Character[]);
 
 					await gameManager.start(forcedRoles);
 
@@ -95,7 +97,7 @@ export const werewolf: DiscordFeature = discord => {
 
 					if (!gameManager.isMaster(message.author.id)) break;
 
-					if (!Characters.includes(character as any)) break;
+					if (!characters.includes(character as any)) break;
 
 					await gameManager.manageCharacter(
 						character as Character,
@@ -107,7 +109,7 @@ export const werewolf: DiscordFeature = discord => {
 				case "!rules": {
 					const role = value.toLowerCase();
 
-					if (!Characters.includes(role as any)) break;
+					if (!characters.includes(role as any)) break;
 
 					await gameManager.rules(role as Character);
 

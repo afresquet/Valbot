@@ -1,69 +1,85 @@
-export const characters = {
-	doppelganger: {
+import { Character } from "./Character";
+
+export const characters: {
+	[name: string]: { description: string; image: string; nightAction: boolean };
+} = {
+	[Character.DOPPELGANGER]: {
 		description:
 			"You will look at any other player's card and will become that role yourself, in addition to the player with that role.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/rP3xvC-HFqIonPj5mmr6_1lJYJ8=/fit-in/900x600/filters:no_upscale()/pic4462582.png",
+		nightAction: true,
 	},
-	werewolf: {
+	[Character.WEREWOLF]: {
 		description:
 			"You will wake and look for the other werewolves. You will win if no werewolves are killed.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/tgyrEJ3RbB_sZlme9eHu-ZKQ-vo=/fit-in/900x600/filters:no_upscale()/pic4462616.png",
+		nightAction: true,
 	},
-	minion: {
+	[Character.MINION]: {
 		description:
 			"You will know who the werewolves are. You will win if no werewolves are killed, even if you are killed.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/ePtQq2ZqGJ06HpM5I6CaYp3FixA=/fit-in/900x600/filters:no_upscale()/pic4462593.png",
+		nightAction: true,
 	},
-	mason: {
+	[Character.MASON]: {
 		description: "You will wake and look for the other mason.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/FeKsR8xD1jOgzFNx-V2Y-qIxT54=/fit-in/900x600/filters:no_upscale()/pic4462591.png",
+		nightAction: true,
 	},
-	seer: {
+	[Character.SEER]: {
 		description:
 			"You will view either two of the center roles, or one role from any other player.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/Y5Kj8KnsVPX9uJBn2mRw64WUzY4=/fit-in/900x600/filters:no_upscale()/pic4462604.png",
+		nightAction: true,
 	},
-	robber: {
+	[Character.ROBBER]: {
 		description:
 			"You will exchange your role with another player's role, and will view your new role.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/rv16CisR0fsy8pkEOAAZkGwTsFk=/fit-in/900x600/filters:no_upscale()/pic4462602.png",
+		nightAction: true,
 	},
-	troublemaker: {
+	[Character.TROUBLEMAKER]: {
 		description: "You will exchange roles between any two other roles.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/2gB7ClAu4p7rrs8ipGnNAfOOO-w=/fit-in/900x600/filters:no_upscale()/pic4462611.png",
+		nightAction: true,
 	},
-	drunk: {
+	[Character.DRUNK]: {
 		description:
 			"You will exchange your role with a role from the center, but you will not view your new role.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/IC7i93WsW03tEbcXHmeV6OxEr_c=/fit-in/900x600/filters:no_upscale()/pic4462584.png",
+		nightAction: true,
 	},
-	insomniac: {
+	[Character.INSOMNIAC]: {
 		description: "You will view your own role.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/RHfz10FGfiYxunbUsJt1_xNwrS4=/fit-in/900x600/filters:no_upscale()/pic4462588.png",
+		nightAction: true,
 	},
-	villager: {
+	[Character.VILLAGER]: {
 		description:
 			"You will figure out who the bad guys are, and make sure one of them is killed.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/PsaeiAGo4yVQQGhE-7995uZDCc8=/fit-in/900x600/filters:no_upscale()/pic4462615.png",
+		nightAction: false,
 	},
-	hunter: {
+	[Character.HUNTER]: {
 		description: "If you are killed, the player you voted for will also die.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/TlZNLrMvaQhs7pLuu_7aW3vFpr4=/fit-in/900x600/filters:no_upscale()/pic4462587.png",
+		nightAction: false,
 	},
-	tanner: {
+	[Character.TANNER]: {
 		description: "You will win and everyone else will lose if you are killed.",
 		image:
 			"https://cf.geekdo-images.com/imagepage/img/UkNvWkkev_3IZFRjRvslxYTmK34=/fit-in/900x600/filters:no_upscale()/pic4462480.png",
+		nightAction: false,
 	},
 };
