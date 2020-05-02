@@ -47,49 +47,6 @@ export type NightActionCharacter = typeof NightActionCharacters[number];
 
 export type CharacterCount = { character: Character; amount: number };
 
-export type Actions<
-	T extends Character | null,
-	D extends Character = Character
-> = T extends "doppelganger"
-	? DoppelgangerAction<D>
-	: T extends "seer"
-	? SeerAction
-	: T extends "robber"
-	? RobberAction
-	: T extends "troublemaker"
-	? TroublemakerAction
-	: T extends "drunk"
-	? DrunkAction
-	: null;
-
-type DoppelgangerAction<T extends Character> = {
-	player: string;
-	ready: boolean;
-	role: {
-		character: T;
-		action: Actions<T>;
-	};
-};
-
-type SeerAction = {
-	player: string | null;
-	first: number | null;
-	second: number | null;
-};
-
-type RobberAction = {
-	player: string;
-};
-
-type TroublemakerAction = {
-	first: string | null;
-	second: string | null;
-};
-
-type DrunkAction = {
-	center: number;
-};
-
 export type CharacterEmoji = {
 	character: Character;
 	emoji: Discord.GuildEmoji;

@@ -1,9 +1,10 @@
 import Discord from "discord.js";
-import { Actions, Character } from "./types";
+import { CharacterAction } from "./CharacterAction";
+import { Character } from "./types";
 
 export class Player<
 	InitialCharacter extends Character = Character,
-	DoppelgangerCharacter extends Character = Character
+	CopiedCharacter extends Character = Character
 > {
 	master = false;
 
@@ -11,7 +12,7 @@ export class Player<
 	role: Character;
 	claimedRole: Character;
 
-	action: Actions<InitialCharacter, DoppelgangerCharacter>;
+	action: CharacterAction<InitialCharacter, CopiedCharacter>;
 
 	killing: string;
 

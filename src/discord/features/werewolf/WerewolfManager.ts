@@ -1061,8 +1061,8 @@ export class WerewolfManager {
 						player: target.member.id,
 						ready: false,
 						role: {
-							character: target.initialRole!,
-							action: null,
+							character: target.initialRole,
+							action: undefined,
 						},
 					};
 
@@ -1075,21 +1075,15 @@ export class WerewolfManager {
 						Character.SEER
 					>;
 
-					let action: typeof seer.action = {
-						player: null,
-						first: null,
-						second: null,
-					};
+					let action: typeof seer.action = {};
 
 					if (
 						this.isDoppelganger(player) &&
 						doppelgangerSeer.action?.role?.action
 					) {
-						action = {
-							...doppelgangerSeer.action.role.action,
-						};
+						action = doppelgangerSeer.action.role.action;
 					} else if (player.initialRole === Character.SEER && seer.action) {
-						action = { ...seer.action };
+						action = seer.action;
 					}
 
 					if (playerIndex !== -1) {
@@ -1153,21 +1147,18 @@ export class WerewolfManager {
 						Character.TROUBLEMAKER
 					>;
 
-					let action: typeof troublemaker.action = {
-						first: null,
-						second: null,
-					};
+					let action: typeof troublemaker.action = {};
 
 					if (
 						this.isDoppelganger(player) &&
 						doppelgangerTroublemaker.action?.role?.action
 					) {
-						action = { ...doppelgangerTroublemaker.action.role.action };
+						action = doppelgangerTroublemaker.action.role.action;
 					} else if (
 						player.initialRole === Character.TROUBLEMAKER &&
 						troublemaker.action
 					) {
-						action = { ...troublemaker.action };
+						action = troublemaker.action;
 					}
 
 					if (!action.first) {

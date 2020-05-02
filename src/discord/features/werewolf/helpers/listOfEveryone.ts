@@ -1,5 +1,5 @@
 import { numberEmojis } from "../emojis";
-import { Player } from "../types";
+import { Player } from "../Player";
 
 export const listOfEveryone = (
 	players: Player[],
