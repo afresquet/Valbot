@@ -15,6 +15,7 @@ import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { Player } from "./Player";
+import { Sound } from "./Sounds";
 import { CharacterCount, CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
@@ -35,6 +36,9 @@ export class WerewolfManager {
 	private gameMessage?: Discord.Message;
 	private nightActionDM?: Discord.Message;
 
+	private soundLanguage = "en";
+	private soundVoice = "male";
+
 	private expert = false;
 
 	private gameTimer = 300;
@@ -46,8 +50,28 @@ export class WerewolfManager {
 		amount: 0,
 	}));
 
-	private soundPath(sound: string) {
-		return join(__dirname, `../../../../assets/werewolf/sounds/${sound}.mp3`);
+	private async playSound(
+		character: Character | "everyone",
+		sound: Sound | Character.DOPPELGANGER
+	) {
+		const values = [this.soundLanguage, this.soundVoice];
+
+		if (
+			this.expert &&
+			[Sound.WAKE, Character.DOPPELGANGER].includes(sound) &&
+			character !== "everyone"
+		) {
+			values.push("expert");
+		}
+
+		values.push(sound === Character.DOPPELGANGER ? sound : character);
+		values.push(sound === Character.DOPPELGANGER ? character : sound);
+
+		const fileName = values.join("_");
+
+		await this.audioManager.play(
+			join(__dirname, `../../../../assets/werewolf/sounds/${fileName}.mp3`)
+		);
 	}
 
 	private iconPath(character: Character) {
@@ -318,7 +342,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 
 		await Promise.all([
-			this.audioManager.play(this.soundPath(characters.everyone.sounds.close)),
+			this.playSound("everyone", Sound.CLOSE),
 			this.muteAll(true),
 		]);
 
@@ -337,7 +361,7 @@ export class WerewolfManager {
 		this.remainingTime = this.gameTimer;
 
 		await Promise.all([
-			this.audioManager.play(this.soundPath(characters.everyone.sounds.wake)),
+			this.playSound("everyone", Sound.WAKE),
 			this.refreshEmbed(),
 			this.muteAll(false),
 			new Promise(async (resolve, reject) => {
@@ -369,9 +393,7 @@ export class WerewolfManager {
 		this.gameState = GameState.VOTING;
 
 		await Promise.all([
-			this.audioManager.play(
-				this.soundPath(characters.everyone.sounds.timeisup)
-			),
+			this.playSound("everyone", Sound.TIMEISUP),
 			this.refreshEmbed(),
 			new Promise(async (resolve, reject) => {
 				try {
@@ -671,12 +693,8 @@ export class WerewolfManager {
 	}
 
 	async rules(character: Character) {
-		await this.audioManager.play(
-			this.soundPath(characters[character].sounds.name)
-		);
-		await this.audioManager.play(
-			this.soundPath(characters[character].sounds.rules)
-		);
+		await this.playSound(character, Sound.NAME);
+		await this.playSound(character, Sound.RULES);
 	}
 
 	private async muteAll(on: boolean) {
@@ -762,13 +780,7 @@ export class WerewolfManager {
 		if (this.characters.find(c => c.character === character)!.amount <= 0)
 			return;
 
-		await this.audioManager.play(
-			this.soundPath(
-				this.expert
-					? characters[character].sounds.expert.wake
-					: characters[character].sounds.wake
-			)
-		);
+		await this.playSound(character, Sound.WAKE);
 
 		await this.handleNightActionCharacter(character);
 
@@ -777,14 +789,10 @@ export class WerewolfManager {
 		}
 
 		if (character === Character.MINION) {
-			await this.audioManager.play(
-				this.soundPath(characters.minion.sounds.thumb)
-			);
+			await this.playSound(character, Sound.THUMB);
 		}
 
-		await this.audioManager.play(
-			this.soundPath(characters[character].sounds.close)
-		);
+		await this.playSound(character, Sound.CLOSE);
 
 		if (
 			character === Character.INSOMNIAC &&
@@ -795,13 +803,7 @@ export class WerewolfManager {
 				p => p.initialRole === Character.DOPPELGANGER
 			)! as Player<Character.DOPPELGANGER, Character.INSOMNIAC>;
 
-			await this.audioManager.play(
-				this.soundPath(
-					this.expert
-						? characters.insomniac.sounds.expert.doppelganger
-						: characters.insomniac.sounds.doppelganger
-				)
-			);
+			await this.playSound(character, Character.DOPPELGANGER);
 
 			if (doppelganger?.action?.role?.character === Character.INSOMNIAC) {
 				this.nightActionDM = await doppelganger.member.send(
@@ -816,9 +818,7 @@ export class WerewolfManager {
 			await delay(this.roleTimer * 1000);
 
 			await Promise.all([
-				this.audioManager.play(
-					this.soundPath(characters.doppelganger.sounds.close)
-				),
+				this.playSound(Character.DOPPELGANGER, Sound.CLOSE),
 				this.nightActionDM?.delete(),
 			]);
 
@@ -952,13 +952,7 @@ export class WerewolfManager {
 		)
 			return;
 
-		await this.audioManager.play(
-			this.soundPath(
-				this.expert
-					? characters.minion.sounds.expert.doppelganger
-					: characters.minion.sounds.doppelganger
-			)
-		);
+		await this.playSound(Character.MINION, Character.DOPPELGANGER);
 
 		if (doppelganger?.action?.role?.character === Character.MINION) {
 			this.nightActionDM = await doppelganger.member.send(
