@@ -4,20 +4,18 @@ import { capitalize } from "../../../helpers/capitalize";
 import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
+import {
+	Character,
+	Characters,
+	NightActionCharacter,
+	NightActionCharacters,
+} from "./Character";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { Player } from "./Player";
-import {
-	Character,
-	CharacterCount,
-	CharacterEmoji,
-	Characters,
-	GameState,
-	NightActionCharacter,
-	NightActionCharacters,
-} from "./types";
+import { CharacterCount, CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {

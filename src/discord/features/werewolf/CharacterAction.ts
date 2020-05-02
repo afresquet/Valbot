@@ -1,4 +1,4 @@
-import { Character } from "./types";
+import { Character } from "./Character";
 
 export type CharacterAction<
 	InitialCharacter extends Character,

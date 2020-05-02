@@ -1,6 +1,6 @@
 import Discord from "discord.js";
+import { Character } from "./Character";
 import { CharacterAction } from "./CharacterAction";
-import { Character } from "./types";
 
 export class Player<
 	InitialCharacter extends Character = Character,

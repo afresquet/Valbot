@@ -3,7 +3,8 @@ import { isProduction } from "../../../helpers/isProduction";
 import { prefixChannel } from "../../../helpers/prefixString";
 import { messageSplitter } from "../../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../../types/Feature";
-import { Character, Characters, GameState } from "./types";
+import { Character, Characters } from "./Character";
+import { GameState } from "./types";
 import { WerewolfManager } from "./WerewolfManager";
 
 export const werewolf: DiscordFeature = discord => {

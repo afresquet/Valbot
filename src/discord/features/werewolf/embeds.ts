@@ -1,12 +1,13 @@
 import Discord from "discord.js";
 import { AudioManager } from "../../../helpers/AudioManager";
 import { capitalize } from "../../../helpers/capitalize";
+import { Character } from "./Character";
 import { characters } from "./characters";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { listOfEveryone } from "./helpers/listOfEveryone";
 import { Player } from "./Player";
-import { Character, CharacterCount } from "./types";
+import { CharacterCount } from "./types";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}
