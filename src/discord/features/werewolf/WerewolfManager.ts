@@ -8,6 +8,7 @@ import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
+import { Player } from "./Player";
 import {
 	Character,
 	CharacterCount,
@@ -16,7 +17,6 @@ import {
 	GameState,
 	NightActionCharacter,
 	NightActionCharacters,
-	Player,
 } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
@@ -157,15 +157,7 @@ export class WerewolfManager {
 		)
 			return;
 
-		const player: Player = {
-			master: false,
-			member,
-			initialRole: null,
-			role: null,
-			claimedRole: null,
-			action: null,
-			killing: null,
-		};
+		const player = new Player(member);
 
 		if (this.players.length === 0) {
 			await this.audioManager.join();
@@ -296,7 +288,7 @@ export class WerewolfManager {
 			[]
 		);
 
-		this.players = this.players.map((player, i) => {
+		this.players.forEach((player, i) => {
 			const index =
 				i < forcedRoles.length && roles.includes(forcedRoles[i])
 					? roles.indexOf(forcedRoles[i])
@@ -304,7 +296,7 @@ export class WerewolfManager {
 
 			const [role] = roles.splice(index, 1);
 
-			return { ...player, initialRole: role, role };
+			player.setInitialRole(role);
 		});
 
 		this.centerCards = roles;
@@ -655,14 +647,9 @@ export class WerewolfManager {
 	}
 
 	private cleanUp() {
-		this.players = this.players.map(player => ({
-			...player,
-			initialRole: null,
-			role: null,
-			claimedRole: null,
-			action: null,
-			killing: null,
-		}));
+		for (const player of this.players) {
+			player.clear();
+		}
 
 		this.centerCards = [];
 	}
@@ -710,12 +697,16 @@ export class WerewolfManager {
 	}
 
 	async setMaster(memberId: string) {
-		if (!this.findPlayerById(memberId)) return;
+		const nextMaster = this.findPlayerById(memberId);
 
-		this.players = this.players.map(player => ({
-			...player,
-			master: player.member.id === memberId,
-		}));
+		if (!nextMaster) return;
+
+		const previousMaster = this.players.find(p => p.master);
+
+		if (previousMaster) {
+			previousMaster.master = false;
+		}
+		nextMaster.master = true;
 
 		await this.refreshEmbed();
 	}

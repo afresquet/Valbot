@@ -5,7 +5,8 @@ import { characters } from "./characters";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { listOfEveryone } from "./helpers/listOfEveryone";
-import { Character, CharacterCount, Player } from "./types";
+import { Player } from "./Player";
+import { Character, CharacterCount } from "./types";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}

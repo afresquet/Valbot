@@ -47,20 +47,7 @@ export type NightActionCharacter = typeof NightActionCharacters[number];
 
 export type CharacterCount = { character: Character; amount: number };
 
-export interface Player<
-	T extends Character | null = Character | null,
-	A extends Character = Character
-> {
-	master: boolean;
-	member: Discord.GuildMember;
-	initialRole: T;
-	role: Character | null;
-	claimedRole: Character | null;
-	action: Actions<T, A>;
-	killing: string | null;
-}
-
-type Actions<
+export type Actions<
 	T extends Character | null,
 	D extends Character = Character
 > = T extends "doppelganger"
