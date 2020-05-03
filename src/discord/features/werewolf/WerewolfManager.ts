@@ -7,12 +7,12 @@ import { Character } from "./Character";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
+import { GameState } from "./GameState";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { findPlayerById } from "./helpers/findPlayerById";
 import { isDoppelganger } from "./helpers/isDoppelganger";
 import { Player } from "./Player";
 import { Sound } from "./Sounds";
-import { CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
@@ -20,7 +20,6 @@ export class WerewolfManager {
 	private audioManager = new WerewolfAudioManager();
 	private playerRole?: Discord.Role;
 	private bannedRole?: Discord.Role;
-	private characterEmojis: CharacterEmoji[] = [];
 
 	private embeds = new Embeds(this.audioManager);
 
@@ -135,22 +134,16 @@ export class WerewolfManager {
 			this.bannedRole = bannedRole;
 		}
 
-		if (this.characterEmojis) {
-			const characterEmojis: CharacterEmoji[] = [];
+		for (const [name, character] of characters) {
+			if (character.emoji) continue;
 
-			for (const [character] of characters) {
-				const emoji = guild.emojis.cache.find(e => e.name === character);
+			const emoji = guild.emojis.cache.find(e => e.name === name);
 
-				if (!emoji) continue;
-
-				characterEmojis.push({ character, emoji });
+			if (!emoji) {
+				throw new Error(`Missing emoji for character "${name}"!`);
 			}
 
-			if (characterEmojis.length !== characters.size) {
-				characterEmojis.length = 0;
-			}
-
-			this.characterEmojis = characterEmojis;
+			character.emoji = emoji;
 		}
 	}
 
@@ -342,10 +335,10 @@ export class WerewolfManager {
 			this.muteAll(false),
 			new Promise(async (resolve, reject) => {
 				try {
-					for (const { character, emoji } of this.characterEmojis) {
-						if (this.characters.get(character)!.amount <= 0) continue;
+					for (const character of this.characters.values()) {
+						if (character.amount <= 0 || !character.emoji) continue;
 
-						await this.gameMessage?.react(emoji);
+						await this.gameMessage?.react(character.emoji);
 					}
 
 					resolve();
@@ -744,23 +737,22 @@ export class WerewolfManager {
 	}
 
 	async mangageEmojis(guild: Discord.Guild, add: boolean) {
-		for (const [character] of characters) {
-			let guildEmoji = guild.emojis.cache.find(e => e.name === character);
+		for (const [name, character] of characters) {
+			let emoji = guild.emojis.cache.find(e => e.name === name);
 
-			if (add && !guildEmoji) {
-				const emoji = await guild.emojis.create(
-					this.iconPath(character),
-					character
-				);
+			if (add) {
+				if (!emoji) {
+					emoji = await guild.emojis.create(this.iconPath(name), name);
+				}
 
-				this.characterEmojis.push({ character, emoji });
-			} else if (!add && guildEmoji) {
-				await guildEmoji.delete();
+				character.emoji = emoji;
+			} else if (!add) {
+				if (emoji) {
+					await emoji.delete();
+				}
+
+				delete character.emoji;
 			}
-		}
-
-		if (!add) {
-			this.characterEmojis.length = 0;
 		}
 	}
 
@@ -1019,11 +1011,9 @@ export class WerewolfManager {
 	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
 		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
 		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
-		const characterEmoji = this.characterEmojis.find(
-			({ emoji }) => emoji === reaction.emoji
-		);
+		const characterFromEmoji = this.characters.get(reaction.emoji.name as any);
 
-		if (playerIndex === -1 && centerIndex === -1 && !characterEmoji) return;
+		if (playerIndex === -1 && centerIndex === -1 && !characterFromEmoji) return;
 
 		const player = this.players.find(
 			(p, i) => p.member.id === user.id && i !== playerIndex
@@ -1215,9 +1205,9 @@ export class WerewolfManager {
 
 			await this.refreshDM(player.role!);
 		} else if (this.gameState === GameState.DAY) {
-			if (!characterEmoji) return;
+			if (!characterFromEmoji) return;
 
-			player.claimedRole = characterEmoji.character;
+			player.claimedRole = characterFromEmoji.name;
 
 			await this.refreshEmbed();
 		} else if (this.gameState === GameState.VOTING) {

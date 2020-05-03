@@ -4,7 +4,7 @@ import { prefixChannel } from "../../../helpers/prefixString";
 import { messageSplitter } from "../../../twitch/helpers/messageSplitter";
 import { DiscordFeature } from "../../../types/Feature";
 import { Character } from "./Character";
-import { GameState } from "./types";
+import { GameState } from "./GameState";
 import { WerewolfManager } from "./WerewolfManager";
 
 export const werewolf: DiscordFeature = discord => {

@@ -1,0 +1,8 @@
+export enum GameState {
+	NOT_PLAYING,
+	PREPARATION,
+	ROLE_ASSIGNING,
+	NIGHT,
+	DAY,
+	VOTING,
+}

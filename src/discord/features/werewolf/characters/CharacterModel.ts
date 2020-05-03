@@ -12,6 +12,8 @@ export abstract class CharacterModel {
 	amount = 0;
 	protected maxAmount = 1;
 
+	emoji?: Discord.GuildEmoji;
+
 	abstract nightAction: boolean;
 
 	manageAmount(value: number) {
