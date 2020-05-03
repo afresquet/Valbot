@@ -66,13 +66,6 @@ export class WerewolfManager {
 		);
 	}
 
-	private iconPath(character: Character) {
-		return join(
-			__dirname,
-			`../../../../assets/werewolf/images/icons/${character}.png`
-		);
-	}
-
 	isReady() {
 		return this.textChannel && this.audioManager.isReady() && this.playerRole;
 	}
@@ -742,7 +735,12 @@ export class WerewolfManager {
 
 			if (add) {
 				if (!emoji) {
-					emoji = await guild.emojis.create(this.iconPath(name), name);
+					const path = join(
+						__dirname,
+						`../../../../assets/werewolf/images/icons/${name}.png`
+					);
+
+					emoji = await guild.emojis.create(path, name);
 				}
 
 				character.emoji = emoji;
