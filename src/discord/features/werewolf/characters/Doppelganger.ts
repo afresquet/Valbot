@@ -157,4 +157,32 @@ export class Doppelganger extends CharacterModel {
 			description: listOfEveryone(players, [doppelganger.member.id]),
 		};
 	}
+
+	async handleReaction(
+		player: Player,
+		target: Player,
+		_players: Player[],
+		_centerCards: Character[],
+		indexes: {
+			playerIndex: number;
+			centerIndex: number;
+		}
+	) {
+		const doppelganger = player as Player<Character.DOPPELGANGER>;
+
+		if (!doppelganger.action.ready) {
+			if (indexes.playerIndex === -1 || doppelganger.action) return;
+
+			doppelganger.action = {
+				player: target.member.id,
+				ready: false,
+				role: {
+					character: target.role,
+					action: undefined,
+				},
+			};
+
+			return;
+		}
+	}
 }

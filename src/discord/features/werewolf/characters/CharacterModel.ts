@@ -87,4 +87,20 @@ export abstract class CharacterModel {
 			thumbnail: { url: this.image },
 		};
 	}
+
+	async handleReaction(
+		player: Player,
+		_target: Player,
+		players: Player[],
+		centerCards: Character[],
+		_indexes: {
+			playerIndex: number;
+			centerIndex: number;
+		},
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
+	) {
+		await this.privateMessage?.edit(
+			createEmbed(this.nightActionDM(player, players, centerCards))
+		);
+	}
 }

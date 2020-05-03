@@ -122,4 +122,48 @@ export class Seer extends CharacterModel {
 			],
 		};
 	}
+
+	async handleReaction(
+		player: Player,
+		target: Player,
+		_players: Player[],
+		_centerCards: Character[],
+		{ playerIndex, centerIndex }: { playerIndex: number; centerIndex: number }
+	) {
+		const seer = player as Player<Character.SEER>;
+		const doppelgangerSeer = player as Player<
+			Character.DOPPELGANGER,
+			Character.SEER
+		>;
+
+		let action: typeof seer.action = {};
+
+		if (isDoppelganger(player) && doppelgangerSeer.action?.role?.action) {
+			action = doppelgangerSeer.action.role.action;
+		} else if (player.role === Character.SEER && seer.action) {
+			action = seer.action;
+		}
+
+		if (playerIndex !== -1) {
+			if (action.player || action.first || action.second) return;
+
+			action.player = target.member.id;
+		} else if (centerIndex !== -1) {
+			if (action.player) return;
+
+			if (!action.first) {
+				action.first = centerIndex;
+			} else if (action.first !== centerIndex && !action.second) {
+				action.second = centerIndex;
+			} else {
+				return;
+			}
+		}
+
+		if (isDoppelganger(player)) {
+			doppelgangerSeer.action.role.action = action;
+		} else {
+			seer.action = action;
+		}
+	}
 }

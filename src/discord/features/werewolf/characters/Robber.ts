@@ -61,4 +61,40 @@ export class Robber extends CharacterModel {
 			],
 		};
 	}
+
+	async handleReaction(
+		player: Player,
+		target: Player,
+		_players: Player[],
+		_centerCards: Character[],
+		{ playerIndex }: { playerIndex: number }
+	) {
+		if (playerIndex === -1) return;
+
+		const robber = player as Player<Character.ROBBER>;
+		const doppelgangerRobber = player as Player<
+			Character.DOPPELGANGER,
+			Character.ROBBER
+		>;
+
+		if (
+			isDoppelganger(player)
+				? doppelgangerRobber.action?.role?.action
+				: robber.action
+		)
+			return;
+
+		const action: typeof robber.action = { player: target.member.id };
+
+		if (isDoppelganger(player)) {
+			doppelgangerRobber.action.role.action = action;
+		} else {
+			robber.action = action;
+		}
+
+		[player.currentRole, target.currentRole] = [
+			target.currentRole,
+			player.currentRole,
+		];
+	}
 }

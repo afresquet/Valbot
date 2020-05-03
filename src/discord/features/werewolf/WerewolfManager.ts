@@ -10,7 +10,6 @@ import { centerEmojis, numberEmojis } from "./emojis";
 import { GameState } from "./GameState";
 import { centerCardPosition } from "./helpers/centerCardPosition";
 import { findPlayerById } from "./helpers/findPlayerById";
-import { isDoppelganger } from "./helpers/isDoppelganger";
 import { Player } from "./Player";
 import { Sound } from "./Sounds";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
@@ -29,7 +28,6 @@ export class WerewolfManager {
 	private gameState: GameState = GameState.NOT_PLAYING;
 
 	private gameMessage?: Discord.Message;
-	private nightActionDM?: Discord.Message;
 
 	private soundLanguage = "en";
 	private soundVoice = "male";
@@ -40,10 +38,7 @@ export class WerewolfManager {
 	private remainingTime = 0;
 	private roleTimer = 10;
 
-	private async playSound(
-		character: Character | "everyone",
-		sound: Sound | Character.DOPPELGANGER
-	) {
+	private async playSound(character: Character | "everyone", sound: Sound) {
 		const values = [this.soundLanguage, this.soundVoice];
 
 		if (
@@ -54,8 +49,8 @@ export class WerewolfManager {
 			values.push("expert");
 		}
 
-		values.push(sound === Character.DOPPELGANGER ? sound : character);
-		values.push(sound === Character.DOPPELGANGER ? character : sound);
+		values.push(sound === Sound.DOPPELGANGER ? sound : character);
+		values.push(sound === Sound.DOPPELGANGER ? character : sound);
 
 		const fileName = values.join("_");
 
@@ -306,7 +301,7 @@ export class WerewolfManager {
 				await character.handleNightAction(
 					this.players,
 					this.centerCards,
-					this.roleTimer,
+					this.roleTimer * 1000,
 					this.playSound,
 					this.embeds.base
 				);
@@ -790,22 +785,6 @@ export class WerewolfManager {
 		}
 	}
 
-	private async refreshDM(character: Character) {
-		if (!this.nightActionDM || this.gameState !== GameState.NIGHT) return;
-
-		const player = this.players.find(p => p.role === character);
-
-		if (!player) return;
-
-		await this.nightActionDM.edit(
-			this.embeds.base(
-				characters
-					.get(character)!
-					.nightActionDM(player, this.players, this.centerCards)
-			)
-		);
-	}
-
 	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
 		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
 		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
@@ -824,184 +803,16 @@ export class WerewolfManager {
 		if (playerIndex !== -1 && !target) return;
 
 		if (this.gameState === GameState.NIGHT) {
-			const role =
-				isDoppelganger(player) &&
-				(player as Player<Character.DOPPELGANGER>).action?.ready
-					? (player as Player<Character.DOPPELGANGER>).action.role.character
-					: player.role;
-
-			switch (role) {
-				case Character.DOPPELGANGER: {
-					const doppelganger = player as Player<Character.DOPPELGANGER>;
-
-					if (playerIndex === -1 || doppelganger.action) break;
-
-					doppelganger.action = {
-						player: target.member.id,
-						ready: false,
-						role: {
-							character: target.role,
-							action: undefined,
-						},
-					};
-
-					break;
-				}
-				case Character.SEER: {
-					const seer = player as Player<Character.SEER>;
-					const doppelgangerSeer = player as Player<
-						Character.DOPPELGANGER,
-						Character.SEER
-					>;
-
-					let action: typeof seer.action = {};
-
-					if (isDoppelganger(player) && doppelgangerSeer.action?.role?.action) {
-						action = doppelgangerSeer.action.role.action;
-					} else if (player.role === Character.SEER && seer.action) {
-						action = seer.action;
-					}
-
-					if (playerIndex !== -1) {
-						if (action.player || action.first || action.second) break;
-
-						action.player = target.member.id;
-					} else if (centerIndex !== -1) {
-						if (action.player) break;
-
-						if (!action.first) {
-							action.first = centerIndex;
-						} else if (action.first !== centerIndex && !action.second) {
-							action.second = centerIndex;
-						} else {
-							break;
-						}
-					}
-
-					if (isDoppelganger(player)) {
-						doppelgangerSeer.action.role.action = action;
-					} else {
-						seer.action = action;
-					}
-
-					break;
-				}
-				case Character.ROBBER: {
-					if (playerIndex === -1) break;
-
-					const robber = player as Player<Character.ROBBER>;
-					const doppelgangerRobber = player as Player<
-						Character.DOPPELGANGER,
-						Character.ROBBER
-					>;
-
-					if (
-						isDoppelganger(player)
-							? doppelgangerRobber.action?.role?.action
-							: robber.action
-					)
-						break;
-
-					const action: typeof robber.action = { player: target.member.id };
-
-					if (isDoppelganger(player)) {
-						doppelgangerRobber.action.role.action = action;
-					} else {
-						robber.action = action;
-					}
-
-					[player.currentRole, target.currentRole] = [
-						target.currentRole,
-						player.currentRole,
-					];
-
-					break;
-				}
-				case Character.TROUBLEMAKER: {
-					if (playerIndex === -1) break;
-
-					const troublemaker = player as Player<Character.TROUBLEMAKER>;
-					const doppelgangerTroublemaker = player as Player<
-						Character.DOPPELGANGER,
-						Character.TROUBLEMAKER
-					>;
-
-					let action: typeof troublemaker.action = {};
-
-					if (
-						isDoppelganger(player) &&
-						doppelgangerTroublemaker.action?.role?.action
-					) {
-						action = doppelgangerTroublemaker.action.role.action;
-					} else if (
-						player.role === Character.TROUBLEMAKER &&
-						troublemaker.action
-					) {
-						action = troublemaker.action;
-					}
-
-					if (!action.first) {
-						action.first = target.member.id;
-					} else if (!action.second) {
-						if (action.first === target.member.id) break;
-
-						const first = findPlayerById(this.players, action.first)!;
-						const second = target;
-
-						action.second = second.member.id;
-
-						[first.currentRole, second.currentRole] = [
-							second.currentRole,
-							first.currentRole,
-						];
-					} else {
-						break;
-					}
-
-					if (isDoppelganger(player)) {
-						doppelgangerTroublemaker.action.role.action = action;
-					} else {
-						troublemaker.action = action;
-					}
-
-					break;
-				}
-				case Character.DRUNK: {
-					if (centerIndex === -1) break;
-
-					const drunk = player as Player<Character.DRUNK>;
-					const doppelgangerDrunk = player as Player<
-						Character.DOPPELGANGER,
-						Character.DRUNK
-					>;
-
-					if (
-						isDoppelganger(player)
-							? doppelgangerDrunk.action?.role?.action
-							: drunk.action
-					)
-						break;
-
-					const action: typeof drunk.action = { center: centerIndex };
-
-					if (isDoppelganger(player)) {
-						doppelgangerDrunk.action.role.action = action;
-					} else {
-						drunk.action = action;
-					}
-
-					[player.currentRole, this.centerCards[centerIndex]] = [
-						this.centerCards[centerIndex],
-						player.currentRole!,
-					];
-
-					break;
-				}
-				default:
-					throw new Error(`Unhandled reaction from character ${player.role}.`);
-			}
-
-			await this.refreshDM(player.role!);
+			characters
+				.get(player.role)!
+				.handleReaction(
+					player,
+					target,
+					this.players,
+					this.centerCards,
+					{ playerIndex, centerIndex },
+					this.embeds.base
+				);
 		} else if (this.gameState === GameState.DAY) {
 			if (!characterFromEmoji) return;
 

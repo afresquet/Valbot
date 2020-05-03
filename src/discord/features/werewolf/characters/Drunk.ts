@@ -56,4 +56,40 @@ export class Drunk extends CharacterModel {
 			],
 		};
 	}
+
+	async handleReaction(
+		player: Player,
+		_target: Player,
+		_players: Player[],
+		centerCards: Character[],
+		{ centerIndex }: { centerIndex: number }
+	) {
+		if (centerIndex === -1) return;
+
+		const drunk = player as Player<Character.DRUNK>;
+		const doppelgangerDrunk = player as Player<
+			Character.DOPPELGANGER,
+			Character.DRUNK
+		>;
+
+		if (
+			isDoppelganger(player)
+				? doppelgangerDrunk.action?.role?.action
+				: drunk.action
+		)
+			return;
+
+		const action: typeof drunk.action = { center: centerIndex };
+
+		if (isDoppelganger(player)) {
+			doppelgangerDrunk.action.role.action = action;
+		} else {
+			drunk.action = action;
+		}
+
+		[player.currentRole, centerCards[centerIndex]] = [
+			centerCards[centerIndex],
+			player.currentRole!,
+		];
+	}
 }

@@ -100,4 +100,55 @@ export class Troublemaker extends CharacterModel {
 			],
 		};
 	}
+
+	async handleReaction(
+		player: Player,
+		target: Player,
+		players: Player[],
+		_centerCards: Character[],
+		{ playerIndex }: { playerIndex: number }
+	) {
+		if (playerIndex === -1) return;
+
+		const troublemaker = player as Player<Character.TROUBLEMAKER>;
+		const doppelgangerTroublemaker = player as Player<
+			Character.DOPPELGANGER,
+			Character.TROUBLEMAKER
+		>;
+
+		let action: typeof troublemaker.action = {};
+
+		if (
+			isDoppelganger(player) &&
+			doppelgangerTroublemaker.action?.role?.action
+		) {
+			action = doppelgangerTroublemaker.action.role.action;
+		} else if (player.role === Character.TROUBLEMAKER && troublemaker.action) {
+			action = troublemaker.action;
+		}
+
+		if (!action.first) {
+			action.first = target.member.id;
+		} else if (!action.second) {
+			if (action.first === target.member.id) return;
+
+			const first = findPlayerById(players, action.first)!;
+			const second = target;
+
+			action.second = second.member.id;
+
+			[first.currentRole, second.currentRole] = [
+				second.currentRole,
+				first.currentRole,
+			];
+		} else {
+			return;
+		}
+
+		if (isDoppelganger(player)) {
+			doppelgangerTroublemaker.action.role.action = action;
+		} else {
+			troublemaker.action = action;
+		}
+	}
 }
