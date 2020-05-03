@@ -16,7 +16,6 @@ export class Doppelganger extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/rP3xvC-HFqIonPj5mmr6_1lJYJ8=/fit-in/900x600/filters:no_upscale()/pic4462582.png";
 
-	nightAction = true;
 	protected playerReactionsDM = true;
 
 	async handleNightAction(

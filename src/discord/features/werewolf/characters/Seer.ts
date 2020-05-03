@@ -16,7 +16,6 @@ export class Seer extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/Y5Kj8KnsVPX9uJBn2mRw64WUzY4=/fit-in/900x600/filters:no_upscale()/pic4462604.png";
 
-	nightAction = true;
 	protected playerReactionsDM = true;
 	protected centerCardReactionsDM = true;
 

@@ -13,8 +13,6 @@ export class Minion extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/ePtQq2ZqGJ06HpM5I6CaYp3FixA=/fit-in/900x600/filters:no_upscale()/pic4462593.png";
 
-	nightAction = true;
-
 	async handleNightAction(
 		players: Player[],
 		_centerCards: Character[],

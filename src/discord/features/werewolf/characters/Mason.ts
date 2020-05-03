@@ -14,7 +14,6 @@ export class Mason extends CharacterModel {
 
 	protected maxAmount = 2;
 
-	nightAction = true;
 	private privateMessages?: Discord.Message[];
 
 	async handleNightAction(

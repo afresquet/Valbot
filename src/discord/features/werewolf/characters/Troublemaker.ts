@@ -12,7 +12,6 @@ export class Troublemaker extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/2gB7ClAu4p7rrs8ipGnNAfOOO-w=/fit-in/900x600/filters:no_upscale()/pic4462611.png";
 
-	nightAction = true;
 	protected playerReactionsDM = true;
 
 	nightActionDM(

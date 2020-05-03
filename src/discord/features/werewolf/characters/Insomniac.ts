@@ -13,8 +13,6 @@ export class Insomniac extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/RHfz10FGfiYxunbUsJt1_xNwrS4=/fit-in/900x600/filters:no_upscale()/pic4462588.png";
 
-	nightAction = true;
-
 	async handleNightAction(
 		players: Player[],
 		centerCards: Character[],

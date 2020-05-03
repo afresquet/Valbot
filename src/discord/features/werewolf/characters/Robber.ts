@@ -14,7 +14,6 @@ export class Robber extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/rv16CisR0fsy8pkEOAAZkGwTsFk=/fit-in/900x600/filters:no_upscale()/pic4462602.png";
 
-	nightAction = true;
 	protected playerReactionsDM = true;
 
 	nightActionDM(
