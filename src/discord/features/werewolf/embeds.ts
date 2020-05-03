@@ -25,7 +25,7 @@ export class Embeds {
 	): Discord.MessageEmbedOptions => ({
 		description: "React to this message with your choice!",
 		footer: { text: "This message will expire soon, act fast!" },
-		thumbnail: { url: characters[character].image },
+		thumbnail: { url: characters.get(character)!.image },
 	});
 
 	base(options: Discord.MessageEmbedOptions) {
@@ -101,7 +101,7 @@ export class Embeds {
 	}
 
 	role(player: Player) {
-		const character = characters[player.initialRole!];
+		const character = characters.get(player.initialRole!)!;
 
 		return this.base({
 			title: `Your role is ${capitalize(player.initialRole!)}!`,
@@ -308,7 +308,9 @@ export class Embeds {
 				description: `You became a ${doppelganger.action.role.character}! ${
 					hasAction ? "Your action will show up right after this message." : ""
 				}`,
-				image: { url: characters[doppelganger.action.role.character].image },
+				image: {
+					url: characters.get(doppelganger.action.role.character)!.image,
+				},
 			});
 		}
 
@@ -378,7 +380,7 @@ export class Embeds {
 				}'s role:`,
 				description: capitalize(target.role!),
 				image: {
-					url: characters[target.role!].image,
+					url: characters.get(target.role!)!.image,
 				},
 			});
 		} else if (
@@ -470,7 +472,7 @@ export class Embeds {
 				title: `You stole the role from ${target.member.displayName}!`,
 				description: `You became a ${capitalize(player.role!)}.`,
 				image: {
-					url: characters[player.role!].image,
+					url: characters.get(player.role!)!.image,
 				},
 			});
 		}
@@ -619,7 +621,7 @@ export class Embeds {
 			title: `${this.titleRole(player)}, this is your role:`,
 			description: capitalize(player.role!),
 			image: {
-				url: characters[player.role!].image,
+				url: characters.get(player.role!)!.image,
 			},
 		});
 	}
