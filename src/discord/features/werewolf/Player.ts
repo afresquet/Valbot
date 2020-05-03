@@ -30,4 +30,8 @@ export class Player<
 		delete this.action;
 		delete this.killing;
 	}
+
+	get isDoppelganger() {
+		return this.role === Character.DOPPELGANGER;
+	}
 }

@@ -1,7 +1,6 @@
 import Discord from "discord.js";
 import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
-import { isDoppelganger } from "../helpers/isDoppelganger";
 import { listOfTeammates } from "../helpers/listOfTeammates";
 import { Player } from "../Player";
 import { Sound } from "../Sounds";
@@ -29,7 +28,7 @@ export class Werewolf extends CharacterModel {
 		if (this.amount <= 0) return;
 
 		const werewolves = players.filter(player =>
-			isDoppelganger(player)
+			player.isDoppelganger
 				? (player as Player<Character.DOPPELGANGER>).action.role.character ===
 				  this.name
 				: player.role === this.name

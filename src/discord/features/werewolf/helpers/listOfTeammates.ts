@@ -10,7 +10,7 @@ export const listOfTeammates = (
 ) => {
 	return players.reduce((result, current, index) => {
 		if (
-			current.role === Character.DOPPELGANGER
+			current.isDoppelganger
 				? (current as Player<Character.DOPPELGANGER>).action.role.character !==
 				  role
 				: current.role !== role

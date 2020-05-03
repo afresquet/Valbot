@@ -2,7 +2,6 @@ import Discord from "discord.js";
 import { Character } from "../Character";
 import { centerEmojis } from "../emojis";
 import { centerCardPosition } from "../helpers/centerCardPosition";
-import { isDoppelganger } from "../helpers/isDoppelganger";
 import { Player } from "../Player";
 import { CharacterModel } from "./CharacterModel";
 
@@ -24,11 +23,11 @@ export class Drunk extends CharacterModel {
 		>;
 
 		if (
-			isDoppelganger(player)
+			player.isDoppelganger
 				? doppelgangerDrunk.action?.role?.action?.center
 				: drunk.action?.center
 		) {
-			const centerCard = isDoppelganger(player)
+			const centerCard = player.isDoppelganger
 				? doppelgangerDrunk.action.role.action.center
 				: drunk.action.center;
 
@@ -73,7 +72,7 @@ export class Drunk extends CharacterModel {
 		>;
 
 		if (
-			isDoppelganger(player)
+			player.isDoppelganger
 				? doppelgangerDrunk.action?.role?.action
 				: drunk.action
 		)
@@ -81,7 +80,7 @@ export class Drunk extends CharacterModel {
 
 		const action: typeof drunk.action = { center: centerIndex };
 
-		if (isDoppelganger(player)) {
+		if (player.isDoppelganger) {
 			doppelgangerDrunk.action.role.action = action;
 		} else {
 			drunk.action = action;

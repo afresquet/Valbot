@@ -3,7 +3,6 @@ import { characters } from ".";
 import { capitalize } from "../../../../helpers/capitalize";
 import { Character } from "../Character";
 import { findPlayerById } from "../helpers/findPlayerById";
-import { isDoppelganger } from "../helpers/isDoppelganger";
 import { listOfEveryone } from "../helpers/listOfEveryone";
 import { Player } from "../Player";
 import { CharacterModel } from "./CharacterModel";
@@ -29,11 +28,11 @@ export class Robber extends CharacterModel {
 		>;
 
 		if (
-			isDoppelganger(player)
+			player.isDoppelganger
 				? doppelgangerRobber.action?.role?.action?.player
 				: robber.action?.player
 		) {
-			const targetId = isDoppelganger(player)
+			const targetId = player.isDoppelganger
 				? doppelgangerRobber.action.role.action.player
 				: robber.action.player;
 			const target = findPlayerById(players, targetId)!;
@@ -78,7 +77,7 @@ export class Robber extends CharacterModel {
 		>;
 
 		if (
-			isDoppelganger(player)
+			player.isDoppelganger
 				? doppelgangerRobber.action?.role?.action
 				: robber.action
 		)
@@ -86,7 +85,7 @@ export class Robber extends CharacterModel {
 
 		const action: typeof robber.action = { player: target.member.id };
 
-		if (isDoppelganger(player)) {
+		if (player.isDoppelganger) {
 			doppelgangerRobber.action.role.action = action;
 		} else {
 			robber.action = action;

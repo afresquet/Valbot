@@ -2,7 +2,6 @@ import Discord from "discord.js";
 import { Character } from "../Character";
 import { numberEmojis } from "../emojis";
 import { findPlayerById } from "../helpers/findPlayerById";
-import { isDoppelganger } from "../helpers/isDoppelganger";
 import { listOfEveryone } from "../helpers/listOfEveryone";
 import { Player } from "../Player";
 import { CharacterModel } from "./CharacterModel";
@@ -26,7 +25,7 @@ export class Troublemaker extends CharacterModel {
 			Character.TROUBLEMAKER
 		>;
 
-		const playerIsDoppelganger = isDoppelganger(player);
+		const playerIsDoppelganger = player.isDoppelganger;
 
 		if (
 			playerIsDoppelganger
@@ -119,7 +118,7 @@ export class Troublemaker extends CharacterModel {
 		let action: typeof troublemaker.action = {};
 
 		if (
-			isDoppelganger(player) &&
+			player.isDoppelganger &&
 			doppelgangerTroublemaker.action?.role?.action
 		) {
 			action = doppelgangerTroublemaker.action.role.action;
@@ -145,7 +144,7 @@ export class Troublemaker extends CharacterModel {
 			return;
 		}
 
-		if (isDoppelganger(player)) {
+		if (player.isDoppelganger) {
 			doppelgangerTroublemaker.action.role.action = action;
 		} else {
 			troublemaker.action = action;

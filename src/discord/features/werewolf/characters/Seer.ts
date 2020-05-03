@@ -5,7 +5,6 @@ import { Character } from "../Character";
 import { centerEmojis } from "../emojis";
 import { centerCardPosition } from "../helpers/centerCardPosition";
 import { findPlayerById } from "../helpers/findPlayerById";
-import { isDoppelganger } from "../helpers/isDoppelganger";
 import { listOfEveryone } from "../helpers/listOfEveryone";
 import { Player } from "../Player";
 import { CharacterModel } from "./CharacterModel";
@@ -32,7 +31,7 @@ export class Seer extends CharacterModel {
 			Character.SEER
 		>;
 
-		const playerIsDoppelganger = isDoppelganger(player);
+		const playerIsDoppelganger = player.isDoppelganger;
 
 		if (
 			playerIsDoppelganger
@@ -138,7 +137,7 @@ export class Seer extends CharacterModel {
 
 		let action: typeof seer.action = {};
 
-		if (isDoppelganger(player) && doppelgangerSeer.action?.role?.action) {
+		if (player.isDoppelganger && doppelgangerSeer.action?.role?.action) {
 			action = doppelgangerSeer.action.role.action;
 		} else if (player.role === Character.SEER && seer.action) {
 			action = seer.action;
@@ -160,7 +159,7 @@ export class Seer extends CharacterModel {
 			}
 		}
 
-		if (isDoppelganger(player)) {
+		if (player.isDoppelganger) {
 			doppelgangerSeer.action.role.action = action;
 		} else {
 			seer.action = action;
