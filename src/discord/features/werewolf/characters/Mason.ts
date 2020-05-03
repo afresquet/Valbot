@@ -19,7 +19,7 @@ export class Mason extends CharacterModel {
 
 	async handleNightAction(
 		players: Player[],
-		_: Character[],
+		_centerCards: Character[],
 		roleDelay: number,
 		playSound: (character: Character, sound: Sound) => Promise<void>,
 		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
@@ -55,7 +55,7 @@ export class Mason extends CharacterModel {
 		players: Player[]
 	): Discord.MessageEmbedOptions {
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(player)}, this is your team:`,
 			description: listOfTeammates(player, Character.MASON, players),
 		};

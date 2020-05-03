@@ -40,7 +40,7 @@ export class Troublemaker extends CharacterModel {
 			const firstIndex = players.indexOf(first);
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `${this.nightActionTitleRole(
 					player
 				)}, choose two other players to swap their roles:`,
@@ -74,7 +74,7 @@ export class Troublemaker extends CharacterModel {
 			const secondIndex = players.indexOf(second);
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `${this.nightActionTitleRole(
 					player
 				)}, you swapped the roles of these two players:`,
@@ -83,7 +83,7 @@ export class Troublemaker extends CharacterModel {
 		}
 
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(
 				player
 			)}, choose two other players to swap their roles:`,

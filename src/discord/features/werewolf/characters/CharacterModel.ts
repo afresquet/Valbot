@@ -66,11 +66,13 @@ export abstract class CharacterModel {
 		await playSound(this.name, Sound.CLOSE);
 	}
 
-	abstract nightActionDM(
-		player: Player,
-		players: Player[],
-		centerCards?: Character[]
-	): Discord.MessageEmbedOptions;
+	nightActionDM(
+		_player: Player,
+		_players: Player[],
+		_centerCards?: Character[]
+	): Discord.MessageEmbedOptions {
+		return {};
+	}
 
 	protected nightActionTitleRole(player: Player) {
 		if (player.role !== Character.DOPPELGANGER) return capitalize(player.role);
@@ -80,7 +82,7 @@ export abstract class CharacterModel {
 		)}`;
 	}
 
-	protected nightActionCommon(): Discord.MessageEmbedOptions {
+	protected get nightActionCommon(): Discord.MessageEmbedOptions {
 		return {
 			description: "React to this message with your choice!",
 			footer: { text: "This message will expire soon, act fast!" },

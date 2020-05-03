@@ -17,7 +17,7 @@ export class Minion extends CharacterModel {
 
 	async handleNightAction(
 		players: Player[],
-		_: Character[],
+		_centerCards: Character[],
 		roleDelay: number,
 		playSound: (character: Character, sound: Sound) => Promise<void>,
 		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
@@ -48,7 +48,7 @@ export class Minion extends CharacterModel {
 		players: Player[]
 	): Discord.MessageEmbedOptions {
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(player)}, these are the werewolves:`,
 			description: listOfTeammates(player, Character.WEREWOLF, players),
 		};

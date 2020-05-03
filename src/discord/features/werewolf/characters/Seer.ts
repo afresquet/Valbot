@@ -44,7 +44,7 @@ export class Seer extends CharacterModel {
 			const target = findPlayerById(players, targetId)!;
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `${this.nightActionTitleRole(player)}, this is ${
 					target.member.displayName
 				}'s role:`,
@@ -64,7 +64,7 @@ export class Seer extends CharacterModel {
 				: seer.action.first!;
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `${this.nightActionTitleRole(
 					player
 				)}, choose another center role to view.`,
@@ -86,7 +86,7 @@ export class Seer extends CharacterModel {
 				: seer.action.second!;
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `${this.nightActionTitleRole(
 					player
 				)}, these are the center roles you chose to view:`,
@@ -105,7 +105,7 @@ export class Seer extends CharacterModel {
 		}
 
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(
 				player
 			)}, choose a player to view their role, or view two roles from the center:`,

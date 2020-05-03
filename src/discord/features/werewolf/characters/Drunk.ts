@@ -32,7 +32,7 @@ export class Drunk extends CharacterModel {
 				: drunk.action.center;
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `${this.nightActionTitleRole(
 					player
 				)}, you chose to become the role in the ${centerCardPosition(
@@ -43,7 +43,7 @@ export class Drunk extends CharacterModel {
 		}
 
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(
 				player
 			)}, choose a role from the center to become that role:`,

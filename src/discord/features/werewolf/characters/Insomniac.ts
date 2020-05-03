@@ -55,7 +55,7 @@ export class Insomniac extends CharacterModel {
 
 	nightActionDM(player: Player): Discord.MessageEmbedOptions {
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(player)}, this is your role:`,
 			description: capitalize(player.currentRole),
 			image: {

@@ -140,7 +140,7 @@ export class Doppelganger extends CharacterModel {
 			].includes(doppelganger.action.role.character);
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `Doppelganger, you copied the role from ${target.member.displayName}:`,
 				description: `You became a ${doppelganger.action.role.character}! ${
 					hasAction ? "Your action will show up right after this message." : ""
@@ -152,7 +152,7 @@ export class Doppelganger extends CharacterModel {
 		}
 
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: "Doppelganger, choose a player to become their role.",
 			description: listOfEveryone(players, [doppelganger.member.id]),
 		};

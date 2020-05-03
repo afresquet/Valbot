@@ -1,4 +1,3 @@
-import Discord from "discord.js";
 import { Character } from "../Character";
 import { CharacterModel } from "./CharacterModel";
 
@@ -12,8 +11,4 @@ export class Villager extends CharacterModel {
 	protected maxAmount = 3;
 
 	nightAction = false;
-
-	nightActionDM(): Discord.MessageEmbedOptions {
-		return {};
-	}
 }

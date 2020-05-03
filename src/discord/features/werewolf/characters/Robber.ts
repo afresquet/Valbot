@@ -38,7 +38,7 @@ export class Robber extends CharacterModel {
 			const target = findPlayerById(players, targetId)!;
 
 			return {
-				...this.nightActionCommon(),
+				...this.nightActionCommon,
 				title: `You stole the role from ${target.member.displayName}!`,
 				description: `You became a ${capitalize(player.currentRole!)}.`,
 				image: {
@@ -48,7 +48,7 @@ export class Robber extends CharacterModel {
 		}
 
 		return {
-			...this.nightActionCommon(),
+			...this.nightActionCommon,
 			title: `${this.nightActionTitleRole(
 				player
 			)}, choose another player to steal their role:`,
