@@ -14,8 +14,6 @@ import { Sound } from "./Sounds";
 import { CharacterCount, CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
-const characterNames = Object.values(Character);
-
 export class WerewolfManager {
 	private textChannel?: Discord.TextChannel;
 	private audioManager = new WerewolfAudioManager();
@@ -42,10 +40,12 @@ export class WerewolfManager {
 	private remainingTime = 0;
 	private roleTimer = 10;
 
-	private characters = characterNames.map<CharacterCount>(character => ({
-		character,
-		amount: 0,
-	}));
+	private characters = Object.values(Character).map<CharacterCount>(
+		character => ({
+			character,
+			amount: 0,
+		})
+	);
 
 	private async playSound(
 		character: Character | "everyone",
@@ -150,7 +150,7 @@ export class WerewolfManager {
 		if (this.characterEmojis) {
 			const characterEmojis: CharacterEmoji[] = [];
 
-			for (const character of characterNames) {
+			for (const [character] of characters) {
 				const emoji = guild.emojis.cache.find(e => e.name === character);
 
 				if (!emoji) continue;
@@ -158,7 +158,7 @@ export class WerewolfManager {
 				characterEmojis.push({ character, emoji });
 			}
 
-			if (characterEmojis.length !== characterNames.length) {
+			if (characterEmojis.length !== characters.size) {
 				characterEmojis.length = 0;
 			}
 
@@ -343,9 +343,9 @@ export class WerewolfManager {
 			this.muteAll(true),
 		]);
 
-		for (const character of characterNames) {
-			if (characters[character].nightAction) {
-				await this.playCharacter(character);
+		for (const [name, character] of characters) {
+			if (character.nightAction) {
+				await this.playCharacter(name);
 			}
 		}
 
@@ -656,7 +656,7 @@ export class WerewolfManager {
 						: `${result}\n${playerLine}`;
 				}, "No votes happened"),
 				thumbnail: {
-					url: characters[killed.role!].image,
+					url: characters.get(killed.role)!.image,
 				},
 				fields,
 			})
@@ -755,7 +755,7 @@ export class WerewolfManager {
 	}
 
 	async mangageEmojis(guild: Discord.Guild, add: boolean) {
-		for (const character of characterNames) {
+		for (const [character] of characters) {
 			let guildEmoji = guild.emojis.cache.find(e => e.name === character);
 
 			if (add && !guildEmoji) {
