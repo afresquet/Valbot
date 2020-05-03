@@ -40,7 +40,6 @@ export class WerewolfManager {
 	private remainingTime = 0;
 	private roleTimer = 10;
 
-
 	private async playSound(
 		character: Character | "everyone",
 		sound: Sound | Character.DOPPELGANGER
@@ -282,9 +281,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 
 		const messages = await Promise.all(
-			this.players.map(player =>
-				player.member.send(this.embeds.role(player))
-			)
+			this.players.map(player => player.member.send(this.embeds.role(player)))
 		);
 
 		await delay(this.roleTimer * 1000);
@@ -304,9 +301,15 @@ export class WerewolfManager {
 			this.muteAll(true),
 		]);
 
-		for (const [name, character] of characters) {
+		for (const character of characters.values()) {
 			if (character.nightAction) {
-				await this.playCharacter(name);
+				await character.handleNightAction(
+					this.players,
+					this.centerCards,
+					this.roleTimer,
+					this.playSound,
+					this.embeds.base
+				);
 			}
 		}
 
@@ -749,206 +752,6 @@ export class WerewolfManager {
 
 				delete character.emoji;
 			}
-		}
-	}
-
-	private async playCharacter(character: Character) {
-		if (characters.get(character)!.amount <= 0) return;
-
-		await this.playSound(character, Sound.WAKE);
-
-		await this.handleNightActionCharacter(character);
-
-		if (character === Character.DOPPELGANGER) {
-			await this.handleDoppelgangerNightAction();
-		}
-
-		if (character === Character.MINION) {
-			await this.playSound(character, Sound.THUMB);
-		}
-
-		await this.playSound(character, Sound.CLOSE);
-
-		if (
-			character === Character.INSOMNIAC &&
-			characters.get(Character.DOPPELGANGER)!.amount > 0
-		) {
-			const doppelganger = this.players.find(
-				p => p.role === Character.DOPPELGANGER
-			)! as Player<Character.DOPPELGANGER, Character.INSOMNIAC>;
-
-			await this.playSound(character, Character.DOPPELGANGER);
-
-			if (doppelganger?.action?.role?.character === Character.INSOMNIAC) {
-				this.nightActionDM = await doppelganger.member.send(
-					this.embeds.base(
-						characters
-							.get(character)!
-							.nightActionDM(doppelganger, this.players, this.centerCards)
-					)
-				);
-			}
-
-			await delay(this.roleTimer * 1000);
-
-			await Promise.all([
-				this.playSound(Character.DOPPELGANGER, Sound.CLOSE),
-				this.nightActionDM?.delete(),
-			]);
-
-			delete this.nightActionDM;
-		}
-	}
-
-	private async handleNightActionCharacter(character: Character) {
-		if ([Character.WEREWOLF, Character.MASON].includes(character)) {
-			const players = this.players.filter(
-				player =>
-					(isDoppelganger(player) &&
-						(player as Player<Character.DOPPELGANGER>).action.role.character ===
-							character) ||
-					player.role === character
-			);
-
-			const messages = await Promise.all(
-				players.map(player =>
-					player.member.send(
-						this.embeds.base(
-							characters.get(character)!.nightActionDM(player, this.players)
-						)
-					)
-				)
-			);
-
-			await delay(this.roleTimer * 1000);
-
-			await Promise.all(messages.map(message => message.delete()));
-
-			return;
-		}
-
-		const player = this.players.find(player => player.role === character)!;
-
-		if (!player) {
-			await delay(this.roleTimer * 1000);
-
-			return;
-		}
-
-		this.nightActionDM = await player.member.send(
-			this.embeds.base(
-				characters.get(character)!.nightActionDM(player, this.players)
-			)
-		);
-
-		if (
-			[
-				Character.DOPPELGANGER,
-				Character.SEER,
-				Character.ROBBER,
-				Character.TROUBLEMAKER,
-			].includes(character)
-		) {
-			for (let i = 0; i < this.players.length; i++) {
-				if (this.players[i].member.id === player.member.id) continue;
-
-				await this.nightActionDM!.react(numberEmojis[i]);
-			}
-		}
-
-		if ([Character.SEER, Character.DRUNK].includes(character)) {
-			for (let i = 0; i < centerEmojis.length; i++) {
-				await this.nightActionDM!.react(centerEmojis[i]);
-			}
-		}
-
-		await delay(this.roleTimer * 1000);
-
-		await this.nightActionDM.delete();
-
-		delete this.nightActionDM;
-	}
-
-	private async handleDoppelgangerNightAction() {
-		const doppelganger = this.players.find(
-			p => p.role === Character.DOPPELGANGER
-		) as Player<Character.DOPPELGANGER>;
-
-		if (doppelganger?.action) {
-			doppelganger.action.ready = true;
-		}
-
-		if (
-			[
-				Character.SEER,
-				Character.ROBBER,
-				Character.TROUBLEMAKER,
-				Character.DRUNK,
-			].includes(doppelganger?.action?.role?.character)
-		) {
-			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.base(
-					characters
-						.get(Character.DOPPELGANGER)!
-						.nightActionDM(doppelganger, this.players, this.centerCards)
-				)
-			);
-
-			if (
-				[
-					Character.DOPPELGANGER,
-					Character.SEER,
-					Character.ROBBER,
-					Character.TROUBLEMAKER,
-				].includes(doppelganger.action.role.character)
-			) {
-				for (let i = 0; i < this.players.length; i++) {
-					if (this.players[i].member.id === doppelganger.member.id) continue;
-
-					await this.nightActionDM.react(numberEmojis[i]);
-				}
-			}
-
-			if (
-				[Character.SEER, Character.DRUNK].includes(
-					doppelganger.action.role.character
-				)
-			) {
-				for (let i = 0; i < centerEmojis.length; i++) {
-					await this.nightActionDM.react(centerEmojis[i]);
-				}
-			}
-		}
-
-		await delay(this.roleTimer * 1000);
-
-		if (this.nightActionDM) {
-			await this.nightActionDM.delete();
-
-			delete this.nightActionDM;
-		}
-
-		// Doppelganger Minion
-		if (characters.get(Character.MINION)!.amount <= 0) return;
-
-		await this.playSound(Character.MINION, Character.DOPPELGANGER);
-
-		if (doppelganger?.action?.role?.character === Character.MINION) {
-			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.base(
-					characters
-						.get(Character.DOPPELGANGER)!
-						.nightActionDM(doppelganger, this.players, this.centerCards)
-				)
-			);
-		}
-
-		await delay(this.roleTimer * 1000);
-
-		if (this.nightActionDM) {
-			await this.nightActionDM.delete();
-
-			delete this.nightActionDM;
 		}
 	}
 
