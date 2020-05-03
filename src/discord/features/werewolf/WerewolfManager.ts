@@ -9,6 +9,8 @@ import { characters } from "./characters";
 import { Embeds } from "./embeds";
 import { centerEmojis, numberEmojis } from "./emojis";
 import { centerCardPosition } from "./helpers/centerCardPosition";
+import { findPlayerById } from "./helpers/findPlayerById";
+import { isDoppelganger } from "./helpers/isDoppelganger";
 import { Player } from "./Player";
 import { Sound } from "./Sounds";
 import { CharacterCount, CharacterEmoji, GameState } from "./types";
@@ -93,16 +95,8 @@ export class WerewolfManager {
 		return this.gameState;
 	}
 
-	findPlayerById(id: string) {
-		return this.players.find(player => player.member.id === id);
-	}
-
 	isMaster(id: string) {
-		return !!this.findPlayerById(id)?.master;
-	}
-
-	private isDoppelganger(player: Player) {
-		return player.initialRole === Character.DOPPELGANGER;
+		return !!findPlayerById(this.players, id)?.master;
 	}
 
 	setup(guild: Discord.Guild) {
@@ -167,7 +161,7 @@ export class WerewolfManager {
 	}
 
 	async join(member: Discord.GuildMember) {
-		if (this.findPlayerById(member.id)) return;
+		if (findPlayerById(this.players, member.id)) return;
 
 		if (
 			member.roles.cache.find(
@@ -192,7 +186,7 @@ export class WerewolfManager {
 	}
 
 	async leave(memberId: string, kick: boolean = false, ban: boolean = false) {
-		const player = this.findPlayerById(memberId);
+		const player = findPlayerById(this.players, memberId);
 
 		if (!player) return;
 
@@ -420,7 +414,7 @@ export class WerewolfManager {
 		const votes = this.players.reduce<{ [player: string]: number }>(
 			(result, player, index, array) => {
 				const target = player.killing
-					? this.findPlayerById(player.killing)!
+					? findPlayerById(this.players, player.killing)!
 					: this.players[(index + 1) % array.length];
 
 				const id = target.member.id;
@@ -438,7 +432,7 @@ export class WerewolfManager {
 			["", 0]
 		);
 
-		const killed = this.findPlayerById(killedId)!;
+		const killed = findPlayerById(this.players, killedId)!;
 
 		const fields: Discord.EmbedFieldData[] = [];
 
@@ -452,10 +446,16 @@ export class WerewolfManager {
 						Character.DOPPELGANGER,
 						Character.SEER
 					>;
-					const originalSeer = this.findPlayerById(seer.action.player)!;
+					const originalSeer = findPlayerById(
+						this.players,
+						seer.action.player
+					)!;
 
 					if (seer.action.role.action.player) {
-						const target = this.findPlayerById(seer.action.role.action.player)!;
+						const target = findPlayerById(
+							this.players,
+							seer.action.role.action.player
+						)!;
 
 						fields.push({
 							name: `${seer.member.displayName} (Doppelganger-Seer from ${originalSeer.member.displayName})`,
@@ -482,10 +482,14 @@ export class WerewolfManager {
 						Character.DOPPELGANGER,
 						Character.ROBBER
 					>;
-					const originalRobber = this.findPlayerById(robber.action.player)!;
+					const originalRobber = findPlayerById(
+						this.players,
+						robber.action.player
+					)!;
 
 					if (robber.action.role.action.player) {
-						const target = this.findPlayerById(
+						const target = findPlayerById(
+							this.players,
 							robber.action.role.action.player
 						)!;
 
@@ -502,7 +506,8 @@ export class WerewolfManager {
 						Character.DOPPELGANGER,
 						Character.TROUBLEMAKER
 					>;
-					const originalTroublemaker = this.findPlayerById(
+					const originalTroublemaker = findPlayerById(
+						this.players,
 						troublemaker.action.player
 					)!;
 
@@ -530,7 +535,10 @@ export class WerewolfManager {
 						Character.DOPPELGANGER,
 						Character.DRUNK
 					>;
-					const originalDrunk = this.findPlayerById(drunk.action.player)!;
+					const originalDrunk = findPlayerById(
+						this.players,
+						drunk.action.player
+					)!;
 
 					if (drunk.action.role.action.center) {
 						fields.push({
@@ -547,7 +555,8 @@ export class WerewolfManager {
 					break;
 			}
 		} else if (doppelganger?.action?.role?.character) {
-			const originalRoleHolder = this.findPlayerById(
+			const originalRoleHolder = findPlayerById(
+				this.players,
 				doppelganger.action.player
 			)!;
 
@@ -564,7 +573,7 @@ export class WerewolfManager {
 		) as Player<Character.SEER>;
 		if (seer?.action) {
 			if (seer.action.player) {
-				const target = this.findPlayerById(seer.action.player)!;
+				const target = findPlayerById(this.players, seer.action.player)!;
 
 				fields.push({
 					name: `${seer.member.displayName} (Seer)`,
@@ -584,7 +593,7 @@ export class WerewolfManager {
 			p => p.initialRole === Character.ROBBER
 		) as Player<Character.ROBBER>;
 		if (robber?.action) {
-			const target = this.findPlayerById(robber.action.player)!;
+			const target = findPlayerById(this.players, robber.action.player)!;
 
 			fields.push({
 				name: `${robber.member.displayName} (Robber)`,
@@ -646,7 +655,7 @@ export class WerewolfManager {
 				title: `${killed.member.displayName} was killed with ${killedVotes} votes!`,
 				description: this.players.reduce((result, current, index, array) => {
 					const target = current.killing
-						? this.findPlayerById(current.killing)!
+						? findPlayerById(this.players, current.killing)!
 						: this.players[(index + 1) % array.length];
 
 					const playerLine = `${numberEmojis[index]} ${current.member.displayName} voted ${target.member.displayName}.`;
@@ -712,7 +721,7 @@ export class WerewolfManager {
 	}
 
 	async setMaster(memberId: string) {
-		const nextMaster = this.findPlayerById(memberId);
+		const nextMaster = findPlayerById(this.players, memberId);
 
 		if (!nextMaster) return;
 
@@ -806,10 +815,10 @@ export class WerewolfManager {
 
 			if (doppelganger?.action?.role?.character === Character.INSOMNIAC) {
 				this.nightActionDM = await doppelganger.member.send(
-					this.embeds.nightActionDM(
-						this.players,
-						doppelganger,
-						this.centerCards
+					this.embeds.base(
+						characters
+							.get(character)!
+							.nightActionDM(doppelganger, this.players, this.centerCards)
 					)
 				);
 			}
@@ -829,7 +838,7 @@ export class WerewolfManager {
 		if ([Character.WEREWOLF, Character.MASON].includes(character)) {
 			const players = this.players.filter(
 				player =>
-					(this.isDoppelganger(player) &&
+					(isDoppelganger(player) &&
 						(player as Player<Character.DOPPELGANGER>).action.role.character ===
 							character) ||
 					player.initialRole === character
@@ -837,7 +846,11 @@ export class WerewolfManager {
 
 			const messages = await Promise.all(
 				players.map(player =>
-					player.member.send(this.embeds.nightActionDM(this.players, player))
+					player.member.send(
+						this.embeds.base(
+							characters.get(character)!.nightActionDM(player, this.players)
+						)
+					)
 				)
 			);
 
@@ -859,7 +872,9 @@ export class WerewolfManager {
 		}
 
 		this.nightActionDM = await player.member.send(
-			this.embeds.nightActionDM(this.players, player)
+			this.embeds.base(
+				characters.get(character)!.nightActionDM(player, this.players)
+			)
 		);
 
 		if (
@@ -908,7 +923,11 @@ export class WerewolfManager {
 			].includes(doppelganger?.action?.role?.character)
 		) {
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.nightActionDM(this.players, doppelganger, this.centerCards)
+				this.embeds.base(
+					characters
+						.get(Character.DOPPELGANGER)!
+						.nightActionDM(doppelganger, this.players, this.centerCards)
+				)
 			);
 
 			if (
@@ -955,7 +974,11 @@ export class WerewolfManager {
 
 		if (doppelganger?.action?.role?.character === Character.MINION) {
 			this.nightActionDM = await doppelganger.member.send(
-				this.embeds.nightActionDM(this.players, doppelganger, this.centerCards)
+				this.embeds.base(
+					characters
+						.get(Character.DOPPELGANGER)!
+						.nightActionDM(doppelganger, this.players, this.centerCards)
+				)
 			);
 		}
 
@@ -1012,7 +1035,11 @@ export class WerewolfManager {
 		if (!player) return;
 
 		await this.nightActionDM.edit(
-			this.embeds.nightActionDM(this.players, player, this.centerCards)
+			this.embeds.base(
+				characters
+					.get(character)!
+					.nightActionDM(player, this.players, this.centerCards)
+			)
 		);
 	}
 
@@ -1037,7 +1064,7 @@ export class WerewolfManager {
 
 		if (this.gameState === GameState.NIGHT) {
 			const role =
-				this.isDoppelganger(player) &&
+				isDoppelganger(player) &&
 				(player as Player<Character.DOPPELGANGER>).action?.ready
 					? (player as Player<Character.DOPPELGANGER>).action.role.character
 					: player.initialRole;
@@ -1068,10 +1095,7 @@ export class WerewolfManager {
 
 					let action: typeof seer.action = {};
 
-					if (
-						this.isDoppelganger(player) &&
-						doppelgangerSeer.action?.role?.action
-					) {
+					if (isDoppelganger(player) && doppelgangerSeer.action?.role?.action) {
 						action = doppelgangerSeer.action.role.action;
 					} else if (player.initialRole === Character.SEER && seer.action) {
 						action = seer.action;
@@ -1093,7 +1117,7 @@ export class WerewolfManager {
 						}
 					}
 
-					if (this.isDoppelganger(player)) {
+					if (isDoppelganger(player)) {
 						doppelgangerSeer.action.role.action = action;
 					} else {
 						seer.action = action;
@@ -1111,7 +1135,7 @@ export class WerewolfManager {
 					>;
 
 					if (
-						this.isDoppelganger(player)
+						isDoppelganger(player)
 							? doppelgangerRobber.action?.role?.action
 							: robber.action
 					)
@@ -1119,7 +1143,7 @@ export class WerewolfManager {
 
 					const action: typeof robber.action = { player: target.member.id };
 
-					if (this.isDoppelganger(player)) {
+					if (isDoppelganger(player)) {
 						doppelgangerRobber.action.role.action = action;
 					} else {
 						robber.action = action;
@@ -1141,7 +1165,7 @@ export class WerewolfManager {
 					let action: typeof troublemaker.action = {};
 
 					if (
-						this.isDoppelganger(player) &&
+						isDoppelganger(player) &&
 						doppelgangerTroublemaker.action?.role?.action
 					) {
 						action = doppelgangerTroublemaker.action.role.action;
@@ -1157,7 +1181,7 @@ export class WerewolfManager {
 					} else if (!action.second) {
 						if (action.first === target.member.id) break;
 
-						const first = this.findPlayerById(action.first)!;
+						const first = findPlayerById(this.players, action.first)!;
 						const second = target;
 
 						action.second = second.member.id;
@@ -1167,7 +1191,7 @@ export class WerewolfManager {
 						break;
 					}
 
-					if (this.isDoppelganger(player)) {
+					if (isDoppelganger(player)) {
 						doppelgangerTroublemaker.action.role.action = action;
 					} else {
 						troublemaker.action = action;
@@ -1185,7 +1209,7 @@ export class WerewolfManager {
 					>;
 
 					if (
-						this.isDoppelganger(player)
+						isDoppelganger(player)
 							? doppelgangerDrunk.action?.role?.action
 							: drunk.action
 					)
@@ -1193,7 +1217,7 @@ export class WerewolfManager {
 
 					const action: typeof drunk.action = { center: centerIndex };
 
-					if (this.isDoppelganger(player)) {
+					if (isDoppelganger(player)) {
 						doppelgangerDrunk.action.role.action = action;
 					} else {
 						drunk.action = action;
