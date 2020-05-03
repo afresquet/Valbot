@@ -1,7 +1,6 @@
 import Discord from "discord.js";
 import { join } from "path";
 import { capitalize } from "../../../helpers/capitalize";
-import { clamp } from "../../../helpers/clamp";
 import { delay } from "../../../helpers/delay";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
 import { Character } from "./Character";
@@ -13,7 +12,7 @@ import { findPlayerById } from "./helpers/findPlayerById";
 import { isDoppelganger } from "./helpers/isDoppelganger";
 import { Player } from "./Player";
 import { Sound } from "./Sounds";
-import { CharacterCount, CharacterEmoji, GameState } from "./types";
+import { CharacterEmoji, GameState } from "./types";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
 
 export class WerewolfManager {
@@ -42,12 +41,7 @@ export class WerewolfManager {
 	private remainingTime = 0;
 	private roleTimer = 10;
 
-	private characters = Object.values(Character).map<CharacterCount>(
-		character => ({
-			character,
-			amount: 0,
-		})
-	);
+	private characters = characters;
 
 	private async playSound(
 		character: Character | "everyone",
@@ -234,18 +228,7 @@ export class WerewolfManager {
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
-		let max = 1;
-		if (character === Character.WEREWOLF || character === Character.MASON) {
-			max = 2;
-		} else if (character === Character.VILLAGER) {
-			max = 3;
-		}
-
-		this.characters = this.characters.map(c =>
-			c.character === character
-				? { ...c, amount: clamp(c.amount + (add ? 1 : -1), 0, max) }
-				: c
-		);
+		this.characters.get(character)!.manageAmount(add ? 1 : -1);
 
 		await this.refreshEmbed();
 	}
@@ -253,10 +236,11 @@ export class WerewolfManager {
 	async start(forcedRoles?: Character[]) {
 		if (this.gameState !== GameState.PREPARATION) return;
 
-		const charactersAmount = this.characters.reduce(
-			(result, current) => result + current.amount,
-			0
-		);
+		let charactersAmount = 0;
+		for (const character of this.characters.values()) {
+			charactersAmount += character.amount;
+		}
+
 		const playersAmount = this.players.length;
 
 		if (playersAmount < 3 || playersAmount > 10) return;
@@ -293,13 +277,10 @@ export class WerewolfManager {
 
 		this.gameState = GameState.ROLE_ASSIGNING;
 
-		const roles = this.characters.reduce<Character[]>(
-			(result, current) => [
-				...result,
-				...new Array(current.amount).fill(current.character),
-			],
-			[]
-		);
+		const roles: Character[] = [];
+		for (const [name, character] of this.characters) {
+			roles.push(...new Array<Character>(character.amount).fill(name));
+		}
 
 		this.players.forEach((player, i) => {
 			const index =
@@ -317,7 +298,9 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 
 		const messages = await Promise.all(
-			this.players.map(player => player.member.send(this.embeds.role(player)))
+			this.players.map(player =>
+				player.member.send(this.embeds.role(player, this.characters))
+			)
 		);
 
 		await delay(this.roleTimer * 1000);
@@ -360,10 +343,7 @@ export class WerewolfManager {
 			new Promise(async (resolve, reject) => {
 				try {
 					for (const { character, emoji } of this.characterEmojis) {
-						if (
-							this.characters.find(c => c.character === character)!.amount <= 0
-						)
-							continue;
+						if (this.characters.get(character)!.amount <= 0) continue;
 
 						await this.gameMessage?.react(emoji);
 					}
@@ -785,8 +765,7 @@ export class WerewolfManager {
 	}
 
 	private async playCharacter(character: Character) {
-		if (this.characters.find(c => c.character === character)!.amount <= 0)
-			return;
+		if (this.characters.get(character)!.amount <= 0) return;
 
 		await this.playSound(character, Sound.WAKE);
 
@@ -804,8 +783,7 @@ export class WerewolfManager {
 
 		if (
 			character === Character.INSOMNIAC &&
-			this.characters.find(c => c.character === Character.DOPPELGANGER)!
-				.amount > 0
+			this.characters.get(Character.DOPPELGANGER)!.amount > 0
 		) {
 			const doppelganger = this.players.find(
 				p => p.role === Character.DOPPELGANGER
@@ -963,10 +941,7 @@ export class WerewolfManager {
 		}
 
 		// Doppelganger Minion
-		if (
-			this.characters.find(c => c.character === Character.MINION)!.amount <= 0
-		)
-			return;
+		if (this.characters.get(Character.MINION)!.amount <= 0) return;
 
 		await this.playSound(Character.MINION, Character.DOPPELGANGER);
 

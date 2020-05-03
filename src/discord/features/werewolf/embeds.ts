@@ -2,12 +2,11 @@ import Discord from "discord.js";
 import { AudioManager } from "../../../helpers/AudioManager";
 import { capitalize } from "../../../helpers/capitalize";
 import { Character } from "./Character";
-import { characters } from "./characters";
+import { CharacterModel } from "./characters/CharacterModel";
 import { numberEmojis } from "./emojis";
 import { findPlayerById } from "./helpers/findPlayerById";
 import { listOfEveryone } from "./helpers/listOfEveryone";
 import { Player } from "./Player";
-import { CharacterCount } from "./types";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}
@@ -28,35 +27,40 @@ export class Embeds {
 
 	preparation(
 		players: Player[],
-		characters: CharacterCount[],
+		characters: Map<Character, CharacterModel>,
 		gameTimer: number,
 		roleTimer: number,
 		expert: boolean
 	) {
+		const playersValue = players.reduce((result, player, index) => {
+			const playerLine = `${numberEmojis[index]} ${player.member.displayName} ${
+				player.master ? "(Master)" : ""
+			}`;
+
+			return index === 0 ? playerLine : `${result}\n${playerLine}`;
+		}, "No players have joined yet.");
+
+		let charactersValue = "";
+		for (const [name, character] of characters) {
+			if (character.amount === 0) continue;
+
+			const characterName = capitalize(name);
+
+			const line = `${characterName}: ${character.amount}`;
+
+			charactersValue =
+				charactersValue === "" ? line : `${charactersValue}\n${line}`;
+		}
+
 		return this.base({
 			fields: [
 				{
 					name: "Players",
-					value: players.reduce((result, player, index) => {
-						const playerLine = `${numberEmojis[index]} ${
-							player.member.displayName
-						} ${player.master ? "(Master)" : ""}`;
-
-						return index === 0 ? playerLine : `${result}\n${playerLine}`;
-					}, "No players have joined yet."),
+					value: playersValue,
 				},
 				{
 					name: "Characters",
-					value: characters.reduce((result, character) => {
-						const characterName = capitalize(character.character);
-
-						const nextLine =
-							result === "No characters have been set yet."
-								? `${characterName}: ${character.amount}`
-								: `${result}\n${characterName}: ${character.amount}`;
-
-						return character.amount > 0 ? nextLine : result;
-					}, "No characters have been set yet."),
+					value: charactersValue || "No characters have been set yet.",
 				},
 				{
 					name: "Game Timer",
@@ -84,7 +88,7 @@ export class Embeds {
 		});
 	}
 
-	role(player: Player) {
+	role(player: Player, characters: Map<Character, CharacterModel>) {
 		const character = characters.get(player.role!)!;
 
 		return this.base({
@@ -112,14 +116,15 @@ export class Embeds {
 		});
 	}
 
-	day(players: Player[], characters: CharacterCount[], remainingTime: number) {
-		const tokens = characters.reduce<Character[]>(
-			(result, current) => [
-				...result,
-				...new Array(current.amount).fill(current.character),
-			],
-			[]
-		);
+	day(
+		players: Player[],
+		characters: Map<Character, CharacterModel>,
+		remainingTime: number
+	) {
+		const tokens: Character[] = [];
+		for (const [name, character] of characters) {
+			tokens.push(...new Array<Character>(character.amount).fill(name));
+		}
 
 		return this.base({
 			title: `Timer: ${remainingTime} seconds remaining.`,

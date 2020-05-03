@@ -10,8 +10,6 @@ export enum GameState {
 	VOTING,
 }
 
-export type CharacterCount = { character: Character; amount: number };
-
 export type CharacterEmoji = {
 	character: Character;
 	emoji: Discord.GuildEmoji;

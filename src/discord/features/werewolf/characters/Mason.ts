@@ -10,6 +10,8 @@ export class Mason extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/FeKsR8xD1jOgzFNx-V2Y-qIxT54=/fit-in/900x600/filters:no_upscale()/pic4462591.png";
 
+	protected maxAmount = 2;
+
 	nightAction = true;
 
 	nightActionDM(

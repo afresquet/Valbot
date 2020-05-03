@@ -11,6 +11,8 @@ export class Werewolf extends CharacterModel {
 	image =
 		"https://cf.geekdo-images.com/imagepage/img/tgyrEJ3RbB_sZlme9eHu-ZKQ-vo=/fit-in/900x600/filters:no_upscale()/pic4462616.png";
 
+	protected maxAmount = 2;
+
 	nightAction = true;
 
 	nightActionDM(

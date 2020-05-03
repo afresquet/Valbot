@@ -1,5 +1,6 @@
 import Discord from "discord.js";
 import { capitalize } from "../../../../helpers/capitalize";
+import { clamp } from "../../../../helpers/clamp";
 import { Character } from "../Character";
 import { Player } from "../Player";
 
@@ -8,7 +9,14 @@ export abstract class CharacterModel {
 	abstract description: string;
 	abstract image: string;
 
+	amount = 0;
+	protected maxAmount = 1;
+
 	abstract nightAction: boolean;
+
+	manageAmount(value: number) {
+		this.amount = clamp(this.amount + value, 0, this.maxAmount);
+	}
 
 	abstract nightActionDM(
 		player: Player,
