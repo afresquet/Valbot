@@ -4,9 +4,8 @@ import { capitalize } from "../../../../helpers/capitalize";
 import { Character } from "../Character";
 import { centerEmojis } from "../emojis";
 import { centerCardPosition } from "../helpers/centerCardPosition";
-import { findPlayerById } from "../helpers/findPlayerById";
 import { listOfEveryone } from "../helpers/listOfEveryone";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { CharacterModel } from "./CharacterModel";
 
 export class Seer extends CharacterModel {
@@ -21,7 +20,7 @@ export class Seer extends CharacterModel {
 
 	nightActionDM(
 		player: Player,
-		players: Player[],
+		players: PlayerMap,
 		centerCards: Character[]
 	): Discord.MessageEmbedOptions {
 		const seer = player as Player<Character.SEER>;
@@ -38,7 +37,7 @@ export class Seer extends CharacterModel {
 			const targetId = player.isDoppelganger
 				? doppelgangerSeer.action.role.action.player!
 				: seer.action.player!;
-			const target = findPlayerById(players, targetId)!;
+			const target = players.get(targetId)!;
 
 			return {
 				...this.nightActionCommon,
@@ -122,7 +121,7 @@ export class Seer extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		players: Player[],
+		players: PlayerMap,
 		centerCards: Character[],
 		{ playerIndex, centerIndex }: { playerIndex: number; centerIndex: number },
 		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed

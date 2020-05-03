@@ -4,7 +4,7 @@ import { clamp } from "../../../../helpers/clamp";
 import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
 import { numberEmojis } from "../emojis";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { Sound } from "../Sounds";
 
 export abstract class CharacterModel {
@@ -27,7 +27,7 @@ export abstract class CharacterModel {
 	}
 
 	async handleNightAction(
-		players: Player[],
+		players: PlayerMap,
 		centerCards: Character[],
 		roleDelay: number,
 		playSound: (character: Character, sound: Sound) => Promise<void>,
@@ -44,8 +44,8 @@ export abstract class CharacterModel {
 		);
 
 		if (this.playerReactionsDM) {
-			for (let i = 0; i < players.length; i++) {
-				if (player?.member.id === players[i].member.id) continue;
+			for (let i = 0; i < players.size; i++) {
+				if (player?.member.id === players.getByIndex(i)!.member.id) continue;
 
 				await this.privateMessage?.react(numberEmojis[i]);
 			}
@@ -68,7 +68,7 @@ export abstract class CharacterModel {
 
 	nightActionDM(
 		_player: Player,
-		_players: Player[],
+		_players: PlayerMap,
 		_centerCards?: Character[]
 	): Discord.MessageEmbedOptions {
 		return {};
@@ -93,7 +93,7 @@ export abstract class CharacterModel {
 	async handleReaction(
 		_player: Player,
 		_target: Player,
-		_players: Player[],
+		_players: PlayerMap,
 		_centerCards: Character[],
 		_indexes: {
 			playerIndex: number;

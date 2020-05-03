@@ -3,7 +3,7 @@ import { characters } from ".";
 import { capitalize } from "../../../../helpers/capitalize";
 import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { Sound } from "../Sounds";
 import { CharacterModel } from "./CharacterModel";
 
@@ -14,7 +14,7 @@ export class Insomniac extends CharacterModel {
 		"https://cf.geekdo-images.com/imagepage/img/RHfz10FGfiYxunbUsJt1_xNwrS4=/fit-in/900x600/filters:no_upscale()/pic4462588.png";
 
 	async handleNightAction(
-		players: Player[],
+		players: PlayerMap,
 		centerCards: Character[],
 		roleDelay: number,
 		playSound: (character: Character, sound: Sound) => Promise<void>,

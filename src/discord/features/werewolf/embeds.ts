@@ -4,9 +4,8 @@ import { capitalize } from "../../../helpers/capitalize";
 import { Character } from "./Character";
 import { characters } from "./characters";
 import { numberEmojis } from "./emojis";
-import { findPlayerById } from "./helpers/findPlayerById";
 import { listOfEveryone } from "./helpers/listOfEveryone";
-import { Player } from "./Player";
+import { Player, PlayerMap } from "./Player";
 
 export class Embeds {
 	constructor(private audioManager: AudioManager) {}
@@ -26,12 +25,12 @@ export class Embeds {
 	}
 
 	preparation(
-		players: Player[],
+		players: PlayerMap,
 		gameTimer: number,
 		roleTimer: number,
 		expert: boolean
 	) {
-		const playersValue = players.reduce((result, player, index) => {
+		const playersValue = players.reduce((result, player, _, index) => {
 			const playerLine = `${numberEmojis[index]} ${player.member.displayName} ${
 				player.master ? "(Master)" : ""
 			}`;
@@ -115,7 +114,7 @@ export class Embeds {
 		});
 	}
 
-	day(players: Player[], remainingTime: number) {
+	day(players: PlayerMap, remainingTime: number) {
 		const tokens: Character[] = [];
 		for (const [name, character] of characters) {
 			tokens.push(...new Array<Character>(character.amount).fill(name));
@@ -126,7 +125,7 @@ export class Embeds {
 			fields: [
 				{
 					name: "Players",
-					value: players.reduce((result, current, index) => {
+					value: players.reduce((result, current, _, index) => {
 						const playerLine = `${numberEmojis[index]} ${
 							current.member.displayName
 						} ${
@@ -148,11 +147,11 @@ export class Embeds {
 		});
 	}
 
-	voting(players: Player[]) {
+	voting(players: PlayerMap) {
 		const votedValue = players.reduce((result, player) => {
 			if (!player.killing) return result;
 
-			const target = findPlayerById(players, player.killing)!;
+			const target = players.get(player.killing)!;
 
 			const playerLine = `${player.member.displayName} is killing ${target.member.displayName}.`;
 

@@ -2,9 +2,8 @@ import Discord from "discord.js";
 import { characters } from ".";
 import { capitalize } from "../../../../helpers/capitalize";
 import { Character } from "../Character";
-import { findPlayerById } from "../helpers/findPlayerById";
 import { listOfEveryone } from "../helpers/listOfEveryone";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { CharacterModel } from "./CharacterModel";
 
 export class Robber extends CharacterModel {
@@ -18,7 +17,7 @@ export class Robber extends CharacterModel {
 
 	nightActionDM(
 		player: Player,
-		players: Player[]
+		players: PlayerMap
 	): Discord.MessageEmbedOptions {
 		const robber = player as Player<Character.ROBBER>;
 		const doppelgangerRobber = player as Player<
@@ -34,7 +33,7 @@ export class Robber extends CharacterModel {
 			const targetId = player.isDoppelganger
 				? doppelgangerRobber.action.role.action.player
 				: robber.action.player;
-			const target = findPlayerById(players, targetId)!;
+			const target = players.get(targetId)!;
 
 			return {
 				...this.nightActionCommon,
@@ -63,7 +62,7 @@ export class Robber extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		players: Player[],
+		players: PlayerMap,
 		_centerCards: Character[],
 		{ playerIndex }: { playerIndex: number },
 		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed

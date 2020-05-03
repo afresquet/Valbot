@@ -1,9 +1,8 @@
 import Discord from "discord.js";
 import { Character } from "../Character";
 import { numberEmojis } from "../emojis";
-import { findPlayerById } from "../helpers/findPlayerById";
 import { listOfEveryone } from "../helpers/listOfEveryone";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { CharacterModel } from "./CharacterModel";
 
 export class Troublemaker extends CharacterModel {
@@ -16,7 +15,7 @@ export class Troublemaker extends CharacterModel {
 
 	nightActionDM(
 		player: Player,
-		players: Player[]
+		players: PlayerMap
 	): Discord.MessageEmbedOptions {
 		const troublemaker = player as Player<Character.TROUBLEMAKER>;
 		const doppelgangerTroublemaker = player as Player<
@@ -33,7 +32,7 @@ export class Troublemaker extends CharacterModel {
 			const firstId = player.isDoppelganger
 				? doppelgangerTroublemaker.action.role.action.first!
 				: troublemaker.action.first!;
-			const first = findPlayerById(players, firstId)!;
+			const first = players.get(firstId)!;
 			const firstIndex = players.indexOf(first);
 
 			return {
@@ -61,13 +60,13 @@ export class Troublemaker extends CharacterModel {
 			const firstId = player.isDoppelganger
 				? doppelgangerTroublemaker.action.role.action.first!
 				: troublemaker.action.first!;
-			const first = findPlayerById(players, firstId)!;
+			const first = players.get(firstId)!;
 			const firstIndex = players.indexOf(first);
 
 			const secondId = player.isDoppelganger
 				? doppelgangerTroublemaker.action.role.action.second!
 				: troublemaker.action.second!;
-			const second = findPlayerById(players, secondId)!;
+			const second = players.get(secondId)!;
 			const secondIndex = players.indexOf(second);
 
 			return {
@@ -100,7 +99,7 @@ export class Troublemaker extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		players: Player[],
+		players: PlayerMap,
 		_centerCards: Character[],
 		{ playerIndex }: { playerIndex: number },
 		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
@@ -129,7 +128,7 @@ export class Troublemaker extends CharacterModel {
 		} else if (!action.second) {
 			if (action.first === target.member.id) return;
 
-			const first = findPlayerById(players, action.first)!;
+			const first = players.get(action.first)!;
 			const second = target;
 
 			action.second = second.member.id;

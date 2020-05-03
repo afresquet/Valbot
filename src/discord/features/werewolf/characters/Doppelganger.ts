@@ -3,9 +3,8 @@ import { characters } from ".";
 import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
 import { centerEmojis, numberEmojis } from "../emojis";
-import { findPlayerById } from "../helpers/findPlayerById";
 import { listOfEveryone } from "../helpers/listOfEveryone";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { Sound } from "../Sounds";
 import { CharacterModel } from "./CharacterModel";
 
@@ -19,7 +18,7 @@ export class Doppelganger extends CharacterModel {
 	protected playerReactionsDM = true;
 
 	async handleNightAction(
-		players: Player[],
+		players: PlayerMap,
 		centerCards: Character[],
 		roleDelay: number,
 		playSound: (character: Character, sound: Sound) => Promise<void>,
@@ -38,8 +37,9 @@ export class Doppelganger extends CharacterModel {
 		);
 
 		if (this.playerReactionsDM) {
-			for (let i = 0; i < players.length; i++) {
-				if (doppelganger?.member.id === players[i].member.id) continue;
+			for (let i = 0; i < players.size; i++) {
+				if (doppelganger?.member.id === players.getByIndex(i)!.member.id)
+					continue;
 
 				await this.privateMessage?.react(numberEmojis[i]);
 			}
@@ -77,8 +77,9 @@ export class Doppelganger extends CharacterModel {
 				doppelganger?.action?.role?.character
 			)
 		) {
-			for (let i = 0; i < players.length; i++) {
-				if (doppelganger?.member.id === players[i].member.id) continue;
+			for (let i = 0; i < players.size; i++) {
+				if (doppelganger?.member.id === players.getByIndex(i)!.member.id)
+					continue;
 
 				await this.privateMessage?.react(numberEmojis[i]);
 			}
@@ -123,12 +124,12 @@ export class Doppelganger extends CharacterModel {
 
 	nightActionDM(
 		player: Player,
-		players: Player[]
+		players: PlayerMap
 	): Discord.MessageEmbedOptions {
 		const doppelganger = player as Player<Character.DOPPELGANGER>;
 
 		if (doppelganger.action) {
-			const target = findPlayerById(players, doppelganger.action.player)!;
+			const target = players.get(doppelganger.action.player)!;
 
 			const hasAction = [
 				Character.MINION,
@@ -160,7 +161,7 @@ export class Doppelganger extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		players: Player[],
+		players: PlayerMap,
 		centerCards: Character[],
 		indexes: {
 			playerIndex: number;

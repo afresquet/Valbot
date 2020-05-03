@@ -1,4 +1,5 @@
 import Discord from "discord.js";
+import { ArrayLikeMap } from "../../../helpers/ArrayLikeMap";
 import { Character } from "./Character";
 import { CharacterAction } from "./CharacterAction";
 
@@ -35,3 +36,5 @@ export class Player<
 		return this.role === Character.DOPPELGANGER;
 	}
 }
+
+export type PlayerMap = ArrayLikeMap<string, Player>;

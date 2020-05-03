@@ -2,7 +2,7 @@ import Discord from "discord.js";
 import { Character } from "../Character";
 import { centerEmojis } from "../emojis";
 import { centerCardPosition } from "../helpers/centerCardPosition";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { CharacterModel } from "./CharacterModel";
 
 export class Drunk extends CharacterModel {
@@ -58,7 +58,7 @@ export class Drunk extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		_target: Player,
-		_players: Player[],
+		_players: PlayerMap,
 		centerCards: Character[],
 		{ centerIndex }: { centerIndex: number },
 		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed

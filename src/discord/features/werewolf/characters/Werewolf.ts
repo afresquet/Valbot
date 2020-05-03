@@ -2,7 +2,7 @@ import Discord from "discord.js";
 import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
 import { listOfTeammates } from "../helpers/listOfTeammates";
-import { Player } from "../Player";
+import { Player, PlayerMap } from "../Player";
 import { Sound } from "../Sounds";
 import { CharacterModel } from "./CharacterModel";
 
@@ -18,7 +18,7 @@ export class Werewolf extends CharacterModel {
 	private privateMessages?: Discord.Message[];
 
 	async handleNightAction(
-		players: Player[],
+		players: PlayerMap,
 		_centerCards: Character[],
 		roleDelay: number,
 		playSound: (character: Character, sound: Sound) => Promise<void>,
@@ -52,7 +52,7 @@ export class Werewolf extends CharacterModel {
 
 	nightActionDM(
 		player: Player,
-		players: Player[]
+		players: PlayerMap
 	): Discord.MessageEmbedOptions {
 		return {
 			...this.nightActionCommon,
