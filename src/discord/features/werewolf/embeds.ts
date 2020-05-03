@@ -85,10 +85,10 @@ export class Embeds {
 	}
 
 	role(player: Player) {
-		const character = characters.get(player.initialRole!)!;
+		const character = characters.get(player.role!)!;
 
 		return this.base({
-			title: `Your role is ${capitalize(player.initialRole!)}!`,
+			title: `Your role is ${capitalize(player.role!)}!`,
 			description: character.description,
 			footer: {
 				text:

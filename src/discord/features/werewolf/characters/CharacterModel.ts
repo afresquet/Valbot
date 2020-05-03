@@ -17,8 +17,7 @@ export abstract class CharacterModel {
 	): Discord.MessageEmbedOptions;
 
 	protected nightActionTitleRole(player: Player) {
-		if (player.initialRole !== Character.DOPPELGANGER)
-			return capitalize(player.initialRole);
+		if (player.role !== Character.DOPPELGANGER) return capitalize(player.role);
 
 		return `Doppelganger-${capitalize(
 			(player as Player<Character.DOPPELGANGER>).action.role.character

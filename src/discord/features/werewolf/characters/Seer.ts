@@ -47,9 +47,9 @@ export class Seer extends CharacterModel {
 				title: `${this.nightActionTitleRole(player)}, this is ${
 					target.member.displayName
 				}'s role:`,
-				description: capitalize(target.role!),
+				description: capitalize(target.currentRole!),
 				image: {
-					url: characters.get(target.role!)!.image,
+					url: characters.get(target.currentRole!)!.image,
 				},
 			};
 		} else if (

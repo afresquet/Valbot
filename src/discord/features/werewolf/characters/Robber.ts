@@ -40,9 +40,9 @@ export class Robber extends CharacterModel {
 			return {
 				...this.nightActionCommon(),
 				title: `You stole the role from ${target.member.displayName}!`,
-				description: `You became a ${capitalize(player.role!)}.`,
+				description: `You became a ${capitalize(player.currentRole!)}.`,
 				image: {
-					url: characters.get(player.role!)!.image,
+					url: characters.get(player.currentRole!)!.image,
 				},
 			};
 		}

@@ -8,8 +8,8 @@ export class Player<
 > {
 	master = false;
 
-	initialRole: InitialCharacter;
-	role: Character;
+	role: InitialCharacter;
+	currentRole: Character;
 	claimedRole: Character;
 
 	action: CharacterAction<InitialCharacter, CopiedCharacter>;
@@ -18,14 +18,14 @@ export class Player<
 
 	constructor(public member: Discord.GuildMember) {}
 
-	setInitialRole(character: InitialCharacter) {
+	setRole(character: InitialCharacter) {
 		this.role = character;
-		this.initialRole = character;
+		this.currentRole = character;
 	}
 
 	clear() {
-		delete this.initialRole;
 		delete this.role;
+		delete this.currentRole;
 		delete this.claimedRole;
 		delete this.action;
 		delete this.killing;

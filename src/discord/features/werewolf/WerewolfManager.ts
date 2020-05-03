@@ -309,7 +309,7 @@ export class WerewolfManager {
 
 			const [role] = roles.splice(index, 1);
 
-			player.setInitialRole(role);
+			player.setRole(role);
 		});
 
 		this.centerCards = roles;
@@ -437,7 +437,7 @@ export class WerewolfManager {
 		const fields: Discord.EmbedFieldData[] = [];
 
 		const doppelganger = this.players.find(
-			p => p.initialRole === Character.DOPPELGANGER
+			p => p.role === Character.DOPPELGANGER
 		) as Player<Character.DOPPELGANGER>;
 		if (doppelganger?.action?.role?.action) {
 			switch (doppelganger.action.role.character) {
@@ -568,9 +568,9 @@ export class WerewolfManager {
 			});
 		}
 
-		const seer = this.players.find(
-			p => p.initialRole === Character.SEER
-		) as Player<Character.SEER>;
+		const seer = this.players.find(p => p.role === Character.SEER) as Player<
+			Character.SEER
+		>;
 		if (seer?.action) {
 			if (seer.action.player) {
 				const target = findPlayerById(this.players, seer.action.player)!;
@@ -590,7 +590,7 @@ export class WerewolfManager {
 		}
 
 		const robber = this.players.find(
-			p => p.initialRole === Character.ROBBER
+			p => p.role === Character.ROBBER
 		) as Player<Character.ROBBER>;
 		if (robber?.action) {
 			const target = findPlayerById(this.players, robber.action.player)!;
@@ -602,7 +602,7 @@ export class WerewolfManager {
 		}
 
 		const troublemaker = this.players.find(
-			p => p.initialRole === Character.TROUBLEMAKER
+			p => p.role === Character.TROUBLEMAKER
 		) as Player<Character.TROUBLEMAKER>;
 		if (troublemaker?.action?.first && troublemaker?.action?.second) {
 			const first = this.players.find(
@@ -618,9 +618,9 @@ export class WerewolfManager {
 			});
 		}
 
-		const drunk = this.players.find(
-			p => p.initialRole === Character.DRUNK
-		) as Player<Character.DRUNK>;
+		const drunk = this.players.find(p => p.role === Character.DRUNK) as Player<
+			Character.DRUNK
+		>;
 		if (drunk?.action) {
 			fields.push({
 				name: `${drunk.member.displayName} (Drunk)`,
@@ -634,9 +634,9 @@ export class WerewolfManager {
 			name: "Final roles",
 			value: this.players.reduce((result, current, index) => {
 				const role =
-					current.initialRole !== current.role
-						? `${current.initialRole} -> ${current.role}`
-						: current.role;
+					current.role !== current.currentRole
+						? `${current.role} -> ${current.currentRole}`
+						: current.currentRole;
 				const playerLine = `${numberEmojis[index]} ${current.member.displayName}: ${role}`;
 
 				return result === "" ? playerLine : `${result}\n${playerLine}`;
@@ -665,7 +665,7 @@ export class WerewolfManager {
 						: `${result}\n${playerLine}`;
 				}, "No votes happened"),
 				thumbnail: {
-					url: characters.get(killed.role)!.image,
+					url: characters.get(killed.currentRole)!.image,
 				},
 				fields,
 			})
@@ -808,7 +808,7 @@ export class WerewolfManager {
 				.amount > 0
 		) {
 			const doppelganger = this.players.find(
-				p => p.initialRole === Character.DOPPELGANGER
+				p => p.role === Character.DOPPELGANGER
 			)! as Player<Character.DOPPELGANGER, Character.INSOMNIAC>;
 
 			await this.playSound(character, Character.DOPPELGANGER);
@@ -841,7 +841,7 @@ export class WerewolfManager {
 					(isDoppelganger(player) &&
 						(player as Player<Character.DOPPELGANGER>).action.role.character ===
 							character) ||
-					player.initialRole === character
+					player.role === character
 			);
 
 			const messages = await Promise.all(
@@ -861,9 +861,7 @@ export class WerewolfManager {
 			return;
 		}
 
-		const player = this.players.find(
-			player => player.initialRole === character
-		)!;
+		const player = this.players.find(player => player.role === character)!;
 
 		if (!player) {
 			await delay(this.roleTimer * 1000);
@@ -907,7 +905,7 @@ export class WerewolfManager {
 
 	private async handleDoppelgangerNightAction() {
 		const doppelganger = this.players.find(
-			p => p.initialRole === Character.DOPPELGANGER
+			p => p.role === Character.DOPPELGANGER
 		) as Player<Character.DOPPELGANGER>;
 
 		if (doppelganger?.action) {
@@ -1030,7 +1028,7 @@ export class WerewolfManager {
 	private async refreshDM(character: Character) {
 		if (!this.nightActionDM || this.gameState !== GameState.NIGHT) return;
 
-		const player = this.players.find(p => p.initialRole === character);
+		const player = this.players.find(p => p.role === character);
 
 		if (!player) return;
 
@@ -1067,7 +1065,7 @@ export class WerewolfManager {
 				isDoppelganger(player) &&
 				(player as Player<Character.DOPPELGANGER>).action?.ready
 					? (player as Player<Character.DOPPELGANGER>).action.role.character
-					: player.initialRole;
+					: player.role;
 
 			switch (role) {
 				case Character.DOPPELGANGER: {
@@ -1079,7 +1077,7 @@ export class WerewolfManager {
 						player: target.member.id,
 						ready: false,
 						role: {
-							character: target.initialRole,
+							character: target.role,
 							action: undefined,
 						},
 					};
@@ -1097,7 +1095,7 @@ export class WerewolfManager {
 
 					if (isDoppelganger(player) && doppelgangerSeer.action?.role?.action) {
 						action = doppelgangerSeer.action.role.action;
-					} else if (player.initialRole === Character.SEER && seer.action) {
+					} else if (player.role === Character.SEER && seer.action) {
 						action = seer.action;
 					}
 
@@ -1149,7 +1147,10 @@ export class WerewolfManager {
 						robber.action = action;
 					}
 
-					[player.role, target.role] = [target.role, player.role];
+					[player.currentRole, target.currentRole] = [
+						target.currentRole,
+						player.currentRole,
+					];
 
 					break;
 				}
@@ -1170,7 +1171,7 @@ export class WerewolfManager {
 					) {
 						action = doppelgangerTroublemaker.action.role.action;
 					} else if (
-						player.initialRole === Character.TROUBLEMAKER &&
+						player.role === Character.TROUBLEMAKER &&
 						troublemaker.action
 					) {
 						action = troublemaker.action;
@@ -1186,7 +1187,10 @@ export class WerewolfManager {
 
 						action.second = second.member.id;
 
-						[first.role, second.role] = [second.role, first.role];
+						[first.currentRole, second.currentRole] = [
+							second.currentRole,
+							first.currentRole,
+						];
 					} else {
 						break;
 					}
@@ -1223,20 +1227,18 @@ export class WerewolfManager {
 						drunk.action = action;
 					}
 
-					[player.role, this.centerCards[centerIndex]] = [
+					[player.currentRole, this.centerCards[centerIndex]] = [
 						this.centerCards[centerIndex],
-						player.role!,
+						player.currentRole!,
 					];
 
 					break;
 				}
 				default:
-					throw new Error(
-						`Unhandled reaction from character ${player.initialRole}.`
-					);
+					throw new Error(`Unhandled reaction from character ${player.role}.`);
 			}
 
-			await this.refreshDM(player.initialRole!);
+			await this.refreshDM(player.role!);
 		} else if (this.gameState === GameState.DAY) {
 			if (!characterEmoji) return;
 

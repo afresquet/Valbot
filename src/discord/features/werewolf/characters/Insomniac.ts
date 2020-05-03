@@ -17,9 +17,9 @@ export class Insomniac extends CharacterModel {
 		return {
 			...this.nightActionCommon(),
 			title: `${this.nightActionTitleRole(player)}, this is your role:`,
-			description: capitalize(player.role),
+			description: capitalize(player.currentRole),
 			image: {
-				url: characters.get(player.role)!.image,
+				url: characters.get(player.currentRole)!.image,
 			},
 		};
 	}
