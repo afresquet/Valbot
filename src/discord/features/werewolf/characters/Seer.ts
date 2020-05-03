@@ -122,9 +122,10 @@ export class Seer extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		_players: Player[],
-		_centerCards: Character[],
-		{ playerIndex, centerIndex }: { playerIndex: number; centerIndex: number }
+		players: Player[],
+		centerCards: Character[],
+		{ playerIndex, centerIndex }: { playerIndex: number; centerIndex: number },
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
 	) {
 		const seer = player as Player<Character.SEER>;
 		const doppelgangerSeer = player as Player<
@@ -161,5 +162,9 @@ export class Seer extends CharacterModel {
 		} else {
 			seer.action = action;
 		}
+
+		await this.privateMessage?.edit(
+			createEmbed(this.nightActionDM(player, players, centerCards))
+		);
 	}
 }

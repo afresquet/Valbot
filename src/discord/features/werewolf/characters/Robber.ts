@@ -63,9 +63,10 @@ export class Robber extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		_players: Player[],
+		players: Player[],
 		_centerCards: Character[],
-		{ playerIndex }: { playerIndex: number }
+		{ playerIndex }: { playerIndex: number },
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
 	) {
 		if (playerIndex === -1) return;
 
@@ -94,5 +95,9 @@ export class Robber extends CharacterModel {
 			target.currentRole,
 			player.currentRole,
 		];
+
+		await this.privateMessage?.edit(
+			createEmbed(this.nightActionDM(player, players))
+		);
 	}
 }

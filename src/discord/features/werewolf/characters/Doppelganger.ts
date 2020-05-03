@@ -160,12 +160,13 @@ export class Doppelganger extends CharacterModel {
 	async handleReaction(
 		player: Player,
 		target: Player,
-		_players: Player[],
-		_centerCards: Character[],
+		players: Player[],
+		centerCards: Character[],
 		indexes: {
 			playerIndex: number;
 			centerIndex: number;
-		}
+		},
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
 	) {
 		const doppelganger = player as Player<Character.DOPPELGANGER>;
 
@@ -181,7 +182,23 @@ export class Doppelganger extends CharacterModel {
 				},
 			};
 
+			await this.privateMessage?.edit(
+				createEmbed(this.nightActionDM(player, players))
+			);
+
 			return;
 		}
+
+		const copiedRole = characters.get(doppelganger.action.role.character)!;
+
+		await copiedRole.handleReaction.call(
+			this,
+			player,
+			target,
+			players,
+			centerCards,
+			indexes,
+			createEmbed
+		);
 	}
 }

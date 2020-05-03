@@ -60,7 +60,8 @@ export class Drunk extends CharacterModel {
 		_target: Player,
 		_players: Player[],
 		centerCards: Character[],
-		{ centerIndex }: { centerIndex: number }
+		{ centerIndex }: { centerIndex: number },
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
 	) {
 		if (centerIndex === -1) return;
 
@@ -89,5 +90,7 @@ export class Drunk extends CharacterModel {
 			centerCards[centerIndex],
 			player.currentRole!,
 		];
+
+		await this.privateMessage?.edit(createEmbed(this.nightActionDM(player)));
 	}
 }

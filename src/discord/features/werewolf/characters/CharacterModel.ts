@@ -91,18 +91,16 @@ export abstract class CharacterModel {
 	}
 
 	async handleReaction(
-		player: Player,
+		_player: Player,
 		_target: Player,
-		players: Player[],
-		centerCards: Character[],
+		_players: Player[],
+		_centerCards: Character[],
 		_indexes: {
 			playerIndex: number;
 			centerIndex: number;
 		},
-		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
-	) {
-		await this.privateMessage?.edit(
-			createEmbed(this.nightActionDM(player, players, centerCards))
-		);
+		_createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
+	): Promise<void> {
+		throw new Error(`Unhanlded "${this.name}" reaction.`);
 	}
 }

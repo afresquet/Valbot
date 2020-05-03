@@ -102,7 +102,8 @@ export class Troublemaker extends CharacterModel {
 		target: Player,
 		players: Player[],
 		_centerCards: Character[],
-		{ playerIndex }: { playerIndex: number }
+		{ playerIndex }: { playerIndex: number },
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
 	) {
 		if (playerIndex === -1) return;
 
@@ -146,5 +147,9 @@ export class Troublemaker extends CharacterModel {
 		} else {
 			troublemaker.action = action;
 		}
+
+		await this.privateMessage?.edit(
+			createEmbed(this.nightActionDM(player, players))
+		);
 	}
 }
