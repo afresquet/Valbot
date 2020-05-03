@@ -14,6 +14,7 @@ export class Drunk extends CharacterModel {
 		"https://cf.geekdo-images.com/imagepage/img/IC7i93WsW03tEbcXHmeV6OxEr_c=/fit-in/900x600/filters:no_upscale()/pic4462584.png";
 
 	nightAction = true;
+	protected centerCardReactionsDM = true;
 
 	nightActionDM(player: Player): Discord.MessageEmbedOptions {
 		const drunk = player as Player<Character.DRUNK>;

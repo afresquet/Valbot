@@ -1,7 +1,10 @@
 import Discord from "discord.js";
+import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
+import { isDoppelganger } from "../helpers/isDoppelganger";
 import { listOfTeammates } from "../helpers/listOfTeammates";
 import { Player } from "../Player";
+import { Sound } from "../Sounds";
 import { CharacterModel } from "./CharacterModel";
 
 export class Mason extends CharacterModel {
@@ -13,6 +16,40 @@ export class Mason extends CharacterModel {
 	protected maxAmount = 2;
 
 	nightAction = true;
+	private privateMessages?: Discord.Message[];
+
+	async handleNightAction(
+		players: Player[],
+		_: Character[],
+		roleDelay: number,
+		playSound: (character: Character, sound: Sound) => Promise<void>,
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
+	) {
+		if (this.amount <= 0) return;
+
+		const masons = players.filter(player =>
+			isDoppelganger(player)
+				? (player as Player<Character.DOPPELGANGER>).action.role.character ===
+				  this.name
+				: player.role === this.name
+		);
+
+		await playSound(this.name, Sound.WAKE);
+
+		this.privateMessages = await Promise.all(
+			masons.map(mason =>
+				mason.member.send(createEmbed(this.nightActionDM(mason, players)))
+			)
+		);
+
+		await delay(roleDelay);
+
+		await Promise.all(this.privateMessages.map(message => message.delete()));
+
+		delete this.privateMessages;
+
+		await playSound(this.name, Sound.CLOSE);
+	}
 
 	nightActionDM(
 		player: Player,

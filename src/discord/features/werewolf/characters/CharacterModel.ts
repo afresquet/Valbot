@@ -1,8 +1,11 @@
 import Discord from "discord.js";
 import { capitalize } from "../../../../helpers/capitalize";
 import { clamp } from "../../../../helpers/clamp";
+import { delay } from "../../../../helpers/delay";
 import { Character } from "../Character";
+import { numberEmojis } from "../emojis";
 import { Player } from "../Player";
+import { Sound } from "../Sounds";
 
 export abstract class CharacterModel {
 	abstract name: Character;
@@ -15,9 +18,52 @@ export abstract class CharacterModel {
 	emoji?: Discord.GuildEmoji;
 
 	abstract nightAction: boolean;
+	protected privateMessage?: Discord.Message;
+	protected playerReactionsDM = false;
+	protected centerCardReactionsDM = false;
 
 	manageAmount(value: number) {
 		this.amount = clamp(this.amount + value, 0, this.maxAmount);
+	}
+
+	async handleNightAction(
+		players: Player[],
+		centerCards: Character[],
+		roleDelay: number,
+		playSound: (character: Character, sound: Sound) => Promise<void>,
+		createEmbed: (options: Discord.MessageEmbedOptions) => Discord.MessageEmbed
+	) {
+		if (this.amount <= 0) return;
+
+		const player = players.find(p => p.role === this.name);
+
+		await playSound(this.name, Sound.WAKE);
+
+		this.privateMessage = await player?.member.send(
+			createEmbed(this.nightActionDM(player, players, centerCards))
+		);
+
+		if (this.playerReactionsDM) {
+			for (let i = 0; i < players.length; i++) {
+				if (player?.member.id === players[i].member.id) continue;
+
+				await this.privateMessage?.react(numberEmojis[i]);
+			}
+		}
+
+		if (this.centerCardReactionsDM) {
+			for (let i = 0; i < centerCards.length; i++) {
+				await this.privateMessage?.react(centerCards[i]);
+			}
+		}
+
+		await delay(roleDelay);
+
+		await this.privateMessage?.delete();
+
+		delete this.privateMessage;
+
+		await playSound(this.name, Sound.CLOSE);
 	}
 
 	abstract nightActionDM(

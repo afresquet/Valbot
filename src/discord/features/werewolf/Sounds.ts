@@ -4,6 +4,8 @@ export enum Sound {
 	WAKE = "wake",
 	CLOSE = "close",
 
+	DOPPELGANGER = "doppelganger",
+
 	THUMB = "thumb",
 
 	TIMEISUP = "timeisup_321vote",
