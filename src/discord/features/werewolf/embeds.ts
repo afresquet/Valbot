@@ -2,7 +2,7 @@ import Discord from "discord.js";
 import { AudioManager } from "../../../helpers/AudioManager";
 import { capitalize } from "../../../helpers/capitalize";
 import { Character } from "./Character";
-import { CharacterModel } from "./characters/CharacterModel";
+import { characters } from "./characters";
 import { numberEmojis } from "./emojis";
 import { findPlayerById } from "./helpers/findPlayerById";
 import { listOfEveryone } from "./helpers/listOfEveryone";
@@ -27,7 +27,6 @@ export class Embeds {
 
 	preparation(
 		players: Player[],
-		characters: Map<Character, CharacterModel>,
 		gameTimer: number,
 		roleTimer: number,
 		expert: boolean
@@ -88,7 +87,7 @@ export class Embeds {
 		});
 	}
 
-	role(player: Player, characters: Map<Character, CharacterModel>) {
+	role(player: Player) {
 		const character = characters.get(player.role!)!;
 
 		return this.base({
@@ -116,11 +115,7 @@ export class Embeds {
 		});
 	}
 
-	day(
-		players: Player[],
-		characters: Map<Character, CharacterModel>,
-		remainingTime: number
-	) {
+	day(players: Player[], remainingTime: number) {
 		const tokens: Character[] = [];
 		for (const [name, character] of characters) {
 			tokens.push(...new Array<Character>(character.amount).fill(name));

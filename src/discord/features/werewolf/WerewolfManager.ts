@@ -40,7 +40,6 @@ export class WerewolfManager {
 	private remainingTime = 0;
 	private roleTimer = 10;
 
-	private characters = characters;
 
 	private async playSound(
 		character: Character | "everyone",
@@ -203,7 +202,6 @@ export class WerewolfManager {
 		this.gameMessage = await this.textChannel.send(
 			this.embeds.preparation(
 				this.players,
-				this.characters,
 				this.gameTimer,
 				this.roleTimer,
 				this.expert
@@ -214,7 +212,7 @@ export class WerewolfManager {
 	}
 
 	async manageCharacter(character: Character, add: boolean) {
-		this.characters.get(character)!.manageAmount(add ? 1 : -1);
+		characters.get(character)!.manageAmount(add ? 1 : -1);
 
 		await this.refreshEmbed();
 	}
@@ -223,7 +221,7 @@ export class WerewolfManager {
 		if (this.gameState !== GameState.PREPARATION) return;
 
 		let charactersAmount = 0;
-		for (const character of this.characters.values()) {
+		for (const character of characters.values()) {
 			charactersAmount += character.amount;
 		}
 
@@ -264,7 +262,7 @@ export class WerewolfManager {
 		this.gameState = GameState.ROLE_ASSIGNING;
 
 		const roles: Character[] = [];
-		for (const [name, character] of this.characters) {
+		for (const [name, character] of characters) {
 			roles.push(...new Array<Character>(character.amount).fill(name));
 		}
 
@@ -285,7 +283,7 @@ export class WerewolfManager {
 
 		const messages = await Promise.all(
 			this.players.map(player =>
-				player.member.send(this.embeds.role(player, this.characters))
+				player.member.send(this.embeds.role(player))
 			)
 		);
 
@@ -328,7 +326,7 @@ export class WerewolfManager {
 			this.muteAll(false),
 			new Promise(async (resolve, reject) => {
 				try {
-					for (const character of this.characters.values()) {
+					for (const character of characters.values()) {
 						if (character.amount <= 0 || !character.emoji) continue;
 
 						await this.gameMessage?.react(character.emoji);
@@ -755,7 +753,7 @@ export class WerewolfManager {
 	}
 
 	private async playCharacter(character: Character) {
-		if (this.characters.get(character)!.amount <= 0) return;
+		if (characters.get(character)!.amount <= 0) return;
 
 		await this.playSound(character, Sound.WAKE);
 
@@ -773,7 +771,7 @@ export class WerewolfManager {
 
 		if (
 			character === Character.INSOMNIAC &&
-			this.characters.get(Character.DOPPELGANGER)!.amount > 0
+			characters.get(Character.DOPPELGANGER)!.amount > 0
 		) {
 			const doppelganger = this.players.find(
 				p => p.role === Character.DOPPELGANGER
@@ -931,7 +929,7 @@ export class WerewolfManager {
 		}
 
 		// Doppelganger Minion
-		if (this.characters.get(Character.MINION)!.amount <= 0) return;
+		if (characters.get(Character.MINION)!.amount <= 0) return;
 
 		await this.playSound(Character.MINION, Character.DOPPELGANGER);
 
@@ -964,7 +962,6 @@ export class WerewolfManager {
 				await this.gameMessage.edit(
 					this.embeds.preparation(
 						this.players,
-						this.characters,
 						this.gameTimer,
 						this.roleTimer,
 						this.expert
@@ -979,7 +976,7 @@ export class WerewolfManager {
 				break;
 			case GameState.DAY:
 				await this.gameMessage.edit(
-					this.embeds.day(this.players, this.characters, this.remainingTime)
+					this.embeds.day(this.players, this.remainingTime)
 				);
 				break;
 			case GameState.VOTING:
@@ -1009,7 +1006,7 @@ export class WerewolfManager {
 	async handleReaction(reaction: Discord.MessageReaction, user: Discord.User) {
 		const playerIndex = numberEmojis.indexOf(reaction.emoji.name);
 		const centerIndex = centerEmojis.indexOf(reaction.emoji.name);
-		const characterFromEmoji = this.characters.get(reaction.emoji.name as any);
+		const characterFromEmoji = characters.get(reaction.emoji.name as any);
 
 		if (playerIndex === -1 && centerIndex === -1 && !characterFromEmoji) return;
 
