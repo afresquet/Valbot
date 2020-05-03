@@ -30,14 +30,12 @@ export class Seer extends CharacterModel {
 			Character.SEER
 		>;
 
-		const playerIsDoppelganger = player.isDoppelganger;
-
 		if (
-			playerIsDoppelganger
+			player.isDoppelganger
 				? doppelgangerSeer.action?.role?.action?.player
 				: seer.action?.player
 		) {
-			const targetId = playerIsDoppelganger
+			const targetId = player.isDoppelganger
 				? doppelgangerSeer.action.role.action.player!
 				: seer.action.player!;
 			const target = findPlayerById(players, targetId)!;
@@ -53,12 +51,12 @@ export class Seer extends CharacterModel {
 				},
 			};
 		} else if (
-			playerIsDoppelganger
+			player.isDoppelganger
 				? doppelgangerSeer.action?.role?.action?.first &&
 				  !doppelgangerSeer.action?.role?.action?.second
 				: seer.action?.first && !seer.action?.second
 		) {
-			const first = playerIsDoppelganger
+			const first = player.isDoppelganger
 				? doppelgangerSeer.action.role.action.first!
 				: seer.action.first!;
 
@@ -72,15 +70,15 @@ export class Seer extends CharacterModel {
 				)}.`,
 			};
 		} else if (
-			playerIsDoppelganger
+			player.isDoppelganger
 				? doppelgangerSeer.action?.role?.action?.first &&
 				  doppelgangerSeer.action?.role?.action?.second
 				: seer.action?.first && seer.action?.second
 		) {
-			const first = playerIsDoppelganger
+			const first = player.isDoppelganger
 				? doppelgangerSeer.action.role.action.first!
 				: seer.action.first!;
-			const second = playerIsDoppelganger
+			const second = player.isDoppelganger
 				? doppelgangerSeer.action.role.action.second!
 				: seer.action.second!;
 

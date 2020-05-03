@@ -24,15 +24,13 @@ export class Troublemaker extends CharacterModel {
 			Character.TROUBLEMAKER
 		>;
 
-		const playerIsDoppelganger = player.isDoppelganger;
-
 		if (
-			playerIsDoppelganger
+			player.isDoppelganger
 				? doppelgangerTroublemaker.action?.role?.action?.first &&
 				  !doppelgangerTroublemaker.action?.role?.action?.second
 				: troublemaker.action?.first && !troublemaker.action?.second
 		) {
-			const firstId = playerIsDoppelganger
+			const firstId = player.isDoppelganger
 				? doppelgangerTroublemaker.action.role.action.first!
 				: troublemaker.action.first!;
 			const first = findPlayerById(players, firstId)!;
@@ -55,18 +53,18 @@ export class Troublemaker extends CharacterModel {
 				],
 			};
 		} else if (
-			playerIsDoppelganger
+			player.isDoppelganger
 				? doppelgangerTroublemaker.action?.role?.action?.first &&
 				  doppelgangerTroublemaker.action?.role?.action?.second
 				: troublemaker.action?.first && troublemaker.action?.second
 		) {
-			const firstId = playerIsDoppelganger
+			const firstId = player.isDoppelganger
 				? doppelgangerTroublemaker.action.role.action.first!
 				: troublemaker.action.first!;
 			const first = findPlayerById(players, firstId)!;
 			const firstIndex = players.indexOf(first);
 
-			const secondId = playerIsDoppelganger
+			const secondId = player.isDoppelganger
 				? doppelgangerTroublemaker.action.role.action.second!
 				: troublemaker.action.second!;
 			const second = findPlayerById(players, secondId)!;
