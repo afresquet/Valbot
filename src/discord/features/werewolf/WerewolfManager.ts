@@ -29,35 +29,9 @@ export class WerewolfManager {
 
 	private gameMessage?: Discord.Message;
 
-	private soundLanguage = "en";
-	private soundVoice = "male";
-
-	private expert = false;
-
 	private gameTimer = 300;
 	private remainingTime = 0;
 	private roleTimer = 10;
-
-	private async playSound(character: Character | "everyone", sound: Sound) {
-		const values = [this.soundLanguage, this.soundVoice];
-
-		if (
-			this.expert &&
-			[Sound.WAKE, Character.DOPPELGANGER].includes(sound) &&
-			character !== "everyone"
-		) {
-			values.push("expert");
-		}
-
-		values.push(sound === Sound.DOPPELGANGER ? sound : character);
-		values.push(sound === Sound.DOPPELGANGER ? character : sound);
-
-		const fileName = values.join("_");
-
-		await this.audioManager.play(
-			join(__dirname, `../../../../assets/werewolf/sounds/${fileName}.mp3`)
-		);
-	}
 
 	isReady() {
 		return this.textChannel && this.audioManager.isReady() && this.playerRole;
@@ -198,7 +172,7 @@ export class WerewolfManager {
 				this.players,
 				this.gameTimer,
 				this.roleTimer,
-				this.expert
+				this.audioManager.expert
 			)
 		);
 
@@ -292,7 +266,7 @@ export class WerewolfManager {
 		await this.refreshEmbed();
 
 		await Promise.all([
-			this.playSound("everyone", Sound.CLOSE),
+			this.audioManager.playSound("everyone", Sound.CLOSE),
 			this.muteAll(true),
 		]);
 
@@ -302,7 +276,7 @@ export class WerewolfManager {
 					this.players,
 					this.centerCards,
 					this.roleTimer * 1000,
-					this.playSound,
+					this.audioManager.playSound,
 					this.embeds.base
 				);
 			}
@@ -319,7 +293,7 @@ export class WerewolfManager {
 		this.remainingTime = this.gameTimer;
 
 		await Promise.all([
-			this.playSound("everyone", Sound.WAKE),
+			this.audioManager.playSound("everyone", Sound.WAKE),
 			this.refreshEmbed(),
 			this.muteAll(false),
 			new Promise(async (resolve, reject) => {
@@ -348,7 +322,7 @@ export class WerewolfManager {
 		this.gameState = GameState.VOTING;
 
 		await Promise.all([
-			this.playSound("everyone", Sound.TIMEISUP),
+			this.audioManager.playSound("everyone", Sound.TIMEISUP),
 			this.refreshEmbed(),
 			new Promise(async (resolve, reject) => {
 				try {
@@ -663,8 +637,8 @@ export class WerewolfManager {
 	}
 
 	async rules(character: Character) {
-		await this.playSound(character, Sound.NAME);
-		await this.playSound(character, Sound.RULES);
+		await this.audioManager.playSound(character, Sound.NAME);
+		await this.audioManager.playSound(character, Sound.RULES);
 	}
 
 	private async muteAll(on: boolean) {
@@ -704,7 +678,7 @@ export class WerewolfManager {
 	}
 
 	async toggleExpert() {
-		this.expert = !this.expert;
+		this.audioManager.toggleExpert();
 
 		await this.refreshEmbed();
 	}
@@ -762,7 +736,7 @@ export class WerewolfManager {
 						this.players,
 						this.gameTimer,
 						this.roleTimer,
-						this.expert
+						this.audioManager.expert
 					)
 				);
 				break;

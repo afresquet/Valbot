@@ -1,9 +1,16 @@
 import Discord from "discord.js";
+import { join } from "path";
 import { Readable } from "stream";
 import { AudioManager } from "../../../helpers/AudioManager";
 import { ErrorOnChat } from "../../../helpers/ErrorOnChat";
+import { Character } from "./Character";
+import { Sound } from "./Sounds";
 
 export class WerewolfAudioManager extends AudioManager {
+	private language = "en";
+	private voice = "male";
+	expert = false;
+
 	play(
 		input: string | Readable | Discord.VoiceBroadcast,
 		options: Discord.StreamOptions = this.streamOptions
@@ -37,6 +44,26 @@ export class WerewolfAudioManager extends AudioManager {
 		});
 	}
 
+	async playSound(character: Character | "everyone", sound: Sound) {
+		const values = [this.language, this.voice];
+
+		if (
+			this.expert &&
+			[Sound.WAKE, Sound.DOPPELGANGER].includes(sound) &&
+			character !== "everyone"
+		) {
+			values.push("expert");
+		}
+
+		values.push(character, sound);
+
+		const fileName = values.join("_");
+
+		await this.play(
+			join(__dirname, `../../../../assets/werewolf/sounds/${fileName}.mp3`)
+		);
+	}
+
 	muteAll(on: boolean) {
 		if (!this.voiceChannel) return;
 
@@ -45,5 +72,9 @@ export class WerewolfAudioManager extends AudioManager {
 				member.user.bot ? member.voice.setMute(false) : member.voice.setMute(on)
 			)
 		);
+	}
+
+	toggleExpert() {
+		this.expert = !this.expert;
 	}
 }
