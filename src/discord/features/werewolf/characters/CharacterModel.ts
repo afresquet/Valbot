@@ -17,7 +17,7 @@ export abstract class CharacterModel {
 
 	emoji?: Discord.GuildEmoji;
 
-	protected nightAction = true;
+	nightAction = true;
 	protected privateMessage?: Discord.Message;
 	protected playerReactionsDM = false;
 	protected centerCardReactionsDM = false;
