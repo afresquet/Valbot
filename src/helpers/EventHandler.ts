@@ -1,12 +1,12 @@
+type Listener<T> = { name: keyof T; callback: T[keyof T] };
 export class EventHandler<
-	N extends string,
-	C extends (...args: any[]) => void
+	Events extends { [K in keyof Events]: (...args: any[]) => void }
 > {
 	private id = 0;
 
-	private listeners = new Map<number, { name: N; callback: C }>();
+	private listeners = new Map<number, Listener<Events>>();
 
-	listen(name: N, callback: C): number {
+	listen<T extends keyof Events>(name: T, callback: Events[T]): number {
 		this.listeners.set(this.id, { name, callback });
 
 		return this.id++;
@@ -18,17 +18,17 @@ export class EventHandler<
 		}
 	}
 
-	clear() {
-		this.listeners.clear();
-
-		this.id = 0;
-	}
-
-	emit(name: N, ...args: any[]) {
+	emit<T extends keyof Events>(name: T, ...args: Parameters<Events[T]>) {
 		this.listeners.forEach(listener => {
 			if (listener.name === name) {
 				listener.callback(...args);
 			}
 		});
+	}
+
+	clear() {
+		this.listeners.clear();
+
+		this.id = 0;
 	}
 }
