@@ -3,7 +3,9 @@ import { join } from "path";
 import { ArrayLikeMap } from "../../../helpers/ArrayLikeMap";
 import { capitalize } from "../../../helpers/capitalize";
 import { delay } from "../../../helpers/delay";
+import { EventHandler } from "../../../helpers/EventHandler";
 import { prefixChannel, prefixRole } from "../../../helpers/prefixString";
+import { Queue } from "../../../helpers/Queue";
 import { Character } from "./Character";
 import { characters } from "./characters";
 import { Embeds } from "./embeds";
@@ -13,12 +15,20 @@ import { centerCardPosition } from "./helpers/centerCardPosition";
 import { Player } from "./Player";
 import { Sound } from "./Sounds";
 import { WerewolfAudioManager } from "./WerewolfAudioManager";
+import { WerewolfContext } from "./WerewolfContext";
+import { WerewolfEvents } from "./WerewolfEvents";
 
 export class WerewolfManager {
 	private textChannel?: Discord.TextChannel;
 	private audioManager = new WerewolfAudioManager();
 	private playerRole?: Discord.Role;
 	private bannedRole?: Discord.Role;
+
+	private queue = new Queue<
+		(context: WerewolfContext) => void | Promise<void>
+	>();
+
+	private events = new EventHandler<WerewolfEvents>();
 
 	private embeds = new Embeds(this.audioManager);
 
@@ -213,15 +223,46 @@ export class WerewolfManager {
 	}
 
 	async cancel() {
-		if (this.gameState !== GameState.DAY) return;
+		this.events.emit("cancel");
 
 		this.gameState = GameState.NOT_PLAYING;
 
-		if (this.gameMessage) {
-			await this.gameMessage.delete();
-		}
+		await this.gameMessage?.delete();
 
 		this.cleanUp();
+	}
+
+	async gameLoop(): Promise<void> {
+		const callback = this.queue.dequeue();
+
+		if (!callback) return;
+
+		let cancelId: number | undefined = undefined;
+
+		const winner = await Promise.race([
+			callback({
+				textChannel: this.textChannel!,
+				audioManager: this.audioManager,
+				gameState: this.gameState,
+				gameMessage: this.gameMessage,
+				gameTimer: this.gameTimer,
+				roleTimer: this.roleTimer,
+				players: this.players,
+				centerCards: this.centerCards,
+				createEmbed: this.embeds.base,
+			}),
+			new Promise(resolve => {
+				cancelId = this.events.listen("cancel", () => {
+					resolve("canceled");
+				});
+			}),
+		]);
+
+		this.events.unlisten(cancelId);
+
+		if (winner === "canceled") return;
+
+		return this.gameLoop();
 	}
 
 	private async assignRoles(forcedRoles: Character[] = []) {
@@ -596,7 +637,7 @@ export class WerewolfManager {
 			player.clear();
 		}
 
-		this.centerCards = [];
+		this.centerCards.length = 0;
 	}
 
 	dayTimer() {
