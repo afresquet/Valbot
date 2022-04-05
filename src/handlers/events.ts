@@ -1,5 +1,5 @@
 import { readdir } from "fs/promises";
-import { Handler } from "../types/discord";
+import { Event, Handler } from "../types/discord";
 
 const eventsHandler: Handler = async client => {
 	try {
@@ -19,15 +19,18 @@ const eventsHandler: Handler = async client => {
 
 			for (const file of files) {
 				try {
-					const event = await import(
-						`${process.cwd()}/dist/events/${directory}/${file}`
-					);
-					const eventName = file.split(".")[0];
-					const eventHandler = event.default;
+					// we need to pass a generic type here, but it doesn't matter for the following code
+					const event: Event<"messageCreate"> = (
+						await import(`${process.cwd()}/dist/events/${directory}/${file}`)
+					).default;
 
-					client.on(eventName, eventHandler(client));
+					if (event.once) {
+						client.once(event.event, event.execute);
+					} else {
+						client.on(event.event, event.execute);
+					}
 
-					console.log(`Loaded event "${eventName}"`);
+					console.log(`Loaded event "${event.name}"`);
 				} catch (error) {
 					console.error(error);
 				}

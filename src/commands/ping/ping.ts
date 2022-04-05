@@ -5,9 +5,9 @@ const pingCommand: Command = {
 	data: new SlashCommandBuilder()
 		.setName("ping")
 		.setDescription("Tests connection to the bot."),
-	execute(interaction, client) {
+	execute(interaction) {
 		interaction.reply({
-			content: `Pong! Ping is \`${client.ws.ping}ms\``,
+			content: `Pong! Ping is \`${interaction.client.ws.ping}ms\``,
 			ephemeral: true,
 		});
 	},

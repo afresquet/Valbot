@@ -1,12 +1,14 @@
 import { MessageEmbed } from "discord.js";
 import { Event } from "../../types/discord";
 
-const eventReady: Event<"interactionCreate"> = client => {
-	return async interaction => {
+const eventReady: Event<"interactionCreate"> = {
+	name: "interactionCreate",
+	event: "interactionCreate",
+	execute: async interaction => {
 		try {
 			if (!interaction.isCommand()) return;
 
-			const command = client.commands.get(interaction.commandName);
+			const command = interaction.client.commands.get(interaction.commandName);
 
 			if (!command) {
 				await interaction.reply({
@@ -17,16 +19,16 @@ const eventReady: Event<"interactionCreate"> = client => {
 					],
 				});
 
-				client.commands.delete(interaction.commandName);
+				interaction.client.commands.delete(interaction.commandName);
 
 				return;
 			}
 
-			await command.execute(interaction, client);
+			await command.execute(interaction);
 		} catch (error) {
 			console.error(error);
 		}
-	};
+	},
 };
 
 export default eventReady;

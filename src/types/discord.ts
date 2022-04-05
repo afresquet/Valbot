@@ -8,14 +8,14 @@ import {
 
 export type Handler = (client: Client) => void | Promise<void>;
 
-export type Event<T extends keyof ClientEvents> = (
-	client: Client
-) => (...args: ClientEvents[T]) => Awaitable<void>;
+export interface Event<T extends keyof ClientEvents> {
+	name: string;
+	event: T;
+	once?: boolean;
+	execute: (...args: ClientEvents[T]) => Awaitable<void>;
+}
 
 export interface Command {
 	data: SlashCommandBuilder;
-	execute(
-		interaction: CommandInteraction,
-		client: Client
-	): void | Promise<void>;
+	execute(interaction: CommandInteraction): void | Promise<void>;
 }
