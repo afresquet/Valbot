@@ -17,7 +17,6 @@ async function run() {
 	});
 
 	client.commands = new Discord.Collection();
-	client.aliases = new Discord.Collection();
 
 	await setupHandlers(client);
 
