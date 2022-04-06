@@ -1,3 +1,4 @@
+import { LiveRoleModel } from "../../schemas/LiveRole";
 import type { Event } from "../../types/discord";
 import {
 	guildMemberHasActivity,
@@ -8,8 +9,14 @@ const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 	name: "live-role",
 	event: "presenceUpdate",
 	execute: async (_, newPresence) => {
+		const configuration = await LiveRoleModel.findOne({
+			guildId: newPresence.guild?.id,
+		});
+
+		if (!configuration) return;
+
 		const liveRole = newPresence.guild?.roles.cache.find(
-			role => role.id === "695111442898354227"
+			role => role.id === configuration.roleId
 		);
 
 		if (!liveRole) return;
