@@ -25,9 +25,9 @@ const suggestCommand: Command = {
 		),
 	execute: async interaction => {
 		try {
-			const { options, user, guildId, channelId } = interaction;
+			const { options, user, guild, channelId } = interaction;
 
-			const configuration = await SuggestionModel.findOne({ guildId });
+			const configuration = await SuggestionModel.findByGuild(guild!);
 
 			if (!configuration) {
 				interaction.reply({

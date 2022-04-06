@@ -9,15 +9,7 @@ const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 	name: "live-role",
 	event: "presenceUpdate",
 	execute: async (_, newPresence) => {
-		const configuration = await LiveRoleModel.findOne({
-			guildId: newPresence.guild?.id,
-		});
-
-		if (!configuration) return;
-
-		const liveRole = newPresence.guild?.roles.cache.find(
-			role => role.id === configuration.roleId
-		);
+		const liveRole = await LiveRoleModel.findRoleByGuild(newPresence.guild!);
 
 		if (!liveRole) return;
 

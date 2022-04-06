@@ -36,12 +36,12 @@ const setupSuggestionsCommand: Command = {
 		),
 	execute: async interaction => {
 		try {
-			const { options, guildId } = interaction;
+			const { options, guild, guildId } = interaction;
 
 			const subcommand = options.getSubcommand();
 			const channelId = options.getChannel("channel");
 
-			const configuration = await SuggestionModel.findOne({ guildId });
+			const configuration = await SuggestionModel.findByGuild(guild!);
 
 			switch (subcommand) {
 				case "enable":
