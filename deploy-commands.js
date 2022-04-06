@@ -31,7 +31,25 @@ const [clientId, guildId] = process.argv.slice(2);
 
 (async () => {
 	try {
-		console.log("Started refreshing application (/) commands.");
+		console.log("Started clearing application (/) commands...");
+
+		const data = await rest.get(
+			Routes.applicationGuildCommands(clientId, guildId)
+		);
+
+		await Promise.all(
+			data.map(async command => {
+				const deleteUrl = `${Routes.applicationGuildCommands(
+					clientId,
+					guildId
+				)}/${command.id}`;
+				return rest.delete(deleteUrl);
+			})
+		);
+
+		console.log("Successfully cleared application (/) commands.");
+
+		console.log("Started refreshing application (/) commands...");
 
 		await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
 			body: commands,

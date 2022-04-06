@@ -1,4 +1,7 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import {
+	SlashCommandBuilder,
+	SlashCommandSubcommandsOnlyBuilder,
+} from "@discordjs/builders";
 import {
 	Awaitable,
 	Client,
@@ -16,6 +19,9 @@ export interface Event<T extends keyof ClientEvents> {
 }
 
 export interface Command {
-	data: SlashCommandBuilder;
+	data:
+		| SlashCommandBuilder
+		| SlashCommandSubcommandsOnlyBuilder
+		| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 	execute(interaction: CommandInteraction): void | Promise<void>;
 }
