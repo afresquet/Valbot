@@ -54,18 +54,4 @@ describe("interactionCreate interaction event", () => {
 			"not-a-command"
 		);
 	});
-
-	test("logs errors to console", async () => {
-		const error = new Error("error");
-
-		// really don't like how this is done
-		interaction.isCommand.mockImplementationOnce(() => {
-			throw error;
-		});
-		jest.spyOn(console, "error").mockImplementation();
-
-		await interactionCreateEvent.execute(interaction);
-
-		expect(console.error).toHaveBeenCalledWith(error);
-	});
 });

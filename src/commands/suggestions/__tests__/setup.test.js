@@ -133,18 +133,4 @@ describe("live-role setup command", () => {
 			});
 		});
 	});
-
-	test("logs errors to console", async () => {
-		const error = new Error("error");
-
-		// really don't like how this is done
-		interaction.options.getSubcommand.mockImplementationOnce(() => {
-			throw error;
-		});
-		jest.spyOn(console, "error").mockImplementation();
-
-		await suggestionsSetupCommand.execute(interaction);
-
-		expect(console.error).toHaveBeenCalledWith(error);
-	});
 });

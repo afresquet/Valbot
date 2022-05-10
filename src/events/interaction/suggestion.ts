@@ -5,7 +5,6 @@ const suggestionEvent: Event<"interactionCreate"> = {
 	name: "suggestion",
 	event: "interactionCreate",
 	execute: async interaction => {
-		try {
 			if (!interaction.isButton()) return;
 
 			const { customId, message } = interaction;
@@ -39,9 +38,7 @@ const suggestionEvent: Event<"interactionCreate"> = {
 			}
 
 			await interaction.update({ embeds: [newEmbed], components: [] });
-		} catch (error) {
-			console.error(error);
-		}
+
 	},
 };
 

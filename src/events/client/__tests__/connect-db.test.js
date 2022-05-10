@@ -15,18 +15,4 @@ describe("connect-db client event", () => {
 		expect(console.log).toHaveBeenCalledWith("Connecting to database...");
 		expect(console.log).toHaveBeenCalledWith("Connected to database!");
 	});
-
-	test("logs errors to console", async () => {
-		const error = new Error("error");
-
-		// really don't like how this is done
-		jest.spyOn(mongoose, "connect").mockImplementationOnce(() => {
-			throw error;
-		});
-		jest.spyOn(console, "error").mockImplementation();
-
-		await connectDBEvent.execute();
-
-		expect(console.error).toHaveBeenCalledWith(error);
-	});
 });

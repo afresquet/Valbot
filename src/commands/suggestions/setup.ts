@@ -35,83 +35,79 @@ const suggestionsSetupCommand: Command = {
 			subcommand.setName("disable").setDescription("Disable suggestions")
 		),
 	execute: async interaction => {
-		try {
-			const { options, guild } = interaction;
+		const { options, guild } = interaction;
 
-			const subcommand = options.getSubcommand();
-			const channelId = options.getChannel("channel");
+		const subcommand = options.getSubcommand();
+		const channelId = options.getChannel("channel");
 
-			const configuration = await SuggestionModel.findByGuild(guild!);
+		const configuration = await SuggestionModel.findByGuild(guild!);
 
-			switch (subcommand) {
-				case "enable":
-					{
-						if (configuration) {
-							await interaction.reply({
-								content: "Suggestions are already enabled on this server.",
-								ephemeral: true,
-							});
-
-							return;
-						}
-
-						await SuggestionModel.create({
-							guildId: guild!.id,
-							channelId: channelId!.id,
-						});
-
+		switch (subcommand) {
+			case "enable":
+				{
+					if (configuration) {
 						await interaction.reply({
-							content: "Suggestions are now enabled on this server.",
+							content: "Suggestions are already enabled on this server.",
 							ephemeral: true,
 						});
+
+						return;
 					}
-					break;
 
-				case "edit":
-					{
-						if (!configuration) {
-							await interaction.reply({
-								content: "Suggestions are not enabled on this server.",
-								ephemeral: true,
-							});
+					await SuggestionModel.create({
+						guildId: guild!.id,
+						channelId: channelId!.id,
+					});
 
-							return;
-						}
+					await interaction.reply({
+						content: "Suggestions are now enabled on this server.",
+						ephemeral: true,
+					});
+				}
+				break;
 
-						await SuggestionModel.updateOne(
-							{ guildId: guild!.id },
-							{ channelId: channelId!.id }
-						);
-
+			case "edit":
+				{
+					if (!configuration) {
 						await interaction.reply({
-							content: "Suggestions channel has been updated.",
+							content: "Suggestions are not enabled on this server.",
 							ephemeral: true,
 						});
+
+						return;
 					}
-					break;
 
-				case "disable":
-					{
-						if (!configuration) {
-							await interaction.reply({
-								content: "Suggestions are not enabled on this server.",
-								ephemeral: true,
-							});
+					await SuggestionModel.updateOne(
+						{ guildId: guild!.id },
+						{ channelId: channelId!.id }
+					);
 
-							return;
-						}
+					await interaction.reply({
+						content: "Suggestions channel has been updated.",
+						ephemeral: true,
+					});
+				}
+				break;
 
-						await SuggestionModel.findOneAndDelete({ guildId: guild!.id });
-
+			case "disable":
+				{
+					if (!configuration) {
 						await interaction.reply({
-							content: "Suggestions have been disabled.",
+							content: "Suggestions are not enabled on this server.",
 							ephemeral: true,
 						});
+
+						return;
 					}
-					break;
-			}
-		} catch (error) {
-			console.error(error);
+
+					await SuggestionModel.findOneAndDelete({ guildId: guild!.id });
+
+					await interaction.reply({
+						content: "Suggestions have been disabled.",
+						ephemeral: true,
+					});
+				}
+				break;
 		}
 	},
 };

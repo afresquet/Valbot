@@ -32,84 +32,80 @@ const liveRoleSetupCommand: Command = {
 			subcommand.setName("disable").setDescription("Disable live role")
 		),
 	execute: async interaction => {
-		try {
-			const { options, guild } = interaction;
+		const { options, guild } = interaction;
 
-			const subcommand = options.getSubcommand();
-			const role = options.getRole("role");
+		const subcommand = options.getSubcommand();
+		const role = options.getRole("role");
 
-			const configuration = await LiveRoleModel.findByGuild(guild!);
+		const configuration = await LiveRoleModel.findByGuild(guild!);
 
-			switch (subcommand) {
-				case "enable":
-					{
-						if (configuration) {
-							interaction.reply({
-								content: "Live role is already enabled on this server.",
-								ephemeral: true,
-							});
-
-							return;
-						}
-
-						await LiveRoleModel.create({
-							guildId: guild!.id,
-							roleId: role!.id,
-						});
-
-						await interaction.reply({
-							content: "Live role is now enabled on this server.",
+		switch (subcommand) {
+			case "enable":
+				{
+					if (configuration) {
+						interaction.reply({
+							content: "Live role is already enabled on this server.",
 							ephemeral: true,
 						});
+
+						return;
 					}
 
-					break;
+					await LiveRoleModel.create({
+						guildId: guild!.id,
+						roleId: role!.id,
+					});
 
-				case "edit":
-					{
-						if (!configuration) {
-							await interaction.reply({
-								content: "Live role is not enabled on this server.",
-								ephemeral: true,
-							});
+					await interaction.reply({
+						content: "Live role is now enabled on this server.",
+						ephemeral: true,
+					});
+				}
 
-							return;
-						}
+				break;
 
-						await LiveRoleModel.updateOne(
-							{ guildId: guild!.id },
-							{ roleId: role!.id }
-						);
-
+			case "edit":
+				{
+					if (!configuration) {
 						await interaction.reply({
-							content: "Live role was edited.",
+							content: "Live role is not enabled on this server.",
 							ephemeral: true,
 						});
+
+						return;
 					}
-					break;
 
-				case "disable":
-					{
-						if (!configuration) {
-							await interaction.reply({
-								content: "Live role is not enabled on this server.",
-								ephemeral: true,
-							});
+					await LiveRoleModel.updateOne(
+						{ guildId: guild!.id },
+						{ roleId: role!.id }
+					);
 
-							return;
-						}
+					await interaction.reply({
+						content: "Live role was edited.",
+						ephemeral: true,
+					});
+				}
+				break;
 
-						await LiveRoleModel.findOneAndDelete({ guildId: guild!.id });
-
+			case "disable":
+				{
+					if (!configuration) {
 						await interaction.reply({
-							content: "Live role was disabled.",
+							content: "Live role is not enabled on this server.",
 							ephemeral: true,
 						});
+
+						return;
 					}
-					break;
-			}
-		} catch (error) {
-			console.error(error);
+
+					await LiveRoleModel.findOneAndDelete({ guildId: guild!.id });
+
+					await interaction.reply({
+						content: "Live role was disabled.",
+						ephemeral: true,
+					});
+				}
+				break;
 		}
 	},
 };

@@ -24,10 +24,18 @@ const eventsHandler: Handler = async client => {
 						await import(`${process.cwd()}/dist/events/${directory}/${file}`)
 					).default;
 
+					const callback: typeof event.execute = async (...args) => {
+						try {
+							await event.execute(...args);
+						} catch (error) {
+							console.error(error);
+						}
+					};
+
 					if (event.once) {
-						client.once(event.event, event.execute);
+						client.once(event.event, callback);
 					} else {
-						client.on(event.event, event.execute);
+						client.on(event.event, callback);
 					}
 
 					console.log(`Loaded event "${event.name}"`);
