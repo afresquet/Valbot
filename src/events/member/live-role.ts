@@ -20,9 +20,9 @@ const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 		);
 
 		if (!hasLiveRole && isStreaming) {
-			await newPresence.member?.roles.add(liveRole);
+			await newPresence.member!.roles.add(liveRole);
 		} else if (hasLiveRole && !isStreaming) {
-			await newPresence.member?.roles.remove(liveRole);
+			await newPresence.member!.roles.remove(liveRole);
 		}
 	},
 };
