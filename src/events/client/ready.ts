@@ -1,6 +1,6 @@
 import { Event } from "../../types/discord";
 
-const eventReady: Event<"ready"> = {
+const readyEvent: Event<"ready"> = {
 	name: "connected",
 	event: "ready",
 	execute: client => {
@@ -8,4 +8,4 @@ const eventReady: Event<"ready"> = {
 	},
 };
 
-export default eventReady;
+export default readyEvent;
