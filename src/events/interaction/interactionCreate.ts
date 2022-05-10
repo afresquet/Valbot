@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 import { Event } from "../../types/discord";
 
-const eventReady: Event<"interactionCreate"> = {
+const interactionCreateEvent: Event<"interactionCreate"> = {
 	name: "interactionCreate",
 	event: "interactionCreate",
 	execute: async interaction => {
@@ -31,4 +31,4 @@ const eventReady: Event<"interactionCreate"> = {
 	},
 };
 
-export default eventReady;
+export default interactionCreateEvent;

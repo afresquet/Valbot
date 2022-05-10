@@ -10,11 +10,14 @@ const suggestionEvent: Event<"interactionCreate"> = {
 
 			const { customId, message } = interaction;
 
+			if (!["suggestion-accept", "suggestion-decline"].includes(customId))
+				return;
+
 			const embed = message.embeds[0];
 
 			if (!embed) return;
 
-			delete embed.fields?.[2];
+			delete embed.fields![2];
 
 			let newEmbed = embed;
 
