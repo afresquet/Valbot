@@ -3,7 +3,7 @@ import { ChannelType } from "discord.js/node_modules/discord-api-types/v9";
 import { SuggestionModel } from "../../schemas/Suggestion";
 import { Command } from "../../types/discord";
 
-const setupSuggestionsCommand: Command = {
+const suggestionsSetupCommand: Command = {
 	data: new SlashCommandBuilder()
 		.setName("setup-suggestions")
 		.setDescription("Setup suggestions for this server")
@@ -36,7 +36,7 @@ const setupSuggestionsCommand: Command = {
 		),
 	execute: async interaction => {
 		try {
-			const { options, guild, guildId } = interaction;
+			const { options, guild } = interaction;
 
 			const subcommand = options.getSubcommand();
 			const channelId = options.getChannel("channel");
@@ -56,8 +56,8 @@ const setupSuggestionsCommand: Command = {
 						}
 
 						await SuggestionModel.create({
-							guildId,
-							channelId: channelId?.id,
+							guildId: guild!.id,
+							channelId: channelId!.id,
 						});
 
 						await interaction.reply({
@@ -79,8 +79,8 @@ const setupSuggestionsCommand: Command = {
 						}
 
 						await SuggestionModel.updateOne(
-							{ guildId },
-							{ channelId: channelId?.id }
+							{ guildId: guild!.id },
+							{ channelId: channelId!.id }
 						);
 
 						await interaction.reply({
@@ -101,7 +101,7 @@ const setupSuggestionsCommand: Command = {
 							return;
 						}
 
-						await SuggestionModel.findOneAndDelete({ guildId });
+						await SuggestionModel.findOneAndDelete({ guildId: guild!.id });
 
 						await interaction.reply({
 							content: "Suggestions have been disabled.",
@@ -116,4 +116,4 @@ const setupSuggestionsCommand: Command = {
 	},
 };
 
-export default setupSuggestionsCommand;
+export default suggestionsSetupCommand;

@@ -33,7 +33,7 @@ const liveRoleSetupCommand: Command = {
 		),
 	execute: async interaction => {
 		try {
-			const { options, guild, guildId } = interaction;
+			const { options, guild } = interaction;
 
 			const subcommand = options.getSubcommand();
 			const role = options.getRole("role");
@@ -53,7 +53,7 @@ const liveRoleSetupCommand: Command = {
 						}
 
 						await LiveRoleModel.create({
-							guildId,
+							guildId: guild!.id,
 							roleId: role!.id,
 						});
 
@@ -76,7 +76,10 @@ const liveRoleSetupCommand: Command = {
 							return;
 						}
 
-						await LiveRoleModel.updateOne({ guildId }, { roleId: role!.id });
+						await LiveRoleModel.updateOne(
+							{ guildId: guild!.id },
+							{ roleId: role!.id }
+						);
 
 						await interaction.reply({
 							content: "Live role was edited.",
@@ -96,7 +99,7 @@ const liveRoleSetupCommand: Command = {
 							return;
 						}
 
-						await LiveRoleModel.deleteOne({ guildId });
+						await LiveRoleModel.findOneAndDelete({ guildId: guild!.id });
 
 						await interaction.reply({
 							content: "Live role was disabled.",

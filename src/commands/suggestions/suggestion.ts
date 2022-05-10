@@ -25,7 +25,7 @@ const suggestCommand: Command = {
 		),
 	execute: async interaction => {
 		try {
-			const { options, user, guild, channelId } = interaction;
+			const { options, user, guild, channel } = interaction;
 
 			const configuration = await SuggestionModel.findByGuild(guild!);
 
@@ -38,7 +38,7 @@ const suggestCommand: Command = {
 				return;
 			}
 
-			if (configuration.channelId !== channelId) {
+			if (configuration.channelId !== channel!.id) {
 				interaction.reply({
 					content: `You can't use this command here, go to <#${configuration.channelId}> instead.`,
 					ephemeral: true,
