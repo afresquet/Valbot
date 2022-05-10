@@ -1,4 +1,4 @@
-import type { Activity, GuildMember, Role } from "discord.js";
+import type { ActivityType, GuildMember, Role } from "discord.js";
 
 export const guildMemberHasRole = (
 	member: GuildMember,
@@ -9,7 +9,7 @@ export const guildMemberHasRole = (
 
 export const guildMemberHasActivity = (
 	member: GuildMember,
-	type: Activity["type"]
+	type: ActivityType
 ): boolean => {
 	return !!member.presence?.activities?.find(
 		activity => activity.type === type
