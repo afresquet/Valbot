@@ -3,14 +3,10 @@ import { CommandPipelineBuilder } from "../../../lib/custom-pipelines/command/Co
 import { ifelse } from "../../../lib/pipeline/steps/ifelse";
 import { match } from "../../../lib/pipeline/steps/match";
 import { ILiveRoleDocument } from "../../../schemas/LiveRole";
+import { matchSubcommandStep } from "../../../utils/matchSubcommand";
 import { createLiveRoleConfiguration } from "./createConfiguration";
 import { disableLiveRoleConfiguration } from "./disableConfiguration";
 import { editLiveRoleConfiguration } from "./editConfiguration";
-
-const matcher =
-	(subcommand: string): CommandPipeline.Step<unknown, boolean> =>
-	(_, interaction) =>
-		subcommand === interaction.options.getSubcommand();
 
 export const handleLiveRoleSubcommands: CommandPipeline.Step<
 	ILiveRoleDocument | undefined,
@@ -18,7 +14,7 @@ export const handleLiveRoleSubcommands: CommandPipeline.Step<
 > = match(m =>
 	m
 		.on(
-			matcher("enable"),
+			matchSubcommandStep("enable"),
 			ifelse(
 				configuration => configuration !== undefined,
 				new CommandPipelineBuilder<ILiveRoleDocument | undefined>()
@@ -29,7 +25,7 @@ export const handleLiveRoleSubcommands: CommandPipeline.Step<
 			)
 		)
 		.on(
-			matcher("edit"),
+			matchSubcommandStep("edit"),
 			ifelse(
 				configuration => configuration === undefined,
 				new CommandPipelineBuilder<ILiveRoleDocument | undefined>()
@@ -40,7 +36,7 @@ export const handleLiveRoleSubcommands: CommandPipeline.Step<
 			)
 		)
 		.on(
-			matcher("disable"),
+			matchSubcommandStep("disable"),
 			ifelse(
 				configuration => configuration === undefined,
 				new CommandPipelineBuilder<ILiveRoleDocument | undefined>()

@@ -1,7 +1,10 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord.js/node_modules/discord-api-types/v9";
-import { SuggestionModel } from "../../schemas/Suggestion";
+import { CommandPipelineBuilder } from "../../lib/custom-pipelines/command/CommandPipeline";
+import { interactionReplyEphemeral } from "../../lib/custom-pipelines/steps/interactionReplyEphemeral";
 import { Command } from "../../types/discord";
+import { getSuggestionsConfiguration } from "./steps/getConfiguration";
+import { handleSetupSuggestionsSubcommands } from "./steps/handleSetupSubcommands";
 
 const suggestionsSetupCommand: Command = {
 	data: new SlashCommandBuilder()
@@ -34,82 +37,11 @@ const suggestionsSetupCommand: Command = {
 		.addSubcommand(subcommand =>
 			subcommand.setName("disable").setDescription("Disable suggestions")
 		),
-	execute: async interaction => {
-		const { options, guild } = interaction;
-
-		const subcommand = options.getSubcommand();
-		const channelId = options.getChannel("channel");
-
-		const configuration = await SuggestionModel.findByGuild(guild!);
-
-		switch (subcommand) {
-			case "enable":
-				{
-					if (configuration) {
-						await interaction.reply({
-							content: "Suggestions are already enabled on this server.",
-							ephemeral: true,
-						});
-
-						return;
-					}
-
-					await SuggestionModel.create({
-						guildId: guild!.id,
-						channelId: channelId!.id,
-					});
-
-					await interaction.reply({
-						content: "Suggestions are now enabled on this server.",
-						ephemeral: true,
-					});
-				}
-				break;
-
-			case "edit":
-				{
-					if (!configuration) {
-						await interaction.reply({
-							content: "Suggestions are not enabled on this server.",
-							ephemeral: true,
-						});
-
-						return;
-					}
-
-					await SuggestionModel.updateOne(
-						{ guildId: guild!.id },
-						{ channelId: channelId!.id }
-					);
-
-					await interaction.reply({
-						content: "Suggestions channel has been updated.",
-						ephemeral: true,
-					});
-				}
-				break;
-
-			case "disable":
-				{
-					if (!configuration) {
-						await interaction.reply({
-							content: "Suggestions are not enabled on this server.",
-							ephemeral: true,
-						});
-
-						return;
-					}
-
-					await SuggestionModel.findOneAndDelete({ guildId: guild!.id });
-
-					await interaction.reply({
-						content: "Suggestions have been disabled.",
-						ephemeral: true,
-					});
-				}
-				break;
-		}
-	},
+	execute: new CommandPipelineBuilder()
+		.pipe(getSuggestionsConfiguration)
+		.pipe(handleSetupSuggestionsSubcommands)
+		.pipe(interactionReplyEphemeral)
+		.build(),
 };
 
 export default suggestionsSetupCommand;
