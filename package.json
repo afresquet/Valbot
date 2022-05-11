@@ -7,7 +7,9 @@
 		"start": "npm run compile && node dist/index.js",
 		"compile": "rimraf dist && tsc",
 		"dev": "rimraf dist && tsc-watch --onSuccess \"node dist/index.js\"",
-		"deploy-commands-dev": "node deploy-commands.js 598286747247575105 960935293853257778"
+		"deploy-commands-dev": "node deploy-commands.js 598286747247575105 960935293853257778",
+		"test": "jest",
+		"test:watch": "jest --watch"
 	},
 	"repository": {
 		"type": "git",

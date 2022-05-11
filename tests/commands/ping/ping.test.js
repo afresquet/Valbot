@@ -1,4 +1,4 @@
-const pingCommand = require("../ping").default;
+const pingCommand = require("../../../src/commands/ping/ping").default;
 
 describe("ping command", () => {
 	test("replies with client ping", () => {

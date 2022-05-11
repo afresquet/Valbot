@@ -1,5 +1,6 @@
-const { LiveRoleModel } = require("../../../schemas/LiveRole");
-const liveRoleUpdateEvent = require("../live-role").default;
+const { LiveRoleModel } = require("../../../src/schemas/LiveRole");
+const liveRoleUpdateEvent =
+	require("../../../src/events/member/live-role").default;
 
 describe("live-role member event", () => {
 	const role = { id: "roleId" };

@@ -1,5 +1,6 @@
-const suggestionsSetupCommand = require("../setup").default;
-const { SuggestionModel } = require("../../../schemas/Suggestion");
+const suggestionsSetupCommand =
+	require("../../../src/commands/suggestions/setup").default;
+const { SuggestionModel } = require("../../../src/schemas/Suggestion");
 
 describe("live-role setup command", () => {
 	const interaction = {

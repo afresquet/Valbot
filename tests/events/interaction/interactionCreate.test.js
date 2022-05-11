@@ -1,6 +1,7 @@
 const { Collection } = require("discord.js");
 
-const interactionCreateEvent = require("../interactionCreate").default;
+const interactionCreateEvent =
+	require("../../../src/events/interaction/interactionCreate").default;
 
 describe("interactionCreate interaction event", () => {
 	const interaction = {

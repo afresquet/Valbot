@@ -1,6 +1,7 @@
-const { SuggestionModel } = require("../../../schemas/Suggestion");
+const { SuggestionModel } = require("../../../src/schemas/Suggestion");
 
-const suggestCommand = require("../suggestion").default;
+const suggestCommand =
+	require("../../../src/commands/suggestions/suggestion").default;
 
 describe("suggestions suggestion command", () => {
 	const avatarUrl = "avatarUrl";

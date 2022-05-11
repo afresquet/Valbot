@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const connectDBEvent = require("../connect-db").default;
+const connectDBEvent = require("../../../src/events/client/connect-db").default;
 
 describe("connect-db client event", () => {
 	const uri = "mongo_uri";

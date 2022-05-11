@@ -10,7 +10,7 @@ describe("Pipeline lib", () => {
 
 	beforeEach(jest.clearAllMocks);
 
-	test("it stores functions to be composed", () => {
+	test("stores functions to be composed", () => {
 		const pipeline = new Pipeline()
 			.pipe(functions[0])
 			.pipe(functions[1])
@@ -19,7 +19,7 @@ describe("Pipeline lib", () => {
 		expect(pipeline.fns).toStrictEqual(functions);
 	});
 
-	test("it executes functions in order and passes the context", () => {
+	test("executes functions in order and passes the context", () => {
 		const pipeline = new Pipeline()
 			.pipe(functions[0])
 			.pipe(functions[1])
@@ -34,7 +34,7 @@ describe("Pipeline lib", () => {
 		expect(functions[2]).toHaveBeenCalledWith(4, context);
 	});
 
-	test("it works with promises", () => {
+	test("works with promises", () => {
 		const fn = jest.fn(async x => x * 2);
 
 		const pipeline = new Pipeline()

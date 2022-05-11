@@ -1,4 +1,4 @@
-const readyEvent = require("../ready").default;
+const readyEvent = require("../../../src/events/client/ready").default;
 
 describe("ready client event", () => {
 	const client = {

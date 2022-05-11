@@ -1,6 +1,7 @@
 const { MessageEmbed } = require("discord.js");
 
-const suggestionEvent = require("../suggestion").default;
+const suggestionEvent =
+	require("../../../src/events/interaction/suggestion").default;
 
 describe("suggestion event", () => {
 	const interaction = {

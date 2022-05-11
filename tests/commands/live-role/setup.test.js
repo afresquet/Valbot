@@ -1,5 +1,6 @@
-const liveRoleSetupCommand = require("../setup").default;
-const { LiveRoleModel } = require("../../../schemas/LiveRole");
+const liveRoleSetupCommand =
+	require("../../../src/commands/live-role/setup").default;
+const { LiveRoleModel } = require("../../../src/schemas/LiveRole");
 
 describe("live-role setup command", () => {
 	const interaction = {
