@@ -1,6 +1,6 @@
-const Pipeline = require("../../../src/lib/pipeline/Pipeline").default;
+const PipelineBuilder = require("../../../src/lib/pipeline/Pipeline").default;
 
-describe("Pipeline lib", () => {
+describe("pipeline lib PipelineBuilder", () => {
 	const functions = [
 		jest.fn(x => x + 1),
 		jest.fn(x => x * 2),
@@ -11,7 +11,7 @@ describe("Pipeline lib", () => {
 	beforeEach(jest.clearAllMocks);
 
 	test("stores functions to be composed", () => {
-		const pipeline = new Pipeline()
+		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(functions[1])
 			.pipe(functions[2]);
@@ -20,12 +20,13 @@ describe("Pipeline lib", () => {
 	});
 
 	test("executes functions in order and passes the context", () => {
-		const pipeline = new Pipeline()
+		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(functions[1])
-			.pipe(functions[2]);
+			.pipe(functions[2])
+			.build();
 
-		const result = pipeline.run(1, context);
+		const result = pipeline(1, context);
 
 		expect(result).toBe("4");
 
@@ -37,12 +38,13 @@ describe("Pipeline lib", () => {
 	test("works with promises", () => {
 		const fn = jest.fn(async x => x * 2);
 
-		const pipeline = new Pipeline()
+		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(fn)
-			.pipe(functions[2]);
+			.pipe(functions[2])
+			.build();
 
-		const result = pipeline.run(1, context);
+		const result = pipeline(1, context);
 
 		expect(result).resolves.toBe("4");
 	});
