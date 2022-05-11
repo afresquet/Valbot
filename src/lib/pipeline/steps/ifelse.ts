@@ -10,7 +10,7 @@ export function ifelse<T, R, C>(
 		const result = condition(...args);
 
 		if (isPromise(result)) {
-			return (result as PromiseLike<boolean>).then(b =>
+			return (result as Promise<boolean>).then(b =>
 				b ? then(...args) : otherwise(...args)
 			);
 		}

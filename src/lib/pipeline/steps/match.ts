@@ -1,10 +1,10 @@
 import { Pipeline } from "../pipeline";
 
 interface Match<T, R, C> {
-	run(value: T, context: C): R | PromiseLike<R>;
+	run(value: T, context: C): R | Promise<R>;
 
 	on(
-		matcher: (value: T, context: C) => boolean,
+		matcher: (value: T, context: C) => boolean | Promise<boolean>,
 		pipeline?: Pipeline.Step<T, R, C>
 	): Match<T, R, C>;
 
@@ -19,7 +19,7 @@ class MatchBuilder<T, R, C> implements Match<T, R, C> {
 
 	private otherwisePipeline?: Pipeline.Step<T, R, C>;
 
-	run(value: T, context: C): R | PromiseLike<R> {
+	run(value: T, context: C): R | Promise<R> {
 		for (const { matcher, pipeline } of this.matchers) {
 			if (matcher(value, context) && pipeline) {
 				return pipeline(value, context);

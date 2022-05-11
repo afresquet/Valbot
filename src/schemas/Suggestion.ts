@@ -7,9 +7,9 @@ interface ISuggestion {
 	channelId: string;
 }
 
-interface ISuggestionDocument extends ISuggestion, Document {}
+export interface ISuggestionDocument extends ISuggestion, Document {}
 
-interface ISuggestionModel extends Model<ISuggestionDocument> {
+export interface ISuggestionModel extends Model<ISuggestionDocument> {
 	findByGuild: (guild: Guild) => Promise<ISuggestionDocument | undefined>;
 }
 

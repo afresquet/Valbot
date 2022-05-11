@@ -2,12 +2,8 @@ import {
 	SlashCommandBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
-import {
-	Awaitable,
-	Client,
-	ClientEvents,
-	CommandInteraction,
-} from "discord.js";
+import { Awaitable, Client, ClientEvents } from "discord.js";
+import { CommandPipeline } from "../lib/custom-pipelines/command/command-pipeline";
 
 export type Handler = (client: Client) => void | Promise<void>;
 
@@ -23,5 +19,5 @@ export interface Command {
 		| SlashCommandBuilder
 		| SlashCommandSubcommandsOnlyBuilder
 		| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-	execute(interaction: CommandInteraction): void | Promise<void>;
+	execute: CommandPipeline.Pipeline<void | Promise<void>>;
 }

@@ -4,7 +4,7 @@ import type { Pipeline as TPipeline } from "./pipeline";
 export default class PipelineBuilder<T, V, C>
 	implements TPipeline.PipelineBuilder<T, V, C>
 {
-	fns: TPipeline.Step<any | PromiseLike<any>, any | PromiseLike<any>, C>[] = [];
+	fns: TPipeline.Step<any | Promise<any>, any | Promise<any>, C>[] = [];
 
 	pipe<R>(fn: TPipeline.Step<V, R, C>): PipelineBuilder<T, R, C> {
 		this.fns.push(fn);
@@ -13,12 +13,12 @@ export default class PipelineBuilder<T, V, C>
 	}
 
 	build(): TPipeline.Pipeline<T, V, C> {
-		const composition: TPipeline.Step<T, any | PromiseLike<any>, C> =
+		const composition: TPipeline.Step<T, any | Promise<any>, C> =
 			this.fns.reduce((fn1, fn2) => (value: T, context: C) => {
 				const res = fn1(value, context);
 
 				if (isPromise(res)) {
-					return (res as PromiseLike<any>).then(r => fn2(r, context));
+					return (res as Promise<any>).then(r => fn2(r, context));
 				}
 
 				return fn2(res, context);

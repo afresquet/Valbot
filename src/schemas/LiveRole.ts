@@ -7,9 +7,9 @@ interface ILiveRole {
 	roleId: string;
 }
 
-interface ILiveRoleDocument extends ILiveRole, Document {}
+export interface ILiveRoleDocument extends ILiveRole, Document {}
 
-interface ILiveRoleModel extends Model<ILiveRoleDocument> {
+export interface ILiveRoleModel extends Model<ILiveRoleDocument> {
 	findByGuild: (guild: Guild) => Promise<ILiveRoleDocument | undefined>;
 	findRoleByGuild: (guild: Guild) => Promise<Role | undefined>;
 }
