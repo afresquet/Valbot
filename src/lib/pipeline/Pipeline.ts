@@ -26,4 +26,8 @@ export default class PipelineBuilder<T, V, C>
 
 		return (value, context) => composition(value, context);
 	}
+
+	step<U, R>(): TPipeline.Step<U, R, C> {
+		return this.build() as unknown as TPipeline.Step<U, R, C>;
+	}
 }

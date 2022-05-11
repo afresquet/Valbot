@@ -35,6 +35,22 @@ describe("pipeline lib PipelineBuilder", () => {
 		expect(functions[2]).toHaveBeenCalledWith(4, context);
 	});
 
+	test("step function works the same as build (only used for type checking)", () => {
+		const pipeline = new PipelineBuilder()
+			.pipe(functions[0])
+			.pipe(functions[1])
+			.pipe(functions[2])
+			.step();
+
+		const result = pipeline(1, context);
+
+		expect(result).toBe("4");
+
+		expect(functions[0]).toHaveBeenCalledWith(1, context);
+		expect(functions[1]).toHaveBeenCalledWith(2, context);
+		expect(functions[2]).toHaveBeenCalledWith(4, context);
+	});
+
 	test("works with promises", () => {
 		const fn = jest.fn(async x => x * 2);
 

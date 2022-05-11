@@ -10,8 +10,10 @@ export declare namespace Pipeline {
 	interface PipelineBuilder<T, V, C> {
 		fns: Step<any | PromiseLike<any>, any | PromiseLike<any>, C>[];
 
-		pipe: <R>(step: Step<V, R, C>) => PipelineBuilder<T, R, C>;
+		pipe<R>(step: Step<V, R, C>): PipelineBuilder<T, R, C>;
 
-		build: () => Pipeline<T, V, C>;
+		build(): Pipeline<T, V, C>;
+
+		step<R>(): Step<V, R, C>;
 	}
 }
