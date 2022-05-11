@@ -1,7 +1,7 @@
-import { CommandPipeline } from "../../../lib/custom-pipelines/command/command-pipeline";
+import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
 import { ILiveRoleDocument, LiveRoleModel } from "../../../schemas/LiveRole";
 
-export const createLiveRoleConfiguration: CommandPipeline.Step<
+export const createLiveRoleConfiguration: InteractionPipeline.Step<
 	unknown,
 	Promise<ILiveRoleDocument>
 > = (_, interaction) => {

@@ -1,6 +1,6 @@
-import { CommandPipeline } from "../command/command-pipeline";
+import { InteractionPipeline } from "../command/interaction-pipeline";
 
-export const interactionReplyEphemeral: CommandPipeline.Step<
+export const interactionReplyEphemeral: InteractionPipeline.Step<
 	string,
 	Promise<void>
 > = (content, interaction) => {

@@ -1,5 +1,5 @@
-import { CommandPipeline } from "../../../lib/custom-pipelines/command/command-pipeline";
-import { CommandPipelineBuilder } from "../../../lib/custom-pipelines/command/CommandPipeline";
+import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
+import { InteractionPipelineBuilder } from "../../../lib/custom-pipelines/command/InteractionPipeline";
 import { ifelse } from "../../../lib/pipeline/steps/ifelse";
 import { match } from "../../../lib/pipeline/steps/match";
 import { ILiveRoleDocument } from "../../../schemas/LiveRole";
@@ -8,7 +8,7 @@ import { createLiveRoleConfiguration } from "./createConfiguration";
 import { disableLiveRoleConfiguration } from "./disableConfiguration";
 import { editLiveRoleConfiguration } from "./editConfiguration";
 
-export const handleLiveRoleSubcommands: CommandPipeline.Step<
+export const handleLiveRoleSubcommands: InteractionPipeline.Step<
 	ILiveRoleDocument | undefined,
 	string
 > = match(m =>
@@ -17,7 +17,7 @@ export const handleLiveRoleSubcommands: CommandPipeline.Step<
 			matchSubcommandStep("enable"),
 			ifelse(
 				configuration => configuration !== undefined,
-				new CommandPipelineBuilder<ILiveRoleDocument | undefined>()
+				new InteractionPipelineBuilder<ILiveRoleDocument | undefined>()
 					.pipe(createLiveRoleConfiguration)
 					.pipe(() => "Live role is now enabled on this server.")
 					.step(),
@@ -28,7 +28,7 @@ export const handleLiveRoleSubcommands: CommandPipeline.Step<
 			matchSubcommandStep("edit"),
 			ifelse(
 				configuration => configuration === undefined,
-				new CommandPipelineBuilder<ILiveRoleDocument | undefined>()
+				new InteractionPipelineBuilder<ILiveRoleDocument | undefined>()
 					.pipe(editLiveRoleConfiguration)
 					.pipe(() => "Live role was edited.")
 					.step(),
@@ -39,7 +39,7 @@ export const handleLiveRoleSubcommands: CommandPipeline.Step<
 			matchSubcommandStep("disable"),
 			ifelse(
 				configuration => configuration === undefined,
-				new CommandPipelineBuilder<ILiveRoleDocument | undefined>()
+				new InteractionPipelineBuilder<ILiveRoleDocument | undefined>()
 					.pipe(disableLiveRoleConfiguration)
 					.pipe(() => "Live role was disabled.")
 					.step(),

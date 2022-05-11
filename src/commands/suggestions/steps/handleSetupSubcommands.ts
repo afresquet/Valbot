@@ -1,5 +1,5 @@
-import { CommandPipeline } from "../../../lib/custom-pipelines/command/command-pipeline";
-import { CommandPipelineBuilder } from "../../../lib/custom-pipelines/command/CommandPipeline";
+import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
+import { InteractionPipelineBuilder } from "../../../lib/custom-pipelines/command/InteractionPipeline";
 import { ifelse } from "../../../lib/pipeline/steps/ifelse";
 import { match } from "../../../lib/pipeline/steps/match";
 import { ISuggestionDocument } from "../../../schemas/Suggestion";
@@ -8,7 +8,7 @@ import { createSuggestionsConfiguration } from "./createConfiguration";
 import { disableSuggestionsConfiguration } from "./disableConfiguration";
 import { editSuggestionsConfiguration } from "./editConfiguration";
 
-export const handleSetupSuggestionsSubcommands: CommandPipeline.Step<
+export const handleSetupSuggestionsSubcommands: InteractionPipeline.Step<
 	ISuggestionDocument | undefined,
 	string
 > = match(m =>
@@ -17,7 +17,7 @@ export const handleSetupSuggestionsSubcommands: CommandPipeline.Step<
 			matchSubcommandStep("enable"),
 			ifelse(
 				configuration => configuration !== undefined,
-				new CommandPipelineBuilder<ISuggestionDocument | undefined>()
+				new InteractionPipelineBuilder<ISuggestionDocument | undefined>()
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
 					.step(),
@@ -28,7 +28,7 @@ export const handleSetupSuggestionsSubcommands: CommandPipeline.Step<
 			matchSubcommandStep("edit"),
 			ifelse(
 				configuration => configuration === undefined,
-				new CommandPipelineBuilder<ISuggestionDocument | undefined>()
+				new InteractionPipelineBuilder<ISuggestionDocument | undefined>()
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
 					.step(),
@@ -39,7 +39,7 @@ export const handleSetupSuggestionsSubcommands: CommandPipeline.Step<
 			matchSubcommandStep("disable"),
 			ifelse(
 				configuration => configuration === undefined,
-				new CommandPipelineBuilder<ISuggestionDocument | undefined>()
+				new InteractionPipelineBuilder<ISuggestionDocument | undefined>()
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
 					.step(),

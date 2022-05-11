@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { Pipeline } from "../../pipeline/pipeline";
 
-export declare namespace CommandPipeline {
+export declare namespace InteractionPipeline {
 	interface Pipeline<V> {
 		(interaction: CommandInteraction): V | Promise<V>;
 	}
@@ -10,7 +10,7 @@ export declare namespace CommandPipeline {
 		(value: V, context: CommandInteraction): R | Promise<R>;
 	}
 
-	interface CommandPipelineBuilder<V>
+	interface InteractionPipelineBuilder<V>
 		extends Pipeline.PipelineBuilder<
 			CommandInteraction,
 			V,
@@ -18,7 +18,7 @@ export declare namespace CommandPipeline {
 		> {
 		fns: Step<any | Promise<any>, any | Promise<any>>[];
 
-		pipe<R>(step: Step<V, R>): CommandPipelineBuilder<R>;
+		pipe<R>(step: Step<V, R>): InteractionPipelineBuilder<R>;
 
 		build(): Pipeline<V>;
 

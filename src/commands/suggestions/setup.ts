@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChannelType } from "discord.js/node_modules/discord-api-types/v9";
-import { CommandPipelineBuilder } from "../../lib/custom-pipelines/command/CommandPipeline";
+import { InteractionPipelineBuilder } from "../../lib/custom-pipelines/command/InteractionPipeline";
 import { interactionReplyEphemeral } from "../../lib/custom-pipelines/steps/interactionReplyEphemeral";
 import { Command } from "../../types/discord";
 import { getSuggestionsConfiguration } from "./steps/getConfiguration";
@@ -37,7 +37,7 @@ const suggestionsSetupCommand: Command = {
 		.addSubcommand(subcommand =>
 			subcommand.setName("disable").setDescription("Disable suggestions")
 		),
-	execute: new CommandPipelineBuilder()
+	execute: new InteractionPipelineBuilder()
 		.pipe(getSuggestionsConfiguration)
 		.pipe(handleSetupSuggestionsSubcommands)
 		.pipe(interactionReplyEphemeral)

@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
-import { CommandPipeline } from "../../../lib/custom-pipelines/command/command-pipeline";
+import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
 
-export const createSuggestionEmbed: CommandPipeline.Step<
+export const createSuggestionEmbed: InteractionPipeline.Step<
 	unknown,
 	MessageEmbed
 > = (_, interaction) => {

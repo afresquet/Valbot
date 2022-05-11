@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandPipelineBuilder } from "../../lib/custom-pipelines/command/CommandPipeline";
+import { InteractionPipelineBuilder } from "../../lib/custom-pipelines/command/InteractionPipeline";
 import { createAcceptDeclineButtons } from "../../lib/custom-pipelines/steps/createAcceptDeclineButtons";
 import { assert } from "../../lib/pipeline/steps/assert";
 import { pairwise } from "../../lib/pipeline/steps/pairwise";
@@ -28,7 +28,7 @@ const suggestCommand: Command = {
 				.setDescription("Describe your suggestion")
 				.setRequired(true)
 		),
-	execute: new CommandPipelineBuilder()
+	execute: new InteractionPipelineBuilder()
 		.pipe(getSuggestionsConfiguration)
 		.pipe(
 			assert(() => new Error("Suggestions are not enabled on this server."))

@@ -1,7 +1,7 @@
-import { CommandPipeline } from "../../../lib/custom-pipelines/command/command-pipeline";
+import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
 import { LiveRoleModel } from "../../../schemas/LiveRole";
 
-export const disableLiveRoleConfiguration: CommandPipeline.Step<
+export const disableLiveRoleConfiguration: InteractionPipeline.Step<
 	unknown,
 	Promise<void>
 > = async (_, interaction) => {
