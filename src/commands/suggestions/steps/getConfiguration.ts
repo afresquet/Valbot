@@ -1,10 +1,11 @@
-import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
+import { DiscordEventPipeline } from "../../../lib/custom-pipelines/discord-event/discord-event-pipeline";
 import {
 	ISuggestionDocument,
 	SuggestionModel,
 } from "../../../schemas/Suggestion";
 
-export const getSuggestionsConfiguration: InteractionPipeline.Step<
+export const getSuggestionsConfiguration: DiscordEventPipeline.Step<
+	"interactionCreate",
 	unknown,
 	ISuggestionDocument | undefined
-> = (_, interaction) => SuggestionModel.findByGuild(interaction.guild!);
+> = (_, { interaction }) => SuggestionModel.findByGuild(interaction.guild!);

@@ -4,8 +4,10 @@ const {
 const { LiveRoleModel } = require("../../../../src/schemas/LiveRole");
 
 describe("live-role setup command getConfiguration step", () => {
-	const interaction = {
-		guild: { id: "guildId" },
+	const context = {
+		interaction: {
+			guild: { id: "guildId" },
+		},
 	};
 
 	test("returns the value of the guild's configuration", async () => {
@@ -13,9 +15,11 @@ describe("live-role setup command getConfiguration step", () => {
 
 		jest.spyOn(LiveRoleModel, "findByGuild").mockReturnValueOnce(value);
 
-		const result = await getLiveRoleConfiguration(undefined, interaction);
+		const result = await getLiveRoleConfiguration(undefined, context);
 
 		expect(result).toBe(value);
-		expect(LiveRoleModel.findByGuild).toHaveBeenCalledWith(interaction.guild);
+		expect(LiveRoleModel.findByGuild).toHaveBeenCalledWith(
+			context.interaction.guild
+		);
 	});
 });

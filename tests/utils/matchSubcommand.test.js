@@ -5,21 +5,23 @@ const {
 
 describe("matchSubcommand utils", () => {
 	const subcommand = "subcommand";
-	const interaction = {
-		options: {
-			getSubcommand: jest.fn(() => subcommand),
+	const context = {
+		interaction: {
+			options: {
+				getSubcommand: jest.fn(() => subcommand),
+			},
 		},
 	};
 
 	describe("matchSubcommand", () => {
 		test("returns true if the subcommand matches", () => {
-			const result = matchSubcommand(subcommand)(interaction);
+			const result = matchSubcommand(subcommand)(context.interaction);
 
 			expect(result).toBe(true);
 		});
 
 		test("returns false if the subcommand matches", () => {
-			const result = matchSubcommand("not_a_subcommand")(interaction);
+			const result = matchSubcommand("not_a_subcommand")(context.interaction);
 
 			expect(result).toBe(false);
 		});
@@ -27,7 +29,7 @@ describe("matchSubcommand utils", () => {
 
 	describe("matchSubcommandStep", () => {
 		test("returns true if the subcommand matches", () => {
-			const result = matchSubcommandStep(subcommand)(undefined, interaction);
+			const result = matchSubcommandStep(subcommand)(undefined, context);
 
 			expect(result).toBe(true);
 		});
@@ -35,7 +37,7 @@ describe("matchSubcommand utils", () => {
 		test("returns false if the subcommand matches", () => {
 			const result = matchSubcommandStep("not_a_subcommand")(
 				undefined,
-				interaction
+				context
 			);
 
 			expect(result).toBe(false);

@@ -13,7 +13,9 @@ describe("suggestions setup command getConfiguration step", () => {
 
 		jest.spyOn(SuggestionModel, "findByGuild").mockReturnValueOnce(value);
 
-		const result = await getSuggestionsConfiguration(undefined, interaction);
+		const result = await getSuggestionsConfiguration(undefined, {
+			interaction,
+		});
 
 		expect(result).toBe(value);
 		expect(SuggestionModel.findByGuild).toHaveBeenCalledWith(interaction.guild);

@@ -17,7 +17,7 @@ describe("suggestion command createEmbed step", () => {
 	};
 
 	test("creates a suggestion embed", () => {
-		const result = createSuggestionEmbed(undefined, interaction);
+		const result = createSuggestionEmbed(undefined, { interaction });
 
 		expect(interaction.options.getString).toHaveBeenCalledTimes(2);
 		expect(result).toStrictEqual(

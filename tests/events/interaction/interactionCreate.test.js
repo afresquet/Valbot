@@ -20,17 +20,17 @@ describe("interactionCreate interaction event", () => {
 	beforeEach(jest.clearAllMocks);
 
 	test("runs a command", async () => {
-		await interactionCreateEvent.execute(interaction);
+		await interactionCreateEvent.execute({ interaction });
 
 		expect(interaction.isCommand).toHaveBeenCalled();
 		expect(interaction.reply).not.toHaveBeenCalled();
-		expect(command.execute).toHaveBeenCalledWith(interaction);
+		expect(command.execute).toHaveBeenCalledWith({ interaction });
 	});
 
 	test("returns if it's not a command", () => {
 		interaction.isCommand.mockReturnValueOnce(false);
 
-		interactionCreateEvent.execute(interaction);
+		interactionCreateEvent.execute({ interaction });
 
 		expect(interaction.isCommand).toHaveBeenCalled();
 		expect(interaction.reply).not.toHaveBeenCalled();
@@ -40,8 +40,10 @@ describe("interactionCreate interaction event", () => {
 		jest.spyOn(interaction.client.commands, "delete");
 
 		await interactionCreateEvent.execute({
-			...interaction,
-			commandName: "not-a-command",
+			interaction: {
+				...interaction,
+				commandName: "not-a-command",
+			},
 		});
 
 		expect(interaction.reply).toHaveBeenCalledWith({

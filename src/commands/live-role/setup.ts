@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { InteractionPipelineBuilder } from "../../lib/custom-pipelines/command/InteractionPipeline";
+import { DiscordEventPipelineBuilder } from "../../lib/custom-pipelines/discord-event/DiscordEventPipeline";
 import { interactionReplyEphemeral } from "../../lib/custom-pipelines/steps/interactionReplyEphemeral";
 import { Command } from "../../types/discord";
 import { getLiveRoleConfiguration } from "./steps/getConfiguration";
@@ -34,7 +34,7 @@ const liveRoleSetupCommand: Command = {
 		.addSubcommand(subcommand =>
 			subcommand.setName("disable").setDescription("Disable live role")
 		),
-	execute: new InteractionPipelineBuilder()
+	execute: new DiscordEventPipelineBuilder<"interactionCreate">()
 		.pipe(getLiveRoleConfiguration)
 		.pipe(handleLiveRoleSubcommands)
 		.pipe(interactionReplyEphemeral)

@@ -17,7 +17,9 @@ describe("live-role setup command createConfiguration step", () => {
 
 		jest.spyOn(LiveRoleModel, "create").mockReturnValueOnce(configuration);
 
-		const result = await createLiveRoleConfiguration(undefined, interaction);
+		const result = await createLiveRoleConfiguration(undefined, {
+			interaction,
+		});
 
 		expect(result).toBe(configuration);
 		expect(interaction.options.getRole).toHaveBeenCalledWith("role");

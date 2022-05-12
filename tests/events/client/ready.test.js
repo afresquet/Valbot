@@ -10,7 +10,7 @@ describe("ready client event", () => {
 	test("logs the client tag to the console", () => {
 		jest.spyOn(console, "log");
 
-		readyEvent.execute(client);
+		readyEvent.execute({ client });
 
 		expect(console.log).toHaveBeenCalledWith(`Connected as ${client.user.tag}`);
 	});

@@ -4,7 +4,7 @@ import { Event } from "../../types/discord";
 const interactionCreateEvent: Event<"interactionCreate"> = {
 	name: "interactionCreate",
 	event: "interactionCreate",
-	execute: async interaction => {
+	execute: async ({ interaction }) => {
 		if (!interaction.isCommand()) return;
 
 		const command = interaction.client.commands.get(interaction.commandName);
@@ -23,7 +23,7 @@ const interactionCreateEvent: Event<"interactionCreate"> = {
 			return;
 		}
 
-		await command.execute(interaction);
+		await command.execute({ interaction });
 	},
 };
 

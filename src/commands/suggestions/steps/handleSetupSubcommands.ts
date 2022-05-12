@@ -1,5 +1,5 @@
-import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
-import { InteractionPipelineBuilder } from "../../../lib/custom-pipelines/command/InteractionPipeline";
+import { DiscordEventPipeline } from "../../../lib/custom-pipelines/discord-event/discord-event-pipeline";
+import { DiscordEventPipelineBuilder } from "../../../lib/custom-pipelines/discord-event/DiscordEventPipeline";
 import { ifelse } from "../../../lib/pipeline/steps/ifelse";
 import { match } from "../../../lib/pipeline/steps/match";
 import { ISuggestionDocument } from "../../../schemas/Suggestion";
@@ -8,7 +8,8 @@ import { createSuggestionsConfiguration } from "./createConfiguration";
 import { disableSuggestionsConfiguration } from "./disableConfiguration";
 import { editSuggestionsConfiguration } from "./editConfiguration";
 
-export const handleSetupSuggestionsSubcommands: InteractionPipeline.Step<
+export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.Step<
+	"interactionCreate",
 	ISuggestionDocument | undefined,
 	string
 > = match(m =>
@@ -17,7 +18,10 @@ export const handleSetupSuggestionsSubcommands: InteractionPipeline.Step<
 			matchSubcommandStep("enable"),
 			ifelse(
 				configuration => configuration !== undefined,
-				new InteractionPipelineBuilder<ISuggestionDocument | undefined>()
+				new DiscordEventPipelineBuilder<
+					"interactionCreate",
+					ISuggestionDocument | undefined
+				>()
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
 					.step(),
@@ -28,7 +32,10 @@ export const handleSetupSuggestionsSubcommands: InteractionPipeline.Step<
 			matchSubcommandStep("edit"),
 			ifelse(
 				configuration => configuration === undefined,
-				new InteractionPipelineBuilder<ISuggestionDocument | undefined>()
+				new DiscordEventPipelineBuilder<
+					"interactionCreate",
+					ISuggestionDocument | undefined
+				>()
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
 					.step(),
@@ -39,7 +46,10 @@ export const handleSetupSuggestionsSubcommands: InteractionPipeline.Step<
 			matchSubcommandStep("disable"),
 			ifelse(
 				configuration => configuration === undefined,
-				new InteractionPipelineBuilder<ISuggestionDocument | undefined>()
+				new DiscordEventPipelineBuilder<
+					"interactionCreate",
+					ISuggestionDocument | undefined
+				>()
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
 					.step(),

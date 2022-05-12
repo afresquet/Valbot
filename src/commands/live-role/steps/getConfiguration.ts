@@ -1,7 +1,8 @@
-import { InteractionPipeline } from "../../../lib/custom-pipelines/command/interaction-pipeline";
+import { DiscordEventPipeline } from "../../../lib/custom-pipelines/discord-event/discord-event-pipeline";
 import { ILiveRoleDocument, LiveRoleModel } from "../../../schemas/LiveRole";
 
-export const getLiveRoleConfiguration: InteractionPipeline.Step<
+export const getLiveRoleConfiguration: DiscordEventPipeline.Step<
+	"interactionCreate",
 	unknown,
 	ILiveRoleDocument | undefined
-> = (_, interaction) => LiveRoleModel.findByGuild(interaction.guild!);
+> = (_, { interaction }) => LiveRoleModel.findByGuild(interaction.guild!);

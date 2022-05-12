@@ -11,7 +11,7 @@ describe("ping command", () => {
 			},
 		};
 
-		pingCommand.execute(interaction);
+		pingCommand.execute({ interaction });
 
 		expect(interaction.reply).toHaveBeenCalledWith({
 			content: `Pong! Ping is \`${interaction.client.ws.ping}ms\``,

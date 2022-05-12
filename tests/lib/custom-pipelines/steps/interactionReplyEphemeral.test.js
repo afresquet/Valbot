@@ -10,7 +10,7 @@ describe("custom-pipelines lib interactionReplyEphemeral step", () => {
 	test("replies with ephemeral set to true", async () => {
 		const message = "message";
 
-		await interactionReplyEphemeral(message, interaction);
+		await interactionReplyEphemeral(message, { interaction });
 
 		expect(interaction.reply).toHaveBeenCalledWith({
 			content: message,

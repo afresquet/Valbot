@@ -29,8 +29,10 @@ describe("suggestion event", () => {
 
 	test("updates embed to accepted", async () => {
 		await suggestionEvent.execute({
-			...interaction,
-			customId: "suggestion-accept",
+			interaction: {
+				...interaction,
+				customId: "suggestion-accept",
+			},
 		});
 
 		expect(interaction.update).toHaveBeenCalledWith({
@@ -47,8 +49,10 @@ describe("suggestion event", () => {
 
 	test("updates embed to declined", async () => {
 		await suggestionEvent.execute({
-			...interaction,
-			customId: "suggestion-decline",
+			interaction: {
+				...interaction,
+				customId: "suggestion-decline",
+			},
 		});
 
 		expect(interaction.update).toHaveBeenCalledWith({
@@ -66,24 +70,26 @@ describe("suggestion event", () => {
 	test("returns if it's not a button", async () => {
 		interaction.isButton.mockReturnValueOnce(false);
 
-		await suggestionEvent.execute(interaction);
+		await suggestionEvent.execute({ interaction });
 
 		expect(interaction.isButton).toHaveBeenCalled();
 		expect(interaction.update).not.toHaveBeenCalled();
 	});
 
 	test("returns if it's not a valid customId", async () => {
-		await suggestionEvent.execute(interaction);
+		await suggestionEvent.execute({ interaction });
 
 		expect(interaction.update).not.toHaveBeenCalled();
 	});
 
 	test("returns there's no embed", async () => {
 		await suggestionEvent.execute({
-			...interaction,
-			customId: "suggestion-accept",
-			message: {
-				embeds: [],
+			interaction: {
+				...interaction,
+				customId: "suggestion-accept",
+				message: {
+					embeds: [],
+				},
 			},
 		});
 

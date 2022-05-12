@@ -3,7 +3,7 @@ import { Event } from "../../types/discord";
 const readyEvent: Event<"ready"> = {
 	name: "connected",
 	event: "ready",
-	execute: client => {
+	execute: ({ client }) => {
 		console.log(`Connected as ${client.user.tag}`);
 	},
 };
