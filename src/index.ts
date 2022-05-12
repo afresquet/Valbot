@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import "dotenv/config";
-import { setupHandlers } from "./handlers";
+import { setupHandlers } from "./discord/handlers";
 
 async function run() {
 	try {
