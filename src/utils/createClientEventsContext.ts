@@ -18,5 +18,11 @@ export const createClientEventsContext = <T extends keyof ClientEventsContext>(
 		return { oldPresence, newPresence } as any;
 	}
 
+	if (event === "ready") {
+		const [client] = args as ClientEvents["ready"];
+
+		return { client } as any;
+	}
+
 	throw new Error(`Unknown event: ${event}`);
 };
