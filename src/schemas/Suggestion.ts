@@ -10,7 +10,7 @@ interface ISuggestion {
 export interface ISuggestionDocument extends ISuggestion, Document {}
 
 export interface ISuggestionModel extends Model<ISuggestionDocument> {
-	findByGuild: (guild: Guild) => Promise<ISuggestionDocument | undefined>;
+	findByGuild: (guild: Guild) => Promise<ISuggestionDocument | null>;
 }
 
 /* ----- SCHEMA ----- */
@@ -22,7 +22,7 @@ const SuggestionSchema = new Schema<ISuggestionDocument>({
 /* ----- STATICS ----- */
 SuggestionSchema.statics.findByGuild = function (
 	guild: Guild
-): Promise<ISuggestionDocument | undefined> {
+): Promise<ISuggestionDocument | null> {
 	return this.findOne({
 		guildId: guild.id,
 	});

@@ -9,14 +9,14 @@ import { disableLiveRoleConfiguration } from "./disableConfiguration";
 import { editLiveRoleConfiguration } from "./editConfiguration";
 
 export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Step<
-	ILiveRoleDocument | undefined,
+	ILiveRoleDocument | null,
 	string
 > = match(m =>
 	m
 		.on(
 			matchSubcommandStep("enable"),
 			ifelse(
-				configuration => configuration !== undefined,
+				configuration => configuration === null,
 				new DiscordEventPipelineBuilder.CommandInteraction<ILiveRoleDocument>()
 					.pipe(createLiveRoleConfiguration)
 					.pipe(() => "Live role is now enabled on this server.")
@@ -27,7 +27,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 		.on(
 			matchSubcommandStep("edit"),
 			ifelse(
-				configuration => configuration === undefined,
+				configuration => configuration !== null,
 				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
 					.pipe(editLiveRoleConfiguration)
 					.pipe(() => "Live role was edited.")
@@ -38,7 +38,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 		.on(
 			matchSubcommandStep("disable"),
 			ifelse(
-				configuration => configuration === undefined,
+				configuration => configuration !== null,
 				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
 					.pipe(disableLiveRoleConfiguration)
 					.pipe(() => "Live role was disabled.")

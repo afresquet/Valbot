@@ -10,7 +10,7 @@ interface ILiveRole {
 export interface ILiveRoleDocument extends ILiveRole, Document {}
 
 export interface ILiveRoleModel extends Model<ILiveRoleDocument> {
-	findByGuild: (guild: Guild) => Promise<ILiveRoleDocument | undefined>;
+	findByGuild: (guild: Guild) => Promise<ILiveRoleDocument | null>;
 	findRoleByGuild: (guild: Guild) => Promise<Role | undefined>;
 }
 
@@ -23,7 +23,7 @@ const LiveRoleSchema = new Schema<ILiveRoleDocument>({
 /* ----- STATICS ----- */
 LiveRoleSchema.statics.findByGuild = function (
 	guild: Guild
-): Promise<ILiveRoleDocument | undefined> {
+): Promise<ILiveRoleDocument | null> {
 	return this.findOne({
 		guildId: guild.id,
 	});

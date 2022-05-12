@@ -6,5 +6,5 @@ import {
 
 export const getSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Step<
 	unknown,
-	ISuggestionDocument | undefined
+	ISuggestionDocument | null
 > = (_, { interaction }) => SuggestionModel.findByGuild(interaction.guild!);

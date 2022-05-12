@@ -3,5 +3,5 @@ import { ILiveRoleDocument, LiveRoleModel } from "../../../schemas/LiveRole";
 
 export const getLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Step<
 	unknown,
-	ILiveRoleDocument | undefined
+	ILiveRoleDocument | null
 > = (_, { interaction }) => LiveRoleModel.findByGuild(interaction.guild!);

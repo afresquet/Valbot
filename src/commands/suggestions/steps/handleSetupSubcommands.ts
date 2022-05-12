@@ -9,14 +9,14 @@ import { disableSuggestionsConfiguration } from "./disableConfiguration";
 import { editSuggestionsConfiguration } from "./editConfiguration";
 
 export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Step<
-	ISuggestionDocument | undefined,
+	ISuggestionDocument | null,
 	string
 > = match(m =>
 	m
 		.on(
 			matchSubcommandStep("enable"),
 			ifelse(
-				configuration => configuration !== undefined,
+				configuration => configuration === null,
 				new DiscordEventPipelineBuilder.CommandInteraction<ISuggestionDocument>()
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
@@ -27,7 +27,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 		.on(
 			matchSubcommandStep("edit"),
 			ifelse(
-				configuration => configuration === undefined,
+				configuration => configuration !== null,
 				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
@@ -38,7 +38,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 		.on(
 			matchSubcommandStep("disable"),
 			ifelse(
-				configuration => configuration === undefined,
+				configuration => configuration !== null,
 				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
