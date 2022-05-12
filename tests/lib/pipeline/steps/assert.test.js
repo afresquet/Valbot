@@ -28,4 +28,11 @@ describe("pipeline lib tap assert", () => {
 		expect(cb).toThrow(error);
 		expect(fn).toHaveBeenCalled();
 	});
+
+		test("throws default error if no throwable is provided", () => {
+		const cb = () => assert()(undefined, context);
+
+		expect(cb).toThrow("value is null or undefined");
+		expect(fn).not.toHaveBeenCalled();
+	});
 });
