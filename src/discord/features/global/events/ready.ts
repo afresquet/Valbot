@@ -4,7 +4,7 @@ const readyEvent: Event<"ready"> = {
 	name: "connected",
 	event: "ready",
 	execute: ({ client }) => {
-		console.log(`Connected as ${client.user.tag}`);
+		console.log(`Connected to Discord as ${client.user.tag}`);
 	},
 };
 

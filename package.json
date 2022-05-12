@@ -26,11 +26,13 @@
 		"@discordjs/builders": "^0.12.0",
 		"discord.js": "^13.6.0",
 		"dotenv": "^16.0.0",
-		"mongoose": "^6.2.10"
+		"mongoose": "^6.2.10",
+		"tmi.js": "^1.8.5"
 	},
 	"devDependencies": {
 		"@discordjs/rest": "^0.3.0",
 		"@types/jest": "^27.5.0",
+		"@types/tmi.js": "^1.8.1",
 		"discord-api-types": "^0.31.0",
 		"jest": "^28.1.0",
 		"rimraf": "^3.0.2",

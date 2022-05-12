@@ -3,7 +3,7 @@ declare namespace NodeJS {
 		ENV: string;
 		MONGODB_URI: string;
 		DISCORD_TOKEN: string;
-		TWITCH_BOT_USERNAME: string;
-		TWITCH_BOT_PASSWORD: string;
+		TWITCH_USERNAME: string;
+		TWITCH_PASSWORD: string;
 	}
 }
