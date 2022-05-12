@@ -54,7 +54,7 @@ describe("pipeline lib tap step", () => {
 		expect(otherwise).toHaveBeenCalledWith(value, context);
 	});
 
-	test("throws error if no condition matches and there's no 'otherwise' pipeline provided", () => {
+	test("returns null if no condition matches and no 'otherwise' function was provided", () => {
 		const context = { run: 2 };
 
 		const matcher = jest.fn((x, y) => y.run === 1);
@@ -62,9 +62,9 @@ describe("pipeline lib tap step", () => {
 
 		const fn = match(m => m.on(matcher, step));
 
-		expect(() => fn(value, context)).toThrow(
-			"No 'otherwise' pipeline defined for unmatched value"
-		);
+		const result = fn(value, context);
+
+		expect(result).toBeNull();
 		expect(matcher).toHaveBeenCalledWith(value, context);
 		expect(step).not.toHaveBeenCalled();
 	});
