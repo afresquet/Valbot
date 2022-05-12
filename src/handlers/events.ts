@@ -1,5 +1,7 @@
+import { Awaitable, ClientEvents } from "discord.js";
 import { readdir } from "fs/promises";
 import { Event, Handler } from "../types/discord";
+import { createClientEventsContext } from "../utils/createClientEventsContext";
 
 const eventsHandler: Handler = async client => {
 	try {
@@ -20,13 +22,21 @@ const eventsHandler: Handler = async client => {
 			for (const file of files) {
 				try {
 					// we need to pass a generic type here, but it doesn't matter for the following code
-					const event: Event<"messageCreate"> = (
+					type T = "interactionCreate";
+
+					const event: Event<T> = (
 						await import(`${process.cwd()}/dist/events/${directory}/${file}`)
 					).default;
 
-					const callback: typeof event.execute = async (...args) => {
+					const callback: (
+						...args: ClientEvents[T]
+					) => Awaitable<void> = async (...args) => {
 						try {
-							await event.execute(...args);
+							const context = createClientEventsContext<T>(
+								event.event,
+								...args
+							);
+							await event.execute(context);
 						} catch (error) {
 							console.error(error);
 						}
