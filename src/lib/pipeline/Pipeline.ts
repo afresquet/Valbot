@@ -1,3 +1,4 @@
+import { Query } from "mongoose";
 import { isPromise } from "util/types";
 import type { Pipeline as TPipeline } from "./pipeline";
 
@@ -17,7 +18,7 @@ export default class PipelineBuilder<T, V, C>
 			this.fns.reduce((fn1, fn2) => (value: T, context: C) => {
 				const res = fn1(value, context);
 
-				if (isPromise(res)) {
+				if (isPromise(res) || res instanceof Query) {
 					return (res as Promise<any>).then(r => fn2(r, context));
 				}
 
