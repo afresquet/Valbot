@@ -1,16 +1,14 @@
-import { CommandInteraction } from "discord.js";
 import { DiscordEventPipeline } from "../../../lib/custom-pipelines/discord-event/discord-event-pipeline";
 import {
 	ISuggestionDocument,
 	SuggestionModel,
 } from "../../../schemas/Suggestion";
 
-export const createSuggestionsConfiguration: DiscordEventPipeline.Step<
-	"interactionCreate",
+export const createSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Step<
 	unknown,
-	Promise<ISuggestionDocument>
+	ISuggestionDocument
 > = (_, { interaction }) => {
-	const { options, guild } = interaction as CommandInteraction;
+	const { options, guild } = interaction;
 
 	const channelId = options.getChannel("channel");
 

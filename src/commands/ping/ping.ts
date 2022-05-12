@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
 import { Command } from "../../types/discord";
 
 const pingCommand: Command = {
@@ -7,7 +6,7 @@ const pingCommand: Command = {
 		.setName("ping")
 		.setDescription("Tests connection to the bot."),
 	execute({ interaction }) {
-		(interaction as CommandInteraction).reply({
+		interaction.reply({
 			content: `Pong! Ping is \`${interaction.client.ws.ping}ms\``,
 			ephemeral: true,
 		});

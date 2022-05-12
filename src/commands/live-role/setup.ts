@@ -34,7 +34,7 @@ const liveRoleSetupCommand: Command = {
 		.addSubcommand(subcommand =>
 			subcommand.setName("disable").setDescription("Disable live role")
 		),
-	execute: new DiscordEventPipelineBuilder<"interactionCreate">()
+	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getLiveRoleConfiguration)
 		.pipe(handleLiveRoleSubcommands)
 		.pipe(interactionReplyEphemeral)

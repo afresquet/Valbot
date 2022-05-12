@@ -4,8 +4,7 @@ import {
 	SuggestionModel,
 } from "../../../schemas/Suggestion";
 
-export const getSuggestionsConfiguration: DiscordEventPipeline.Step<
-	"interactionCreate",
+export const getSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Step<
 	unknown,
 	ISuggestionDocument | undefined
 > = (_, { interaction }) => SuggestionModel.findByGuild(interaction.guild!);

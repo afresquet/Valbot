@@ -1,33 +1,46 @@
+import type { CommandInteraction } from "discord.js";
 import { ClientEventsContext } from "../../../types/discord";
 import { Pipeline } from "../../pipeline/pipeline";
 
 export declare namespace DiscordEventPipeline {
-	interface Pipeline<T extends keyof ClientEventsContext, V>
-		extends Pipeline.Pipeline<
-			ClientEventsContext[T],
-			V,
-			ClientEventsContext[T]
-		> {
-		(context: ClientEventsContext[T]): V | Promise<V>;
+	interface Pipeline<
+		T extends keyof ClientEventsContext,
+		V,
+		C = ClientEventsContext[T]
+	> extends Pipeline.Pipeline<C, V, C> {
+		(context: C): V | Promise<V>;
 	}
 
-	interface Step<T extends keyof ClientEventsContext, V, R>
-		extends Pipeline.Step<V, R, ClientEventsContext[T]> {
-		(value: V, context: ClientEventsContext[T]): R | Promise<R>;
+	interface Step<
+		T extends keyof ClientEventsContext,
+		V,
+		R,
+		C = ClientEventsContext[T]
+	> extends Pipeline.Step<V, R, C> {
+		(value: V, context: C): R | Promise<R>;
 	}
 
 	interface DiscordEventPipelineBuilder<
 		T extends keyof ClientEventsContext,
-		V = ClientEventsContext[T]
-	> extends Pipeline.PipelineBuilder<
-			ClientEventsContext[T],
-			V,
-			ClientEventsContext[T]
-		> {
-		pipe<R>(step: Step<T, V, R>): DiscordEventPipelineBuilder<T, R>;
+		V = ClientEventsContext[T],
+		C = ClientEventsContext[T]
+	> extends Pipeline.PipelineBuilder<C, V, C> {
+		pipe<R>(step: Step<T, V, R, C>): DiscordEventPipelineBuilder<T, R, C>;
 
-		build(): Pipeline<T, V>;
+		build(): Pipeline<T, V, C>;
 
-		step<V, R>(): Step<T, V, R>;
+		step<V, R>(): Step<T, V, R, C>;
+	}
+
+	export namespace CommandInteraction {
+		interface Step<V, R, C = { interaction: CommandInteraction }>
+			extends Pipeline.Step<V, R, C> {
+			(value: V, context: C): R | Promise<R>;
+		}
+
+		interface Pipeline<V = void, C = { interaction: CommandInteraction }>
+			extends Pipeline.Pipeline<C, V, C> {
+			(context: C): V | Promise<V>;
+		}
 	}
 }

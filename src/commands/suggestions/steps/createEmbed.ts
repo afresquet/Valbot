@@ -1,12 +1,11 @@
-import { CommandInteraction, MessageEmbed } from "discord.js";
+import { MessageEmbed } from "discord.js";
 import { DiscordEventPipeline } from "../../../lib/custom-pipelines/discord-event/discord-event-pipeline";
 
-export const createSuggestionEmbed: DiscordEventPipeline.Step<
-	"interactionCreate",
+export const createSuggestionEmbed: DiscordEventPipeline.CommandInteraction.Step<
 	unknown,
 	MessageEmbed
 > = (_, { interaction }) => {
-	const { options, user } = interaction as CommandInteraction;
+	const { options, user } = interaction;
 
 	const type = options.getString("type", true);
 	const suggestion = options.getString("suggestion", true);

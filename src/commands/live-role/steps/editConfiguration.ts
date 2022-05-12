@@ -1,13 +1,11 @@
-import { CommandInteraction } from "discord.js";
 import { DiscordEventPipeline } from "../../../lib/custom-pipelines/discord-event/discord-event-pipeline";
 import { LiveRoleModel } from "../../../schemas/LiveRole";
 
-export const editLiveRoleConfiguration: DiscordEventPipeline.Step<
-	"interactionCreate",
+export const editLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Step<
 	unknown,
-	Promise<void>
+	void
 > = async (_, { interaction }) => {
-	const { options, guild } = interaction as CommandInteraction;
+	const { options, guild } = interaction;
 
 	const role = options.getRole("role");
 

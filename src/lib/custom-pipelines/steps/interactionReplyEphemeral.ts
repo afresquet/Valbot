@@ -1,12 +1,10 @@
-import { CommandInteraction } from "discord.js";
 import { DiscordEventPipeline } from "../discord-event/discord-event-pipeline";
 
-export const interactionReplyEphemeral: DiscordEventPipeline.Step<
-	"interactionCreate",
+export const interactionReplyEphemeral: DiscordEventPipeline.CommandInteraction.Step<
 	string,
-	Promise<void>
+	void
 > = (content, { interaction }) => {
-	return (interaction as CommandInteraction).reply({
+	return interaction.reply({
 		content,
 		ephemeral: true,
 	});

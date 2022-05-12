@@ -34,8 +34,5 @@ export interface Command {
 		| SlashCommandBuilder
 		| SlashCommandSubcommandsOnlyBuilder
 		| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-	execute: DiscordEventPipeline.Pipeline<
-		"interactionCreate",
-		void | Promise<void>
-	>;
+	execute: DiscordEventPipeline.CommandInteraction.Pipeline;
 }

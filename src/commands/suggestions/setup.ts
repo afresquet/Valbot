@@ -37,7 +37,7 @@ const suggestionsSetupCommand: Command = {
 		.addSubcommand(subcommand =>
 			subcommand.setName("disable").setDescription("Disable suggestions")
 		),
-	execute: new DiscordEventPipelineBuilder<"interactionCreate">()
+	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getSuggestionsConfiguration)
 		.pipe(handleSetupSuggestionsSubcommands)
 		.pipe(interactionReplyEphemeral)

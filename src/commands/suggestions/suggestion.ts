@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction } from "discord.js";
 import { DiscordEventPipelineBuilder } from "../../lib/custom-pipelines/discord-event/DiscordEventPipeline";
 import { createAcceptDeclineButtons } from "../../lib/custom-pipelines/steps/createAcceptDeclineButtons";
 import { assert } from "../../lib/pipeline/steps/assert";
@@ -29,7 +28,7 @@ const suggestCommand: Command = {
 				.setDescription("Describe your suggestion")
 				.setRequired(true)
 		),
-	execute: new DiscordEventPipelineBuilder<"interactionCreate">()
+	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getSuggestionsConfiguration)
 		.pipe(
 			assert(() => new Error("Suggestions are not enabled on this server."))
@@ -46,7 +45,7 @@ const suggestCommand: Command = {
 		.pipe(createSuggestionEmbed)
 		.pipe(pairwise(createAcceptDeclineButtons("suggestion")))
 		.pipe(async ([embed, buttons], { interaction }) => {
-			await (interaction as CommandInteraction).reply({
+			await interaction.reply({
 				embeds: [embed],
 				components: [buttons],
 				fetchReply: true,
