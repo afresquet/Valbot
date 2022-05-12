@@ -8,9 +8,9 @@ export function pairwise<T, R, C>(
 		const result = fn(value, context);
 
 		if (isPromise(result)) {
-			return (result as Promise<R>).then(r => [value, r]);
+			return result.then(r => [value, r]);
 		}
 
-		return [value, result as R];
+		return [value, result];
 	};
 }
