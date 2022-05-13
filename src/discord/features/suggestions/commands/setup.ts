@@ -41,7 +41,7 @@ const suggestionsSetupCommand: Command = {
 		.pipe(getSuggestionsConfiguration)
 		.pipe(handleSetupSuggestionsSubcommands)
 		.pipe(interactionReplyEphemeral)
-		.build(),
+		.pipeline(),
 };
 
 export default suggestionsSetupCommand;

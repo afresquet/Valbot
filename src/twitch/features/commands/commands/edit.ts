@@ -30,7 +30,7 @@ const editCommand: Command = {
 			)
 		)
 		.pipe(say)
-		.build(),
+		.pipeline(),
 };
 
 export default editCommand;

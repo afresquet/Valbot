@@ -30,7 +30,7 @@ const createCommand: Command = {
 			)
 		)
 		.pipe(say)
-		.build(),
+		.pipeline(),
 };
 
 export default createCommand;

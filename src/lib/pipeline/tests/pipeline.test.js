@@ -25,7 +25,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[0])
 			.pipe(functions[1])
 			.pipe(functions[2])
-			.build();
+			.pipeline();
 
 		const result = pipeline(1, localContext, globalContext);
 
@@ -59,7 +59,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[0])
 			.pipe(fn)
 			.pipe(functions[2])
-			.build();
+			.pipeline();
 
 		const result = pipeline(1, localContext, globalContext);
 

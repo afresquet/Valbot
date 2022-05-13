@@ -23,7 +23,7 @@ export declare namespace Pipeline {
 			step: Step<Value, NextValue, LocalContext, GlobalContext>
 		): PipelineBuilder<InitialValue, NextValue, LocalContext, GlobalContext>;
 
-		build(): Pipeline<InitialValue, Value, LocalContext, GlobalContext>;
+		pipeline(): Pipeline<InitialValue, Value, LocalContext, GlobalContext>;
 
 		step<NextValue>(): Step<Value, NextValue, LocalContext, GlobalContext>;
 	}

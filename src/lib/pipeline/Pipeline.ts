@@ -25,7 +25,12 @@ export default class PipelineBuilder<
 		>;
 	}
 
-	build(): Pipeline.Pipeline<InitialValue, Value, LocalContext, GlobalContext> {
+	pipeline(): Pipeline.Pipeline<
+		InitialValue,
+		Value,
+		LocalContext,
+		GlobalContext
+	> {
 		const composition: Pipeline.Step<
 			InitialValue,
 			Value,
@@ -53,7 +58,7 @@ export default class PipelineBuilder<
 		LocalContext,
 		GlobalContext
 	> {
-		return this.build() as unknown as Pipeline.Step<
+		return this.pipeline() as unknown as Pipeline.Step<
 			StepValue,
 			ReturnValue,
 			LocalContext,

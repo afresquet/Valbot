@@ -30,7 +30,7 @@ const deleteCommand: Command = {
 			)
 		)
 		.pipe(say)
-		.build(),
+		.pipeline(),
 };
 
 export default deleteCommand;
