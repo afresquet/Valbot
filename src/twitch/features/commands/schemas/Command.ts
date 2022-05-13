@@ -1,9 +1,10 @@
 import { Document, model, Model, Schema } from "mongoose";
 
 /* ----- TYPES ----- */
-interface ICommand {
+export interface ICommand {
 	channel: string;
 	name: string;
+	subcommand?: string;
 	message: string;
 }
 
@@ -15,6 +16,7 @@ export interface ICommandModel extends Model<ICommandDocument> {}
 const CommandSchema = new Schema<ICommandDocument>({
 	channel: String,
 	name: String,
+	subcommand: { type: String, required: false },
 	message: String,
 });
 

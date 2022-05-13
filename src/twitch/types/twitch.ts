@@ -27,6 +27,7 @@ export interface Event<T extends keyof ClientEventsContext> {
 
 export interface Command {
 	name: string;
+	subcommand?: string;
 	once?: boolean;
 	execute: TwitchEventPipeline.Command.Pipeline;
 }

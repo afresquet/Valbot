@@ -35,7 +35,11 @@ const commandsHandler: Handler = async ({ twitch }) => {
 
 			// register all commands and push them to the array
 			for (const command of commands) {
-				twitch.commands.set(command.name, command);
+				const name = command.subcommand
+					? `${command.name}-${command.subcommand}`
+					: command.name;
+
+				twitch.commands.set(name, command);
 			}
 		}
 
