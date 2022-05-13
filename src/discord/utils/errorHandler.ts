@@ -11,6 +11,8 @@ export const errorHandler: <
 	event: ClientEventsContext[Event],
 	context: Context
 ) => Promise<void> = async (error, event) => {
+	if (error instanceof DiscordErrors.Exit) return;
+
 	if (error instanceof DiscordErrors.CommandInteractionReplyEphemeral) {
 		const { interaction } =
 			event as DiscordEventPipeline.CommandInteraction.Event;

@@ -1,7 +1,8 @@
 import { assert } from "../../../../lib/pipeline";
 import TwitchEventPipelineBuilder, {
-	TwitchEventPipeline
+	TwitchEventPipeline,
 } from "../../../lib/twitch-event-pipeline";
+import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { say } from "../../global/steps/say";
 import { getDBCommand } from "./getDBCommand";
 
@@ -11,7 +12,7 @@ export const executeDBCommand: TwitchEventPipeline.Command.Step<
 > = new TwitchEventPipelineBuilder.Command<string[]>()
 	.pipe(([name]) => name)
 	.pipe(getDBCommand)
-	.pipe(assert())
+	.pipe(assert(() => new TwitchErrors.Exit()))
 	.pipe(dbCommand => dbCommand.message)
 	.pipe(say)
 	.step();

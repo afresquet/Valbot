@@ -1,4 +1,3 @@
-const { Errors } = require("../../../utils/Errors");
 const { assert } = require("../assert");
 
 describe("pipeline lib assert step", () => {
@@ -27,12 +26,5 @@ describe("pipeline lib assert step", () => {
 
 		expect(cb).toThrow(error);
 		expect(fn).toHaveBeenCalled();
-	});
-
-	test("throws default Exit error if no throwable is provided", () => {
-		const cb = () => assert()(undefined);
-
-		expect(cb).toThrow(Errors.Exit);
-		expect(fn).not.toHaveBeenCalled();
 	});
 });
