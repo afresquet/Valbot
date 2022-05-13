@@ -1,10 +1,10 @@
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
-import { CommandModel, ICommand, ICommandDocument } from "../schemas/Command";
+import { CommandModel, ICommandDocument } from "../schemas/Command";
 
 export const getDBCommand: TwitchEventPipeline.Command.Step<
-	ICommand,
+	string,
 	ICommandDocument | null
-> = ({ name }, { channel }) =>
+> = (name, { channel }) =>
 	CommandModel.findOne({
 		channel,
 		name,
