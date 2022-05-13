@@ -1,6 +1,7 @@
 import { tap } from "../../../../lib/pipeline";
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { ClientEventsContext } from "../../../types/twitch";
+import { TwitchErrors } from "../../../utils/TwitchErrors";
 
 export const ignoreSelf: TwitchEventPipeline.Step<
 	"message",
@@ -8,6 +9,6 @@ export const ignoreSelf: TwitchEventPipeline.Step<
 	ClientEventsContext["message"]
 > = tap((_, { self }) => {
 	if (self) {
-		throw new Error("ExitError");
+		throw new TwitchErrors.Exit();
 	}
 });

@@ -3,6 +3,7 @@ import { readdir } from "fs/promises";
 import { Context } from "../../types/Context";
 import { Event, Handler } from "../types/discord";
 import { createClientEventsContext } from "../utils/createClientEventsContext";
+import { errorHandler } from "../utils/errorHandler";
 
 const eventsHandler: Handler = async (context: Context) => {
 	try {
@@ -36,15 +37,15 @@ const eventsHandler: Handler = async (context: Context) => {
 					const callback: (
 						...args: ClientEvents[T]
 					) => Awaitable<void> = async (...args) => {
-						try {
-							const eventContext = createClientEventsContext<T>(
-								event.event,
-								...args
-							);
+						const eventContext = createClientEventsContext<T>(
+							event.event,
+							...args
+						);
 
+						try {
 							await event.execute(eventContext, eventContext, context);
 						} catch (error) {
-							console.error(error);
+							await errorHandler(error, eventContext, context);
 						}
 					};
 

@@ -3,6 +3,7 @@ import { readdir } from "fs/promises";
 import { Events } from "tmi.js";
 import { Event, Handler } from "../types/twitch";
 import { createClientEventsContext } from "../utils/createClientEventsContext";
+import { errorHandler } from "../utils/errorHandler";
 
 const eventsHandler: Handler = async context => {
 	try {
@@ -34,15 +35,15 @@ const eventsHandler: Handler = async context => {
 					).default;
 
 					const callback: Events[T] = async (...args) => {
-						try {
-							const eventContext = createClientEventsContext<T>(
-								event.event,
-								...args
-							);
+						const eventContext = createClientEventsContext<T>(
+							event.event,
+							...args
+						);
 
+						try {
 							await event.execute(eventContext, eventContext, context);
 						} catch (error) {
-							console.error(error);
+							await errorHandler(error, eventContext, context);
 						}
 					};
 

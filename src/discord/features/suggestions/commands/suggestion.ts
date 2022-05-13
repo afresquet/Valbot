@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { assert, pairwise, tap } from "../../../../lib/pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { Command } from "../../../types/discord";
+import { DiscordErrors } from "../../../utils/DiscordErrors";
 import { createAcceptDeclineButtons } from "../../global/steps/createAcceptDeclineButtons";
 import { createSuggestionEmbed } from "../steps/createEmbed";
 import { getSuggestionsConfiguration } from "../steps/getConfiguration";
@@ -29,12 +30,17 @@ const suggestCommand: Command = {
 	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getSuggestionsConfiguration)
 		.pipe(
-			assert(() => new Error("Suggestions are not enabled on this server."))
+			assert(
+				() =>
+					new DiscordErrors.CommandInteractionReplyEphemeral(
+						"Suggestions are not enabled on this server."
+					)
+			)
 		)
 		.pipe(
 			tap((configuration, { interaction }) => {
 				if (configuration.channelId !== interaction.channel!.id) {
-					throw new Error(
+					throw new DiscordErrors.CommandInteractionReplyEphemeral(
 						`You can't use this command here, go to <#${configuration.channelId}> instead.`
 					);
 				}

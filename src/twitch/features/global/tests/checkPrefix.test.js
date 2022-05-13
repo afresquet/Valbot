@@ -1,3 +1,5 @@
+const { Errors } = require("../../../../utils/Errors");
+const { TwitchErrors } = require("../../../utils/TwitchErrors");
 const { checkPrefix } = require("../steps/checkPrefix");
 
 describe("checkPrefix step", () => {
@@ -12,11 +14,11 @@ describe("checkPrefix step", () => {
 		expect(result).toBe(message);
 	});
 
-	test("throws ExitError if the message doesn't start with the prefix", () => {
+	test("throws Exit error if the message doesn't start with the prefix", () => {
 		const event = { message: "command" };
 
 		const fn = () => checkPrefix(value, event);
 
-		expect(fn).toThrowError("ExitError");
+		expect(fn).toThrowError(TwitchErrors.Exit);
 	});
 });

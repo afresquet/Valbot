@@ -1,3 +1,5 @@
+const { Errors } = require("../../../../utils/Errors");
+const { TwitchErrors } = require("../../../utils/TwitchErrors");
 const { ignoreSelf } = require("../steps/ignoreSelf");
 
 describe("ignoreSelf step", () => {
@@ -6,7 +8,7 @@ describe("ignoreSelf step", () => {
 
 		const fn = () => ignoreSelf({}, event, {});
 
-		expect(fn).toThrow("ExitError");
+		expect(fn).toThrow(TwitchErrors.Exit);
 	});
 
 	test("continues if it's not itself", () => {

@@ -1,3 +1,4 @@
+import { Errors } from "../../utils/Errors";
 import type { Pipeline } from "./pipeline";
 import { tap } from "./tap";
 
@@ -7,10 +8,8 @@ export function assert<Value, LocalContext, GlobalContext>(
 	return tap<Value, LocalContext, GlobalContext>(
 		(value, localContext, globalContext) => {
 			if (value === undefined || value === null) {
-				// TODO: change error to ExitError
 				throw (
-					throwable?.(value, localContext, globalContext) ??
-					new Error("value is null or undefined")
+					throwable?.(value, localContext, globalContext) ?? new Errors.Exit()
 				);
 			}
 		}
