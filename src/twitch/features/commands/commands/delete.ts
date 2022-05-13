@@ -5,12 +5,12 @@ import { say } from "../../global/steps/say";
 import { splitString } from "../../global/steps/splitString";
 import { ICommand } from "../schemas/Command";
 import { dbCommandExists } from "../steps/dbCommandExists";
-import { editDBCommand } from "../steps/editDBCommand";
+import { deleteDBCommand } from "../steps/deleteCommand";
 import { extractCommand } from "../steps/extractCommand";
 
-const editCommand: Command = {
+const deleteCommand: Command = {
 	name: "command",
-	subcommand: "edit",
+	subcommand: "delete",
 	execute: new TwitchEventPipelineBuilder.Command()
 		.pipe((_, { message }) => message)
 		.pipe(splitString(3))
@@ -19,10 +19,10 @@ const editCommand: Command = {
 			ifelse(
 				dbCommandExists,
 				new TwitchEventPipelineBuilder.Command<ICommand>()
-					.pipe(editDBCommand)
+					.pipe(deleteDBCommand)
 					.pipe(
 						({ name }, { userstate }) =>
-							`@${userstate.username}, command "${name}" was edited!`
+							`@${userstate.username}, command "${name}" was deleted!`
 					)
 					.step(),
 				({ name }, { userstate }) =>
@@ -33,4 +33,4 @@ const editCommand: Command = {
 		.build(),
 };
 
-export default editCommand;
+export default deleteCommand;
