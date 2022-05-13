@@ -36,13 +36,12 @@ const commandsHandler: Handler = async ({ twitch }) => {
 			// register all commands and push them to the array
 			for (const command of commands) {
 				twitch.commands.set(command.name, command);
-
-				console.log(`Loaded command "${command.name}"`);
 			}
 		}
 
-		console.log("Command handler loaded!");
+		console.log("Twitch command handler loaded!");
 	} catch (error) {
+		console.log("Twitch command handler failed to load!");
 		console.error(error);
 	}
 };

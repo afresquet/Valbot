@@ -6,7 +6,7 @@ import { createClientEventsContext } from "../utils/createClientEventsContext";
 
 const eventsHandler: Handler = async (context: Context) => {
 	try {
-		console.log("Loading event handler...");
+		console.log("Loading Discord event handler...");
 
 		const dirents = await readdir(`${process.cwd()}/dist/discord/features`, {
 			withFileTypes: true,
@@ -53,16 +53,15 @@ const eventsHandler: Handler = async (context: Context) => {
 					} else {
 						context.discord.on(event.event, callback);
 					}
-
-					console.log(`Loaded event "${event.name}"`);
 				} catch (error) {
 					console.error(error);
 				}
 			}
 		}
 
-		console.log("Event handler loaded!");
+		console.log("Discord event handler loaded!");
 	} catch (error) {
+		console.log("Discord event handler failed to load!");
 		console.error(error);
 	}
 };

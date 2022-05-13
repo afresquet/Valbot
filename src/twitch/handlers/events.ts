@@ -6,7 +6,7 @@ import { createClientEventsContext } from "../utils/createClientEventsContext";
 
 const eventsHandler: Handler = async context => {
 	try {
-		console.log("Loading event handler...");
+		console.log("Loading Twitch event handler...");
 
 		const dirents = await readdir(`${process.cwd()}/dist/twitch/features`, {
 			withFileTypes: true,
@@ -51,16 +51,15 @@ const eventsHandler: Handler = async context => {
 					} else {
 						context.twitch.on(event.event as keyof Events, callback);
 					}
-
-					console.log(`Loaded event "${event.name}"`);
 				} catch (error) {
 					console.error(error);
 				}
 			}
 		}
 
-		console.log("Event handler loaded!");
+		console.log("Twitch event handler loaded!");
 	} catch (error) {
+		console.log("Twitch event handler failed to load!");
 		console.error(error);
 	}
 };

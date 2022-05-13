@@ -3,7 +3,7 @@ import { Command, Handler } from "../types/discord";
 
 const commandsHandler: Handler = async ({ discord }) => {
 	try {
-		console.log("Loading command handler...");
+		console.log("Loading Discord command handler...");
 
 		// get all folders from the commands folder
 		const dirents = await readdir(`${process.cwd()}/dist/discord/features`, {
@@ -35,13 +35,12 @@ const commandsHandler: Handler = async ({ discord }) => {
 			// register all commands and push them to the array
 			for (const command of commands) {
 				discord.commands.set(command.data.name, command);
-
-				console.log(`Loaded command "${command.data.name}"`);
 			}
 		}
 
-		console.log("Command handler loaded!");
+		console.log("Discord command handler loaded!");
 	} catch (error) {
+		console.log("Discord command handler failed to load!");
 		console.error(error);
 	}
 };

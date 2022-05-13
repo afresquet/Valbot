@@ -1,50 +1,20 @@
-import Discord from "discord.js";
 import "dotenv/config";
-import tmi, { ExtendedClient } from "tmi.js";
-import { setupHandlers as setupDiscordHandlers } from "./discord/handlers";
-import { setupHandlers as setupTwitchHandlers } from "./twitch/handlers";
+import { connectDB } from "./db";
+import discord from "./discord";
+import twitch from "./twitch";
+import { Context } from "./types/Context";
+import { setupHandlers } from "./utils/setupHandlers";
+import { startClients } from "./utils/startClients";
 
 async function run() {
 	try {
-		console.log("Starting Discord and Twitch clients...");
+		const db = await connectDB();
 
-		const discord = new Discord.Client({
-			restTimeOffset: 0,
-			partials: ["MESSAGE", "CHANNEL", "REACTION"],
-			intents: [
-				Discord.Intents.FLAGS.GUILDS,
-				Discord.Intents.FLAGS.GUILD_MEMBERS,
-				Discord.Intents.FLAGS.GUILD_MESSAGES,
-				Discord.Intents.FLAGS.GUILD_VOICE_STATES,
-				Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-				Discord.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-			],
-		});
-		discord.commands = new Discord.Collection();
+		const context: Context = { discord, twitch, db };
 
-		const twitch = tmi.client({
-			options: { debug: false },
-			connection: {
-				secure: true,
-				reconnect: true,
-			},
-			identity: {
-				username: process.env.TWITCH_USERNAME,
-				password: process.env.TWITCH_PASSWORD,
-			},
-			channels: ["valaxor_"],
-		}) as ExtendedClient;
-		twitch.commands = new Map();
+		await setupHandlers(context, discord, twitch);
 
-		await Promise.all([
-			setupDiscordHandlers({ discord, twitch }),
-			setupTwitchHandlers({ twitch, discord }),
-		]);
-
-		await Promise.all([
-			discord.login(process.env.DISCORD_TOKEN),
-			twitch.connect(),
-		]);
+		await startClients(discord, twitch);
 	} catch (error) {
 		console.error(error);
 	}
