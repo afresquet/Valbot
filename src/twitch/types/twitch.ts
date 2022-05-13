@@ -1,16 +1,32 @@
-import type { Events, ExtendedClient } from "tmi.js";
+import type { Events } from "tmi.js";
+import { Context } from "../../types/Context";
+import { TwitchEventPipeline } from "../lib/twitch-event-pipeline";
 
-export type Handler = (client: ExtendedClient) => void | Promise<void>;
+export type Handler = (context: Context) => void | Promise<void>;
 
-export interface Event<T extends keyof Events> {
+export interface ClientEventsContext {
+	connected: {
+		address: Parameters<Events["connected"]>[0];
+		port: Parameters<Events["connected"]>[1];
+	};
+
+	message: {
+		channel: Parameters<Events["message"]>[0];
+		userstate: Parameters<Events["message"]>[1];
+		message: Parameters<Events["message"]>[2];
+		self: Parameters<Events["message"]>[3];
+	};
+}
+
+export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: (client: ExtendedClient) => Events[T];
+	execute: TwitchEventPipeline.Pipeline<T, void>;
 }
 
 export interface Command {
 	name: string;
 	once?: boolean;
-	execute: (client: ExtendedClient) => Events["message"];
+	execute: TwitchEventPipeline.Command.Pipeline;
 }

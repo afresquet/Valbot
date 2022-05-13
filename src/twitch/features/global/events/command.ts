@@ -3,16 +3,18 @@ import { Event } from "../../../types/twitch";
 const messageEvent: Event<"message"> = {
 	name: "command",
 	event: "message",
-	execute: client => async (channel, userstate, message, self) => {
+	execute: async ({ message, self }, event, context) => {
 		if (self) return;
 
 		if (!message.startsWith("!")) return;
 
-		const command = client.commands.get(message.split(" ")[0].substring(1));
+		const name = message.split(" ")[0].substring(1);
+
+		const command = context.twitch.commands.get(name);
 
 		if (!command) return;
 
-		await command.execute(client)(channel, userstate, message, self);
+		await command.execute(event, event, context);
 	},
 };
 

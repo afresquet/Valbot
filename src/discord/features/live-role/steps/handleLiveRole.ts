@@ -1,11 +1,11 @@
 import { Role } from "discord.js";
-import { match, Pipeline } from "../../../../lib/pipeline";
-import { ClientEventsContext } from "../../../types/discord";
+import { match } from "../../../../lib/pipeline";
+import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 
-export const handleLiveRole: Pipeline.Step<
+export const handleLiveRole: DiscordEventPipeline.Step<
+	"presenceUpdate",
 	{ role: Role; hasLiveRole: boolean; isStreaming: boolean },
-	void,
-	ClientEventsContext["presenceUpdate"]
+	void
 > = match(m =>
 	m
 		.on(

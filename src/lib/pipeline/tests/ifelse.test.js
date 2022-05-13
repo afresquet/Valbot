@@ -2,18 +2,23 @@ const { ifelse } = require("../ifelse");
 
 describe("pipeline lib ifelse step", () => {
 	const value = 10;
-	const context = { foo: "bar" };
+	const localContext = { foo: "bar" };
+	const globalContext = { foo: "bar" };
 
 	test("calls the first function if the condition is true", () => {
 		const condition = jest.fn(x => x > 5);
 		const then = jest.fn(x => x * 2);
 		const otherwise = jest.fn(x => x / 2);
 
-		const result = ifelse(condition, then, otherwise)(value, context);
+		const result = ifelse(condition, then, otherwise)(
+			value,
+			localContext,
+			globalContext
+		);
 
 		expect(result).toBe(20);
-		expect(condition).toHaveBeenCalledWith(value, context);
-		expect(then).toHaveBeenCalledWith(value, context);
+		expect(condition).toHaveBeenCalledWith(value, localContext, globalContext);
+		expect(then).toHaveBeenCalledWith(value, localContext, globalContext);
 		expect(otherwise).not.toHaveBeenCalled();
 	});
 
@@ -22,22 +27,26 @@ describe("pipeline lib ifelse step", () => {
 		const then = jest.fn(x => x * 2);
 		const otherwise = jest.fn(x => x / 2);
 
-		const result = ifelse(condition, then, otherwise)(value, context);
+		const result = ifelse(condition, then, otherwise)(
+			value,
+			localContext,
+			globalContext
+		);
 
 		expect(result).toBe(5);
-		expect(condition).toHaveBeenCalledWith(value, context);
+		expect(condition).toHaveBeenCalledWith(value, localContext, globalContext);
 		expect(then).not.toHaveBeenCalled();
-		expect(otherwise).toHaveBeenCalledWith(value, context);
+		expect(otherwise).toHaveBeenCalledWith(value, localContext, globalContext);
 	});
 
 	test("returns the same value if the condition is false and no 'otherwise' function is passed", () => {
 		const condition = jest.fn(x => x < 5);
 		const then = jest.fn(x => x * 2);
 
-		const result = ifelse(condition, then)(value, context);
+		const result = ifelse(condition, then)(value, localContext, globalContext);
 
 		expect(result).toBe(value);
-		expect(condition).toHaveBeenCalledWith(value, context);
+		expect(condition).toHaveBeenCalledWith(value, localContext, globalContext);
 		expect(then).not.toHaveBeenCalled();
 	});
 
@@ -46,11 +55,15 @@ describe("pipeline lib ifelse step", () => {
 		const then = jest.fn(x => x * 2);
 		const otherwise = jest.fn(x => x / 2);
 
-		const result = await ifelse(condition, then, otherwise)(value, context);
+		const result = await ifelse(condition, then, otherwise)(
+			value,
+			localContext,
+			globalContext
+		);
 
 		expect(result).toBe(20);
-		expect(condition).toHaveBeenCalledWith(value, context);
-		expect(then).toHaveBeenCalledWith(value, context);
+		expect(condition).toHaveBeenCalledWith(value, localContext, globalContext);
+		expect(then).toHaveBeenCalledWith(value, localContext, globalContext);
 		expect(otherwise).not.toHaveBeenCalled();
 	});
 
@@ -59,11 +72,15 @@ describe("pipeline lib ifelse step", () => {
 		const then = jest.fn(x => x * 2);
 		const otherwise = jest.fn(x => x / 2);
 
-		const result = await ifelse(condition, then, otherwise)(value, context);
+		const result = await ifelse(condition, then, otherwise)(
+			value,
+			localContext,
+			globalContext
+		);
 
 		expect(result).toBe(5);
-		expect(condition).toHaveBeenCalledWith(value, context);
+		expect(condition).toHaveBeenCalledWith(value, localContext, globalContext);
 		expect(then).not.toHaveBeenCalled();
-		expect(otherwise).toHaveBeenCalledWith(value, context);
+		expect(otherwise).toHaveBeenCalledWith(value, localContext, globalContext);
 	});
 });

@@ -36,11 +36,15 @@ async function run() {
 		}) as ExtendedClient;
 		twitch.commands = new Map();
 
-		await setupDiscordHandlers(discord);
-		await setupTwitchHandlers(twitch);
+		await Promise.all([
+			setupDiscordHandlers({ discord, twitch }),
+			setupTwitchHandlers({ twitch, discord }),
+		]);
 
-		await discord.login(process.env.DISCORD_TOKEN);
-		await twitch.connect();
+		await Promise.all([
+			discord.login(process.env.DISCORD_TOKEN),
+			twitch.connect(),
+		]);
 	} catch (error) {
 		console.error(error);
 	}

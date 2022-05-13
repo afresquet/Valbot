@@ -6,7 +6,8 @@ describe("pipeline lib PipelineBuilder", () => {
 		jest.fn(x => x * 2),
 		jest.fn(x => x.toString()),
 	];
-	const context = { foo: "bar" };
+	const localContext = { foo: "bar" };
+	const globalContext = { bar: "foo" };
 
 	beforeEach(jest.clearAllMocks);
 
@@ -19,20 +20,20 @@ describe("pipeline lib PipelineBuilder", () => {
 		expect(pipeline.fns).toStrictEqual(functions);
 	});
 
-	test("executes functions in order and passes the context", () => {
+	test("executes functions in order and passes the contexts", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(functions[1])
 			.pipe(functions[2])
 			.build();
 
-		const result = pipeline(1, context);
+		const result = pipeline(1, localContext, globalContext);
 
 		expect(result).toBe("4");
 
-		expect(functions[0]).toHaveBeenCalledWith(1, context);
-		expect(functions[1]).toHaveBeenCalledWith(2, context);
-		expect(functions[2]).toHaveBeenCalledWith(4, context);
+		expect(functions[0]).toHaveBeenCalledWith(1, localContext, globalContext);
+		expect(functions[1]).toHaveBeenCalledWith(2, localContext, globalContext);
+		expect(functions[2]).toHaveBeenCalledWith(4, localContext, globalContext);
 	});
 
 	test("step function works the same as build (only used for type checking)", () => {
@@ -42,13 +43,13 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[2])
 			.step();
 
-		const result = pipeline(1, context);
+		const result = pipeline(1, localContext, globalContext);
 
 		expect(result).toBe("4");
 
-		expect(functions[0]).toHaveBeenCalledWith(1, context);
-		expect(functions[1]).toHaveBeenCalledWith(2, context);
-		expect(functions[2]).toHaveBeenCalledWith(4, context);
+		expect(functions[0]).toHaveBeenCalledWith(1, localContext, globalContext);
+		expect(functions[1]).toHaveBeenCalledWith(2, localContext, globalContext);
+		expect(functions[2]).toHaveBeenCalledWith(4, localContext, globalContext);
 	});
 
 	test("works with promises", () => {
@@ -60,7 +61,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[2])
 			.build();
 
-		const result = pipeline(1, context);
+		const result = pipeline(1, localContext, globalContext);
 
 		expect(result).resolves.toBe("4");
 	});

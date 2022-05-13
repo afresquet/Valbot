@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { Command, Handler } from "../types/twitch";
 
-const commandsHandler: Handler = async client => {
+const commandsHandler: Handler = async ({ twitch }) => {
 	try {
 		console.log("Loading Twitch command handler...");
 
@@ -35,7 +35,7 @@ const commandsHandler: Handler = async client => {
 
 			// register all commands and push them to the array
 			for (const command of commands) {
-				client.commands.set(command.name, command);
+				twitch.commands.set(command.name, command);
 
 				console.log(`Loaded command "${command.name}"`);
 			}

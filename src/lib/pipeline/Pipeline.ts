@@ -1,34 +1,63 @@
 import { Query } from "mongoose";
 import { isPromise } from "util/types";
-import type { Pipeline as TPipeline } from "./pipeline";
+import type { Pipeline } from "./pipeline";
 
-export default class PipelineBuilder<T, V, C>
-	implements TPipeline.PipelineBuilder<T, V, C>
+export default class PipelineBuilder<
+	InitialValue,
+	Value,
+	LocalContext,
+	GlobalContext
+> implements
+		Pipeline.PipelineBuilder<InitialValue, Value, LocalContext, GlobalContext>
 {
-	fns: TPipeline.Step<any | Promise<any>, any | Promise<any>, C>[] = [];
+	fns: Pipeline.Step<any, any, LocalContext, GlobalContext>[] = [];
 
-	pipe<R>(fn: TPipeline.Step<V, R, C>): PipelineBuilder<T, R, C> {
+	pipe<NextValue>(
+		fn: Pipeline.Step<Value, NextValue, LocalContext, GlobalContext>
+	): PipelineBuilder<InitialValue, NextValue, LocalContext, GlobalContext> {
 		this.fns.push(fn);
 
-		return this as unknown as PipelineBuilder<T, R, C>;
+		return this as unknown as PipelineBuilder<
+			InitialValue,
+			NextValue,
+			LocalContext,
+			GlobalContext
+		>;
 	}
 
-	build(): TPipeline.Pipeline<T, V, C> {
-		const composition: TPipeline.Step<T, any | Promise<any>, C> =
-			this.fns.reduce((fn1, fn2) => (value: T, context: C) => {
-				const res = fn1(value, context);
+	build(): Pipeline.Pipeline<InitialValue, Value, LocalContext, GlobalContext> {
+		const composition: Pipeline.Step<
+			InitialValue,
+			Value,
+			LocalContext,
+			GlobalContext
+		> = this.fns.reduce((fn1, fn2) => (value, localContext, globalContext) => {
+			const res = fn1(value, localContext, globalContext);
 
-				if (isPromise(res) || res instanceof Query) {
-					return (res as Promise<any>).then(r => fn2(r, context));
-				}
+			if (isPromise(res) || res instanceof Query) {
+				return (res as Promise<any>).then(r =>
+					fn2(r, localContext, globalContext)
+				);
+			}
 
-				return fn2(res, context);
-			});
+			return fn2(res, localContext, globalContext);
+		});
 
-		return (value, context) => composition(value, context);
+		return (value, localContext, globalContext) =>
+			composition(value, localContext, globalContext);
 	}
 
-	step<U, R>(): TPipeline.Step<U, R, C> {
-		return this.build() as unknown as TPipeline.Step<U, R, C>;
+	step<StepValue, ReturnValue>(): Pipeline.Step<
+		StepValue,
+		ReturnValue,
+		LocalContext,
+		GlobalContext
+	> {
+		return this.build() as unknown as Pipeline.Step<
+			StepValue,
+			ReturnValue,
+			LocalContext,
+			GlobalContext
+		>;
 	}
 }

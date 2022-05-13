@@ -1,9 +1,8 @@
-import type { CommandInteraction } from "discord.js";
 import { Pipeline as TPipeline } from "../../../lib/pipeline";
 import { Context } from "../../../types/Context";
-import { ClientEventsContext } from "../../types/discord";
+import { ClientEventsContext } from "../../types/twitch";
 
-export declare namespace DiscordEventPipeline {
+export declare namespace TwitchEventPipeline {
 	interface Pipeline<Event extends keyof ClientEventsContext, ReturnValue>
 		extends TPipeline.Pipeline<
 			ClientEventsContext[Event],
@@ -30,8 +29,8 @@ export declare namespace DiscordEventPipeline {
 			| Promise<NextValue>;
 	}
 
-	export namespace CommandInteraction {
-		type Event = { interaction: CommandInteraction };
+	export namespace Command {
+		type Event = ClientEventsContext["message"];
 
 		type Pipeline<Value = Event, ReturnValue = void> = TPipeline.Pipeline<
 			Value,

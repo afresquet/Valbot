@@ -1,7 +1,7 @@
 import { readdir } from "fs/promises";
 import { Command, Handler } from "../types/discord";
 
-const commandsHandler: Handler = async client => {
+const commandsHandler: Handler = async ({ discord }) => {
 	try {
 		console.log("Loading command handler...");
 
@@ -34,7 +34,7 @@ const commandsHandler: Handler = async client => {
 
 			// register all commands and push them to the array
 			for (const command of commands) {
-				client.commands.set(command.data.name, command);
+				discord.commands.set(command.data.name, command);
 
 				console.log(`Loaded command "${command.data.name}"`);
 			}

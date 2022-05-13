@@ -1,9 +1,10 @@
 import { Awaitable, ClientEvents } from "discord.js";
 import { readdir } from "fs/promises";
+import { Context } from "../../types/Context";
 import { Event, Handler } from "../types/discord";
 import { createClientEventsContext } from "../utils/createClientEventsContext";
 
-const eventsHandler: Handler = async client => {
+const eventsHandler: Handler = async (context: Context) => {
 	try {
 		console.log("Loading event handler...");
 
@@ -36,20 +37,21 @@ const eventsHandler: Handler = async client => {
 						...args: ClientEvents[T]
 					) => Awaitable<void> = async (...args) => {
 						try {
-							const context = createClientEventsContext<T>(
+							const eventContext = createClientEventsContext<T>(
 								event.event,
 								...args
 							);
-							await event.execute(context);
+
+							await event.execute(eventContext, eventContext, context);
 						} catch (error) {
 							console.error(error);
 						}
 					};
 
 					if (event.once) {
-						client.once(event.event, callback);
+						context.discord.once(event.event, callback);
 					} else {
-						client.on(event.event, callback);
+						context.discord.on(event.event, callback);
 					}
 
 					console.log(`Loaded event "${event.name}"`);

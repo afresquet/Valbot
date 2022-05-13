@@ -2,14 +2,15 @@ import {
 	SlashCommandBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
-import { Client, ClientEvents, CommandInteraction } from "discord.js";
+import { ClientEvents } from "discord.js";
+import { Context } from "../../types/Context";
 import { DiscordEventPipeline } from "../lib/discord-event-pipeline";
 
-export type Handler = (client: Client) => void | Promise<void>;
+export type Handler = (context: Context) => void | Promise<void>;
 
 export interface ClientEventsContext {
 	interactionCreate: {
-		interaction: ClientEvents["interactionCreate"][0] | CommandInteraction;
+		interaction: ClientEvents["interactionCreate"][0];
 	};
 
 	presenceUpdate: {

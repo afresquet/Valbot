@@ -2,8 +2,9 @@ import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { Events } from "tmi.js";
 import { Event, Handler } from "../types/twitch";
+import { createClientEventsContext } from "../utils/createClientEventsContext";
 
-const eventsHandler: Handler = async client => {
+const eventsHandler: Handler = async context => {
 	try {
 		console.log("Loading event handler...");
 
@@ -34,16 +35,21 @@ const eventsHandler: Handler = async client => {
 
 					const callback: Events[T] = async (...args) => {
 						try {
-							await event.execute(client)(...args);
+							const eventContext = createClientEventsContext<T>(
+								event.event,
+								...args
+							);
+
+							await event.execute(eventContext, eventContext, context);
 						} catch (error) {
 							console.error(error);
 						}
 					};
 
 					if (event.once) {
-						client.once(event.event as keyof Events, callback);
+						context.twitch.once(event.event as keyof Events, callback);
 					} else {
-						client.on(event.event as keyof Events, callback);
+						context.twitch.on(event.event as keyof Events, callback);
 					}
 
 					console.log(`Loaded event "${event.name}"`);

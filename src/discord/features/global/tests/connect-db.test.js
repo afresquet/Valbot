@@ -7,7 +7,7 @@ describe("connect-db client event", () => {
 
 	test("connects to the database", async () => {
 		jest.spyOn(mongoose, "connect").mockImplementationOnce(() => {});
-		jest.spyOn(console, "log");
+		jest.spyOn(console, "log").mockImplementation();
 
 		await connectDBEvent.execute();
 

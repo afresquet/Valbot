@@ -1,11 +1,16 @@
 import { isPromise } from "util/types";
 import type { Pipeline } from "./pipeline";
 
-export function ifelse<T, R, C>(
-	condition: Pipeline.Step<T, boolean, C>,
-	then: Pipeline.Step<T, R, C>,
-	otherwise: Pipeline.Step<T, R, C> = value => value as any
-): Pipeline.Step<T, R, C> {
+export function ifelse<Value, NextValue, LocalContext, GlobalContext>(
+	condition: Pipeline.Step<Value, boolean, LocalContext, GlobalContext>,
+	then: Pipeline.Step<Value, NextValue, LocalContext, GlobalContext>,
+	otherwise: Pipeline.Step<
+		Value,
+		NextValue,
+		LocalContext,
+		GlobalContext
+	> = value => value as any
+): Pipeline.Step<Value, NextValue, LocalContext, GlobalContext> {
 	return (...args) => {
 		const result = condition(...args);
 

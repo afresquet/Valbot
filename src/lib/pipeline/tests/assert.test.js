@@ -1,36 +1,35 @@
 const { assert } = require("../assert");
 
-describe("pipeline lib tap assert", () => {
+describe("pipeline lib assert step", () => {
 	const value = 10;
-	const context = { foo: "bar" };
 
 	const error = new Error("error");
 	const fn = jest.fn(x => error);
 
 	beforeEach(jest.clearAllMocks);
 	test("asserts the value", () => {
-		const result = assert(fn)(value, context);
+		const result = assert(fn)(value);
 
 		expect(result).toBe(value);
 		expect(fn).not.toHaveBeenCalled();
 	});
 
 	test("throws if the value is undefined", () => {
-		const cb = () => assert(fn)(undefined, context);
+		const cb = () => assert(fn)(undefined);
 
 		expect(cb).toThrow(error);
 		expect(fn).toHaveBeenCalled();
 	});
 
 	test("throws if the value is null", () => {
-		const cb = () => assert(fn)(null, context);
+		const cb = () => assert(fn)(null);
 
 		expect(cb).toThrow(error);
 		expect(fn).toHaveBeenCalled();
 	});
 
 	test("throws default error if no throwable is provided", () => {
-		const cb = () => assert()(undefined, context);
+		const cb = () => assert()(undefined);
 
 		expect(cb).toThrow("value is null or undefined");
 		expect(fn).not.toHaveBeenCalled();

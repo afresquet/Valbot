@@ -1,35 +1,59 @@
 import { Pipeline } from "./pipeline";
 
-interface Match<T, R, C> {
-	run(value: T, context: C): R | Promise<R> | null;
+interface Match<Value, ReturnValue, LocalContext, GlobalContext> {
+	run(
+		value: Value,
+		localContext: LocalContext,
+		globalContext: GlobalContext
+	): ReturnValue | Promise<ReturnValue> | null;
 
 	on(
-		matcher: (value: T, context: C) => boolean | Promise<boolean>,
-		pipeline: Pipeline.Step<T, R, C>
-	): Match<T, R, C>;
+		matcher: (
+			value: Value,
+			context: LocalContext,
+			globalContext: GlobalContext
+		) => boolean | Promise<boolean>,
+		pipeline: Pipeline.Step<Value, ReturnValue, LocalContext, GlobalContext>
+	): Match<Value, ReturnValue, LocalContext, GlobalContext>;
 
-	otherwise(pipeline: Pipeline.Step<T, R, C>): Match<T, R, C>;
+	otherwise(
+		pipeline: Pipeline.Step<Value, ReturnValue, LocalContext, GlobalContext>
+	): Match<Value, ReturnValue, LocalContext, GlobalContext>;
 }
 
-class MatchBuilder<T, R, C> implements Match<T, R, C> {
+class MatchBuilder<Value, ReturnValue, LocalContext, GlobalContext>
+	implements Match<Value, ReturnValue, LocalContext, GlobalContext>
+{
 	private matchers: {
-		matcher: Pipeline.Step<T, boolean, C>;
-		pipeline: Pipeline.Step<T, R, C>;
+		matcher: Pipeline.Step<Value, boolean, LocalContext, GlobalContext>;
+		pipeline: Pipeline.Step<Value, ReturnValue, LocalContext, GlobalContext>;
 	}[] = [];
 
-	private otherwisePipeline?: Pipeline.Step<T, R, C>;
+	private otherwisePipeline?: Pipeline.Step<
+		Value,
+		ReturnValue,
+		LocalContext,
+		GlobalContext
+	>;
 
-	run(value: T, context: C): R | Promise<R> | null {
+	run(
+		value: Value,
+		localContext: LocalContext,
+		globalContext: GlobalContext
+	): ReturnValue | Promise<ReturnValue> | null {
 		for (const { matcher, pipeline } of this.matchers) {
-			if (matcher(value, context) && pipeline) {
-				return pipeline(value, context);
+			if (matcher(value, localContext, globalContext) && pipeline) {
+				return pipeline(value, localContext, globalContext);
 			}
 		}
 
-		return this.otherwisePipeline?.(value, context) ?? null;
+		return this.otherwisePipeline?.(value, localContext, globalContext) ?? null;
 	}
 
-	on(matcher: Pipeline.Step<T, boolean, C>, pipeline?: Pipeline.Step<T, R, C>) {
+	on(
+		matcher: Pipeline.Step<Value, boolean, LocalContext, GlobalContext>,
+		pipeline?: Pipeline.Step<Value, ReturnValue, LocalContext, GlobalContext>
+	) {
 		if (pipeline) {
 			this.matchers.push({ matcher, pipeline });
 		}
@@ -37,17 +61,24 @@ class MatchBuilder<T, R, C> implements Match<T, R, C> {
 		return this;
 	}
 
-	otherwise(pipeline: Pipeline.Step<T, R, C>) {
+	otherwise(
+		pipeline: Pipeline.Step<Value, ReturnValue, LocalContext, GlobalContext>
+	) {
 		this.otherwisePipeline = pipeline;
 
 		return this;
 	}
 }
 
-export function match<R, T, C>(
-	matchFn: (m: Match<T, R, C>) => void
-): Pipeline.Step<T, R, C> {
-	const builder = new MatchBuilder<T, R, C>();
+export function match<Value, ReturnValue, LocalContext, GlobalContext>(
+	matchFn: (m: Match<Value, ReturnValue, LocalContext, GlobalContext>) => void
+): Pipeline.Step<Value, ReturnValue, LocalContext, GlobalContext> {
+	const builder = new MatchBuilder<
+		Value,
+		ReturnValue,
+		LocalContext,
+		GlobalContext
+	>();
 
 	matchFn(builder);
 

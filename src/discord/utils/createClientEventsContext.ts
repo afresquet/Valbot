@@ -24,5 +24,5 @@ export const createClientEventsContext = <T extends keyof ClientEventsContext>(
 		return { client } as any;
 	}
 
-	throw new Error(`Unknown event: ${event}`);
+	throw new Error(`Unhandled event: ${event}`);
 };
