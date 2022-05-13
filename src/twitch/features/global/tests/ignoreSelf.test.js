@@ -1,10 +1,10 @@
-const { skipSelf } = require("../steps/skipSelf");
+const { ignoreSelf } = require("../steps/ignoreSelf");
 
-describe("skipSelf step", () => {
+describe("ignoreSelf step", () => {
 	test("throws ExitError if it's itself", () => {
 		const event = { self: true };
 
-		const fn = () => skipSelf({}, event, {});
+		const fn = () => ignoreSelf({}, event, {});
 
 		expect(fn).toThrow("ExitError");
 	});
@@ -13,7 +13,7 @@ describe("skipSelf step", () => {
 		const value = "value";
 		const event = { self: false };
 
-		const result = skipSelf(value, event, {});
+		const result = ignoreSelf(value, event, {});
 
 		expect(result).toBe(value);
 	});

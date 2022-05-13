@@ -4,8 +4,8 @@ import TwitchEventPipelineBuilder, {
 } from "../../../lib/twitch-event-pipeline";
 import { Event } from "../../../types/twitch";
 import { checkPrefix } from "../../global/steps/checkPrefix";
+import { ignoreSelf } from "../../global/steps/ignoreSelf";
 import { say } from "../../global/steps/say";
-import { skipSelf } from "../../global/steps/skipSelf";
 import { executeCommand } from "../steps/executeCommand";
 import { getCommand } from "../steps/getCommand";
 
@@ -21,7 +21,7 @@ const messageEvent: Event<"message"> = {
 	name: "command",
 	event: "message",
 	execute: new TwitchEventPipelineBuilder.Command()
-		.pipe(skipSelf)
+		.pipe(ignoreSelf)
 		.pipe(checkPrefix)
 		.pipe(message => message.split(" ")[0])
 		.pipe(

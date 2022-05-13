@@ -2,7 +2,7 @@ import { tap } from "../../../../lib/pipeline";
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { ClientEventsContext } from "../../../types/twitch";
 
-export const skipSelf: TwitchEventPipeline.Step<
+export const ignoreSelf: TwitchEventPipeline.Step<
 	"message",
 	ClientEventsContext["message"],
 	ClientEventsContext["message"]
