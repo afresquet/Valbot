@@ -1,23 +1,11 @@
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
-import { CommandModel, ICommandDocument } from "../schemas/Command";
+import { CommandModel, ICommand, ICommandDocument } from "../schemas/Command";
 
-// TODO: optimize this?
 export const getDBCommand: TwitchEventPipeline.Command.Step<
-	string[],
+	ICommand,
 	ICommandDocument | null
-> = async ([name, subcommand], { channel }) => {
-	let command = await CommandModel.findOne({
+> = ({ name }, { channel }) =>
+	CommandModel.findOne({
 		channel,
 		name,
-		subcommand,
-	});
-
-	if (!command) {
-		command = await CommandModel.findOne({
-			channel,
-			name,
-		});
-	}
-
-	return command;
-};
+	}) as any;

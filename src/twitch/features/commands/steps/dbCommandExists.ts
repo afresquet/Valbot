@@ -1,9 +1,7 @@
-import { Pipeline } from "../../../../lib/pipeline";
+import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { CommandModel, ICommand } from "../schemas/Command";
 
-export const dbCommandExists: Pipeline.Step<
+export const dbCommandExists: TwitchEventPipeline.Command.Step<
 	ICommand,
-	boolean,
-	unknown,
-	unknown
+	boolean
 > = ({ channel, name }) => CommandModel.exists({ channel, name }) as any;
