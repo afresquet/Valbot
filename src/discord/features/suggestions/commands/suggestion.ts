@@ -55,7 +55,7 @@ const suggestCommand: Command = {
 				fetchReply: true,
 			});
 		})
-		.done(),
+		.compose(),
 };
 
 export default suggestCommand;

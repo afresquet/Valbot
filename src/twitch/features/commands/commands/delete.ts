@@ -24,13 +24,13 @@ const deleteCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was deleted!`
 					)
-					.done(),
+					.compose(),
 				async ({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)
 		)
 		.pipe(say)
-		.done(),
+		.compose(),
 };
 
 export default deleteCommand;

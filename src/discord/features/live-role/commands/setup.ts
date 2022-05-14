@@ -38,7 +38,7 @@ const liveRoleSetupCommand: Command = {
 		.pipe(getLiveRoleConfiguration)
 		.pipe(handleLiveRoleSubcommands)
 		.pipe(interactionReplyEphemeral)
-		.done(),
+		.compose(),
 };
 
 export default liveRoleSetupCommand;

@@ -16,7 +16,7 @@ const messageEvent: Event<"message"> = {
 		.pipe(checkPrefix)
 		.pipe(splitString(2))
 		.pipe(ifelse(commandExists, executeCommand, executeDBCommand))
-		.done(),
+		.compose(),
 };
 
 export default messageEvent;

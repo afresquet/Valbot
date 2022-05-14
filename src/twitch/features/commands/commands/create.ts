@@ -26,11 +26,11 @@ const createCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was added!`
 					)
-					.done()
+					.compose()
 			)
 		)
 		.pipe(say)
-		.done(),
+		.compose(),
 };
 
 export default createCommand;

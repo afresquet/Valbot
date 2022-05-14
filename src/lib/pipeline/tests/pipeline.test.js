@@ -24,8 +24,23 @@ describe("pipeline lib PipelineBuilder", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(functions[1])
+			.pipe(functions[2]);
+
+		const result = pipeline.run(1, context, global);
+
+		expect(result).toBe("4");
+
+		expect(functions[0]).toHaveBeenCalledWith(1, context, global);
+		expect(functions[1]).toHaveBeenCalledWith(2, context, global);
+		expect(functions[2]).toHaveBeenCalledWith(4, context, global);
+	});
+
+	test("can be composed", () => {
+		const pipeline = new PipelineBuilder()
+			.pipe(functions[0])
+			.pipe(functions[1])
 			.pipe(functions[2])
-			.done();
+			.compose();
 
 		const result = pipeline(1, context, global);
 
@@ -39,11 +54,10 @@ describe("pipeline lib PipelineBuilder", () => {
 	test("can be nested", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
-			.pipe(new PipelineBuilder().pipe(functions[1]).done())
-			.pipe(functions[2])
-			.done();
+			.pipe(new PipelineBuilder().pipe(functions[1]).compose())
+			.pipe(functions[2]);
 
-		const result = pipeline(1, context, global);
+		const result = pipeline.run(1, context, global);
 
 		expect(result).toBe("4");
 
@@ -59,7 +73,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[0])
 			.pipe(fn)
 			.pipe(functions[2])
-			.done();
+			.compose();
 
 		const result = pipeline(1, context, global);
 

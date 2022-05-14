@@ -24,13 +24,13 @@ const editCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was edited!`
 					)
-					.done(),
+					.compose(),
 				async ({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)
 		)
 		.pipe(say)
-		.done(),
+		.compose(),
 };
 
 export default editCommand;

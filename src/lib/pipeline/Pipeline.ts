@@ -26,7 +26,12 @@ export default class PipelineBuilder<
 		>;
 	}
 
-	done(): Pipeline.Pipeline<Input, IsAsync<Current, Async>, Context, Global> {
+	compose(): Pipeline.Pipeline<
+		Input,
+		IsAsync<Current, Async>,
+		Context,
+		Global
+	> {
 		const composition: Pipeline.Pipeline<
 			Input,
 			IsAsync<Current, Async>,
@@ -43,5 +48,11 @@ export default class PipelineBuilder<
 		});
 
 		return (value, context, global) => composition(value, context, global);
+	}
+
+	run(value: Input, context: Context, global: Global): IsAsync<Current, Async> {
+		const composition = this.compose();
+
+		return composition(value, context, global);
 	}
 }

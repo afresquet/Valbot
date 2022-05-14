@@ -9,4 +9,4 @@ export const commandExists: TwitchEventPipeline.Command.Pipeline<
 > = new TwitchEventPipelineBuilder.Command<string[]>()
 	.pipe(getCommand)
 	.pipe(command => command !== undefined)
-	.done();
+	.compose();

@@ -21,7 +21,7 @@ const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 			isStreaming: guildMemberHasActivity(newPresence.member!, "STREAMING"),
 		}))
 		.pipe(handleLiveRole)
-		.done(),
+		.compose(),
 };
 
 export default liveRoleUpdateEvent;

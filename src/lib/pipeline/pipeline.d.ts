@@ -9,13 +9,19 @@ export declare namespace Pipeline {
 		(value: Value, context: Context, global: Global): Result;
 	}
 
-	interface PipelineBuilder<Input, Current, Context, Global, Async = false> {
+	class PipelineBuilder<Input, Current, Context, Global, Async = false> {
 		fns: Pipeline<any, any, Context, Global>[];
 
 		pipe<Next, IsAsync = IsPromise<Next>>(
 			pipeline: Pipeline<Current, Next, Context, Global>
 		): PipelineBuilder<Input, Next, Context, Global, Persist<Async, IsAsync>>;
 
-		done(): Pipeline<Input, IsAsync<Current, Async>, Context, Global>;
+		compose(): Pipeline<Input, IsAsync<Current, Async>, Context, Global>;
+
+		run(
+			value: Input,
+			context: Context,
+			global: Global
+		): IsAsync<Current, Async>;
 	}
 }
