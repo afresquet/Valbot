@@ -3,7 +3,7 @@ import { ILiveRoleDocument, LiveRoleModel } from "../schemas/LiveRole";
 
 export const createLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Pipeline<
 	unknown,
-	ILiveRoleDocument
+	Promise<ILiveRoleDocument>
 > = (_, { interaction }) => {
 	const { options, guild } = interaction;
 

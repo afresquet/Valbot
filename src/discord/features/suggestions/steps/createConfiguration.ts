@@ -3,7 +3,7 @@ import { ISuggestionDocument, SuggestionModel } from "../schemas/Suggestion";
 
 export const createSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Pipeline<
 	unknown,
-	ISuggestionDocument
+	Promise<ISuggestionDocument>
 > = (_, { interaction }) => {
 	const { options, guild } = interaction;
 

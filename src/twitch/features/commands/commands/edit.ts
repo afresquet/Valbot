@@ -15,7 +15,7 @@ const editCommand: Command = {
 		.pipe((_, { message }) => message)
 		.pipe(splitString(3))
 		.pipe(extractCommand)
-		.pipe<string>(
+		.pipe(
 			ifelse(
 				dbCommandExists,
 				new TwitchEventPipelineBuilder.Command<ICommand>()
@@ -25,7 +25,7 @@ const editCommand: Command = {
 							`@${userstate.username}, command "${name}" was edited!`
 					)
 					.done(),
-				({ name }, { userstate }) =>
+				async ({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)
 		)

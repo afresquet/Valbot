@@ -8,7 +8,7 @@ import { getDBCommand } from "./getDBCommand";
 
 export const executeDBCommand: TwitchEventPipeline.Command.Pipeline<
 	string[],
-	void
+	Promise<void>
 > = new TwitchEventPipelineBuilder.Command<string[]>()
 	.pipe(([name]) => name)
 	.pipe(getDBCommand)

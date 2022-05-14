@@ -3,5 +3,5 @@ import { CommandModel, ICommand } from "../schemas/Command";
 
 export const dbCommandExists: TwitchEventPipeline.Command.Pipeline<
 	ICommand,
-	boolean
+	Promise<boolean>
 > = ({ channel, name }) => CommandModel.exists({ channel, name }) as any;

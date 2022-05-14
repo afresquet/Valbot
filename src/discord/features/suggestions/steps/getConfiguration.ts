@@ -3,5 +3,5 @@ import { ISuggestionDocument, SuggestionModel } from "../schemas/Suggestion";
 
 export const getSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Pipeline<
 	unknown,
-	ISuggestionDocument | null
+	Promise<ISuggestionDocument | null>
 > = (_, { interaction }) => SuggestionModel.findByGuild(interaction.guild!);

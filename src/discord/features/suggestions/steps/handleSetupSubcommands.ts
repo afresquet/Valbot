@@ -11,7 +11,7 @@ type Value = ISuggestionDocument | null;
 
 export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Pipeline<
 	Value,
-	string
+	Promise<string>
 > = match(m =>
 	m
 		.on(
@@ -22,7 +22,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
 					.done(),
-				() => "Suggestions are already enabled on this server."
+				async () => "Suggestions are already enabled on this server."
 			)
 		)
 		.on(
@@ -33,7 +33,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
 					.done(),
-				() => "Suggestions are not enabled on this server."
+				async () => "Suggestions are not enabled on this server."
 			)
 		)
 		.on(
@@ -44,7 +44,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
 					.done(),
-				() => "Suggestions are not enabled on this server."
+				async () => "Suggestions are not enabled on this server."
 			)
 		)
 );

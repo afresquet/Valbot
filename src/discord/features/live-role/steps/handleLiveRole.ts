@@ -5,7 +5,7 @@ import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 export const handleLiveRole: DiscordEventPipeline.Pipeline<
 	"presenceUpdate",
 	{ role: Role; hasLiveRole: boolean; isStreaming: boolean },
-	void
+	Promise<void>
 > = match(m =>
 	m
 		.on(

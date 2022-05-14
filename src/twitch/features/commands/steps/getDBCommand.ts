@@ -3,7 +3,7 @@ import { CommandModel, ICommandDocument } from "../schemas/Command";
 
 export const getDBCommand: TwitchEventPipeline.Command.Pipeline<
 	string,
-	ICommandDocument | null
+	Promise<ICommandDocument | null>
 > = (name, { channel }) =>
 	CommandModel.findOne({
 		channel,

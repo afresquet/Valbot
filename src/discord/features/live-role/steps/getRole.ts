@@ -5,5 +5,5 @@ import { LiveRoleModel } from "../schemas/LiveRole";
 export const getRole: DiscordEventPipeline.Pipeline<
 	"presenceUpdate",
 	unknown,
-	Role | undefined
+	Promise<Role | undefined>
 > = (_, { newPresence }) => LiveRoleModel.findRoleByGuild(newPresence.guild!);

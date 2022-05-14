@@ -3,7 +3,7 @@ import { CommandModel, ICommand, ICommandDocument } from "../schemas/Command";
 
 export const editDBCommand: Pipeline.Pipeline<
 	ICommand,
-	ICommandDocument,
+	Promise<ICommandDocument>,
 	unknown,
 	unknown
 > = ({ channel, name, message }) =>

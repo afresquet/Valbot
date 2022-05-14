@@ -3,7 +3,7 @@ import { LiveRoleModel } from "../schemas/LiveRole";
 
 export const disableLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Pipeline<
 	unknown,
-	void
+	Promise<void>
 > = async (_, { interaction }) => {
 	await LiveRoleModel.findOneAndDelete({
 		guildId: interaction.guild!.id,

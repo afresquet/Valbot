@@ -7,7 +7,7 @@ import { getCommand } from "./getCommand";
 
 export const executeCommand: TwitchEventPipeline.Command.Pipeline<
 	string[],
-	void
+	Promise<void>
 > = new TwitchEventPipelineBuilder.Command<string[]>()
 	.pipe(getCommand)
 	.pipe(assert(() => new TwitchErrors.Exit()))
