@@ -1,23 +1,19 @@
 import { Query } from "mongoose";
 import { isPromise } from "util/types";
-import type { IsAsync, IsPromise, Persist, Pipeline } from "./pipeline";
+import type { Pipeline as TPipeline } from "./types/pipeline";
+import type { IsAsync, IsPromise, Persist } from "./types/types";
 
-export default class PipelineBuilder<
-	Input,
-	Current,
-	Context,
-	Global,
-	Async = false
-> implements Pipeline.PipelineBuilder<Input, Current, Context, Global, Async>
+export default class Pipeline<Input, Current, Context, Global, Async = false>
+	implements TPipeline.Pipeline<Input, Current, Context, Global, Async>
 {
-	fns: Pipeline.Pipeline<any, any, Context, Global>[] = [];
+	functions: TPipeline.Fn<any, any, Context, Global>[] = [];
 
 	pipe<Next, IsAsync = IsPromise<Next>>(
-		fn: Pipeline.Pipeline<Current, Next, Context, Global>
+		fn: TPipeline.Fn<Current, Next, Context, Global>
 	) {
-		this.fns.push(fn);
+		this.functions.push(fn);
 
-		return this as unknown as PipelineBuilder<
+		return this as unknown as Pipeline<
 			Input,
 			Awaited<Next>,
 			Context,
@@ -26,31 +22,32 @@ export default class PipelineBuilder<
 		>;
 	}
 
-	compose(): Pipeline.Pipeline<
+	compose(): TPipeline.Fn<
 		Input,
-		IsAsync<Current, Async>,
+		IsAsync<Current, Async, true>,
 		Context,
 		Global
 	> {
-		const composition: Pipeline.Pipeline<
-			Input,
-			IsAsync<Current, Async>,
-			Context,
-			Global
-		> = this.fns.reduce((fn1, fn2) => (value, context, global) => {
-			const res = fn1(value, context, global);
+		const composition = this.functions.reduce(
+			(fn1, fn2) => (value, context, global) => {
+				const res = fn1(value, context, global);
 
-			if (isPromise(res) || res instanceof Query) {
-				return res.then(r => fn2(r, context, global));
+				if (isPromise(res) || res instanceof Query) {
+					return res.then(r => fn2(r, context, global));
+				}
+
+				return fn2(res, context, global);
 			}
-
-			return fn2(res, context, global);
-		});
+		) as TPipeline.Fn<Input, IsAsync<Current, Async, true>, Context, Global>;
 
 		return (value, context, global) => composition(value, context, global);
 	}
 
-	run(value: Input, context: Context, global: Global): IsAsync<Current, Async> {
+	run(
+		value: Input,
+		context: Context,
+		global: Global
+	): IsAsync<Current, Async, true> {
 		const composition = this.compose();
 
 		return composition(value, context, global);

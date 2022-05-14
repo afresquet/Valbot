@@ -9,7 +9,7 @@ import { editLiveRoleConfiguration } from "./editConfiguration";
 
 type Value = ILiveRoleDocument | null;
 
-export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Pipeline<
+export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Fn<
 	Value,
 	Promise<string>
 > = match(m =>
@@ -22,7 +22,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 					.pipe(createLiveRoleConfiguration)
 					.pipe(() => "Live role is now enabled on this server.")
 					.compose(),
-				async () => "Live role is already enabled on this server."
+				() => "Live role is already enabled on this server."
 			)
 		)
 		.on(
@@ -33,7 +33,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 					.pipe(editLiveRoleConfiguration)
 					.pipe(() => "Live role was edited.")
 					.compose(),
-				async () => "Live role is not enabled on this server."
+				() => "Live role is not enabled on this server."
 			)
 		)
 		.on(
@@ -44,7 +44,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 					.pipe(disableLiveRoleConfiguration)
 					.pipe(() => "Live role was disabled.")
 					.compose(),
-				async () => "Live role is not enabled on this server."
+				() => "Live role is not enabled on this server."
 			)
 		)
 );

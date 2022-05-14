@@ -1,6 +1,6 @@
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 
-export const say: TwitchEventPipeline.Pipeline<
+export const say: TwitchEventPipeline.Fn<
 	"message",
 	string,
 	Promise<void>

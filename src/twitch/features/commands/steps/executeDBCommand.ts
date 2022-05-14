@@ -6,7 +6,7 @@ import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { say } from "../../global/steps/say";
 import { getDBCommand } from "./getDBCommand";
 
-export const executeDBCommand: TwitchEventPipeline.Command.Pipeline<
+export const executeDBCommand: TwitchEventPipeline.Command.Fn<
 	string[],
 	Promise<void>
 > = new TwitchEventPipelineBuilder.Command<string[]>()

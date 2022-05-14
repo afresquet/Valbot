@@ -1,14 +1,13 @@
 import { isPromise } from "util/types";
-import type { Pipeline } from "./pipeline";
+import type { Pipeline } from "./types/pipeline";
+import { IsAsync } from "./types/types";
 
-export function tap<Value, Context, Global>(
-	fn: Pipeline.Pipeline<
-		Value extends PromiseLike<infer U> ? U : Value,
-		void,
-		Context,
-		Global
-	>
-) {
+export function tap<
+	Value,
+	Result extends void | Promise<void>,
+	Context,
+	Global
+>(fn: Pipeline.Fn<Value, Result, Context, Global>) {
 	return ((value, context, global) => {
 		const promise = fn(value, context, global);
 
@@ -17,10 +16,5 @@ export function tap<Value, Context, Global>(
 		}
 
 		return value;
-	}) as Pipeline.Pipeline<
-		Value extends PromiseLike<infer U> ? U : Value,
-		Value,
-		Context,
-		Global
-	>;
+	}) as Pipeline.Fn<Value, IsAsync<Value, Result>, Context, Global>;
 }

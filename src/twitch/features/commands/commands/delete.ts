@@ -25,7 +25,7 @@ const deleteCommand: Command = {
 							`@${userstate.username}, command "${name}" was deleted!`
 					)
 					.compose(),
-				async ({ name }, { userstate }) =>
+				({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)
 		)

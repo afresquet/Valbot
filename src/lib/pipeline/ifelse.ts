@@ -1,17 +1,24 @@
 import { isPromise } from "util/types";
-import type { Pipeline } from "./pipeline";
+import type { Pipeline } from "./types/pipeline";
+import { IsAsync } from "./types/types";
 
-export function ifelse<Value, Next, Context, Global>(
-	condition: Pipeline.Pipeline<
-		Value,
-		boolean | Promise<boolean>,
-		Context,
-		Global
-	>,
-	then: Pipeline.Pipeline<Value, Next, Context, Global>,
-	otherwise: Pipeline.Pipeline<Value, Next, Context, Global> = value =>
+export function ifelse<
+	Value,
+	Condition extends boolean | Promise<boolean>,
+	Then,
+	Otherwise extends Then extends PromiseLike<infer U>
+		? U | Promise<U>
+		: Then | Promise<Then>,
+	Context,
+	Global
+>(
+	condition: Pipeline.Fn<Value, Condition, Context, Global>,
+	then: Pipeline.Fn<Value, Then, Context, Global>,
+	otherwise: Pipeline.Fn<Value, Otherwise, Context, Global> = value =>
 		value as any
 ) {
+	type Next = Then extends PromiseLike<unknown> ? Then : Otherwise;
+
 	return ((...args) => {
 		const result = condition(...args);
 
@@ -20,5 +27,10 @@ export function ifelse<Value, Next, Context, Global>(
 		}
 
 		return result ? then(...args) : otherwise(...args);
-	}) as Pipeline.Pipeline<Value, Next, Context, Global>;
+	}) as Pipeline.Fn<
+		Value,
+		Next extends PromiseLike<unknown> ? Next : IsAsync<Next, Condition>,
+		Context,
+		Global
+	>;
 }

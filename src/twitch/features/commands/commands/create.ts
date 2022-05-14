@@ -18,7 +18,7 @@ const createCommand: Command = {
 		.pipe(
 			ifelse(
 				dbCommandExists,
-				async ({ name }, { userstate }) =>
+				({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} already exists!`,
 				new TwitchEventPipelineBuilder.Command<ICommand>()
 					.pipe(createDBCommand)

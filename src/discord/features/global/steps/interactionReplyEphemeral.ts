@@ -1,6 +1,6 @@
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 
-export const interactionReplyEphemeral: DiscordEventPipeline.CommandInteraction.Pipeline<
+export const interactionReplyEphemeral: DiscordEventPipeline.CommandInteraction.Fn<
 	string
 > = (content, { interaction }) => {
 	return interaction.reply({

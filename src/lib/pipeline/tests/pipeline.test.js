@@ -17,7 +17,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[1])
 			.pipe(functions[2]);
 
-		expect(pipeline.fns).toStrictEqual(functions);
+		expect(pipeline.functions).toStrictEqual(functions);
 	});
 
 	test("executes functions in order and passes the contexts", () => {
@@ -39,10 +39,9 @@ describe("pipeline lib PipelineBuilder", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(functions[1])
-			.pipe(functions[2])
-			.compose();
+			.pipe(functions[2]);
 
-		const result = pipeline(1, context, global);
+		const result = pipeline.run(1, context, global);
 
 		expect(result).toBe("4");
 
@@ -72,10 +71,9 @@ describe("pipeline lib PipelineBuilder", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
 			.pipe(fn)
-			.pipe(functions[2])
-			.compose();
+			.pipe(functions[2]);
 
-		const result = pipeline(1, context, global);
+		const result = pipeline.run(1, context, global);
 
 		expect(result).resolves.toBe("4");
 	});

@@ -25,7 +25,7 @@ const editCommand: Command = {
 							`@${userstate.username}, command "${name}" was edited!`
 					)
 					.compose(),
-				async ({ name }, { userstate }) =>
+				({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)
 		)

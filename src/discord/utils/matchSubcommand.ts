@@ -8,6 +8,6 @@ export const matchSubcommand =
 export const matchSubcommandStep =
 	<Value>(
 		subcommand: string
-	): DiscordEventPipeline.CommandInteraction.Pipeline<Value, boolean> =>
+	): DiscordEventPipeline.CommandInteraction.Fn<Value, boolean> =>
 	(_, { interaction }) =>
 		matchSubcommand(subcommand)(interaction);

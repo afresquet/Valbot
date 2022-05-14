@@ -1,7 +1,7 @@
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { ICommand } from "../schemas/Command";
 
-export const extractCommand: TwitchEventPipeline.Command.Pipeline<
+export const extractCommand: TwitchEventPipeline.Command.Fn<
 	string[],
 	ICommand
 > = ([, , command, message], { channel }) => {

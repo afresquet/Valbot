@@ -5,7 +5,7 @@ import TwitchEventPipelineBuilder, {
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { getCommand } from "./getCommand";
 
-export const executeCommand: TwitchEventPipeline.Command.Pipeline<
+export const executeCommand: TwitchEventPipeline.Command.Fn<
 	string[],
 	Promise<void>
 > = new TwitchEventPipelineBuilder.Command<string[]>()

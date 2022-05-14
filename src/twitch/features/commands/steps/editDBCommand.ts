@@ -1,7 +1,7 @@
 import { Pipeline } from "../../../../lib/pipeline";
 import { CommandModel, ICommand, ICommandDocument } from "../schemas/Command";
 
-export const editDBCommand: Pipeline.Pipeline<
+export const editDBCommand: Pipeline.Fn<
 	ICommand,
 	Promise<ICommandDocument>,
 	unknown,

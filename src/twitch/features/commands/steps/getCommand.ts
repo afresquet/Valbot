@@ -1,7 +1,7 @@
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { Command } from "../../../types/twitch";
 
-export const getCommand: TwitchEventPipeline.Command.Pipeline<
+export const getCommand: TwitchEventPipeline.Command.Fn<
 	string[],
 	Command | undefined
 > = ([name, subcommand], _, { twitch }) =>

@@ -9,7 +9,7 @@ import { editSuggestionsConfiguration } from "./editConfiguration";
 
 type Value = ISuggestionDocument | null;
 
-export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Pipeline<
+export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Fn<
 	Value,
 	Promise<string>
 > = match(m =>
@@ -22,7 +22,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
 					.compose(),
-				async () => "Suggestions are already enabled on this server."
+				() => "Suggestions are already enabled on this server."
 			)
 		)
 		.on(
@@ -33,7 +33,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
 					.compose(),
-				async () => "Suggestions are not enabled on this server."
+				() => "Suggestions are not enabled on this server."
 			)
 		)
 		.on(
@@ -44,7 +44,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
 					.compose(),
-				async () => "Suggestions are not enabled on this server."
+				() => "Suggestions are not enabled on this server."
 			)
 		)
 );
