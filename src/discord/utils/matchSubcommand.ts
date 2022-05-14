@@ -6,8 +6,8 @@ export const matchSubcommand =
 		subcommand === interaction.options.getSubcommand();
 
 export const matchSubcommandStep =
-	(
+	<Value>(
 		subcommand: string
-	): DiscordEventPipeline.CommandInteraction.Step<unknown, boolean> =>
+	): DiscordEventPipeline.CommandInteraction.Pipeline<Value, boolean> =>
 	(_, { interaction }) =>
 		matchSubcommand(subcommand)(interaction);

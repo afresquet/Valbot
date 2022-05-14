@@ -27,7 +27,7 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: DiscordEventPipeline.Pipeline<T, void>;
+	execute: DiscordEventPipeline.Pipeline<T, ClientEventsContext[T], void>;
 }
 
 export interface Command {

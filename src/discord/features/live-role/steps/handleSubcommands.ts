@@ -7,8 +7,10 @@ import { createLiveRoleConfiguration } from "./createConfiguration";
 import { disableLiveRoleConfiguration } from "./disableConfiguration";
 import { editLiveRoleConfiguration } from "./editConfiguration";
 
-export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Step<
-	ILiveRoleDocument | null,
+type Value = ILiveRoleDocument | null;
+
+export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Pipeline<
+	Value,
 	string
 > = match(m =>
 	m
@@ -16,10 +18,10 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 			matchSubcommandStep("enable"),
 			ifelse(
 				configuration => configuration === null,
-				new DiscordEventPipelineBuilder.CommandInteraction<ILiveRoleDocument>()
+				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(createLiveRoleConfiguration)
 					.pipe(() => "Live role is now enabled on this server.")
-					.step(),
+					.pipeline(),
 				() => "Live role is already enabled on this server."
 			)
 		)
@@ -27,10 +29,10 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 			matchSubcommandStep("edit"),
 			ifelse(
 				configuration => configuration !== null,
-				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
+				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(editLiveRoleConfiguration)
 					.pipe(() => "Live role was edited.")
-					.step(),
+					.pipeline(),
 				() => "Live role is not enabled on this server."
 			)
 		)
@@ -38,10 +40,10 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 			matchSubcommandStep("disable"),
 			ifelse(
 				configuration => configuration !== null,
-				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
+				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(disableLiveRoleConfiguration)
 					.pipe(() => "Live role was disabled.")
-					.step(),
+					.pipeline(),
 				() => "Live role is not enabled on this server."
 			)
 		)

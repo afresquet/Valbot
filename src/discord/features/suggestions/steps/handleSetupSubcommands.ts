@@ -7,8 +7,10 @@ import { createSuggestionsConfiguration } from "./createConfiguration";
 import { disableSuggestionsConfiguration } from "./disableConfiguration";
 import { editSuggestionsConfiguration } from "./editConfiguration";
 
-export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Step<
-	ISuggestionDocument | null,
+type Value = ISuggestionDocument | null;
+
+export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Pipeline<
+	Value,
 	string
 > = match(m =>
 	m
@@ -16,10 +18,10 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 			matchSubcommandStep("enable"),
 			ifelse(
 				configuration => configuration === null,
-				new DiscordEventPipelineBuilder.CommandInteraction<ISuggestionDocument>()
+				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
-					.step(),
+					.pipeline(),
 				() => "Suggestions are already enabled on this server."
 			)
 		)
@@ -27,10 +29,10 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 			matchSubcommandStep("edit"),
 			ifelse(
 				configuration => configuration !== null,
-				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
+				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
-					.step(),
+					.pipeline(),
 				() => "Suggestions are not enabled on this server."
 			)
 		)
@@ -38,10 +40,10 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 			matchSubcommandStep("disable"),
 			ifelse(
 				configuration => configuration !== null,
-				new DiscordEventPipelineBuilder.CommandInteraction<undefined>()
+				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
-					.step(),
+					.pipeline(),
 				() => "Suggestions are not enabled on this server."
 			)
 		)

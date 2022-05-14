@@ -1,7 +1,7 @@
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import { LiveRoleModel } from "../schemas/LiveRole";
 
-export const editLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Step<
+export const editLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Pipeline<
 	unknown,
 	void
 > = async (_, { interaction }) => {
