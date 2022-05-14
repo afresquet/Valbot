@@ -1,7 +1,7 @@
 import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 
-export const checkPrefix: TwitchEventPipeline.Step<
+export const checkPrefix: TwitchEventPipeline.Pipeline<
 	"message",
 	unknown,
 	string

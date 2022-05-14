@@ -5,11 +5,13 @@ import TwitchEventPipelineBuilder, {
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { getCommand } from "./getCommand";
 
-export const executeCommand: TwitchEventPipeline.Command.Step<string[], void> =
-	new TwitchEventPipelineBuilder.Command<string[]>()
-		.pipe(getCommand)
-		.pipe(assert(() => new TwitchErrors.Exit()))
-		.pipe(async (command, event, context) => {
-			await command.execute(event, event, context);
-		})
-		.step();
+export const executeCommand: TwitchEventPipeline.Command.Pipeline<
+	string[],
+	void
+> = new TwitchEventPipelineBuilder.Command<string[]>()
+	.pipe(getCommand)
+	.pipe(assert(() => new TwitchErrors.Exit()))
+	.pipe(async (command, event, context) => {
+		await command.execute(event, event, context);
+	})
+	.pipeline();

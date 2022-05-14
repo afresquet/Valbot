@@ -26,7 +26,7 @@ const createCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was added!`
 					)
-					.step()
+					.pipeline()
 			)
 		)
 		.pipe(say)

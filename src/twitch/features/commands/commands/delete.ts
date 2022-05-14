@@ -24,7 +24,7 @@ const deleteCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was deleted!`
 					)
-					.step(),
+					.pipeline(),
 				({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)

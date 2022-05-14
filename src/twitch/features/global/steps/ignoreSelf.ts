@@ -3,7 +3,7 @@ import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
 import { ClientEventsContext } from "../../../types/twitch";
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 
-export const ignoreSelf: TwitchEventPipeline.Step<
+export const ignoreSelf: TwitchEventPipeline.Pipeline<
 	"message",
 	ClientEventsContext["message"],
 	ClientEventsContext["message"]

@@ -6,7 +6,7 @@ import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { say } from "../../global/steps/say";
 import { getDBCommand } from "./getDBCommand";
 
-export const executeDBCommand: TwitchEventPipeline.Command.Step<
+export const executeDBCommand: TwitchEventPipeline.Command.Pipeline<
 	string[],
 	void
 > = new TwitchEventPipelineBuilder.Command<string[]>()
@@ -15,4 +15,4 @@ export const executeDBCommand: TwitchEventPipeline.Command.Step<
 	.pipe(assert(() => new TwitchErrors.Exit()))
 	.pipe(dbCommand => dbCommand.message)
 	.pipe(say)
-	.step();
+	.pipeline();

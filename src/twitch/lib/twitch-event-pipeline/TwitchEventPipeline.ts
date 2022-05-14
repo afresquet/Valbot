@@ -6,12 +6,7 @@ import { TwitchEventPipeline } from "./twitch-event-pipeline";
 export default class TwitchEventPipelineBuilder<
 	Event extends keyof ClientEventsContext,
 	Value = ClientEventsContext[Event]
-> extends PipelineBuilder<
-	ClientEventsContext[Event],
-	Value,
-	ClientEventsContext[Event],
-	Context
-> {
+> extends PipelineBuilder<Value, Value, ClientEventsContext[Event], Context> {
 	static Command = class TwitchCommandPipelineBuilder<
 		Value = TwitchEventPipeline.Command.Event
 	> extends PipelineBuilder<

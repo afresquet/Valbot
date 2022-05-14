@@ -3,45 +3,24 @@ import { Context } from "../../../types/Context";
 import { ClientEventsContext } from "../../types/twitch";
 
 export declare namespace TwitchEventPipeline {
-	interface Pipeline<Event extends keyof ClientEventsContext, ReturnValue>
+	interface Pipeline<Event extends keyof ClientEventsContext, Value, Result>
 		extends TPipeline.Pipeline<
-			ClientEventsContext[Event],
-			ReturnValue,
-			ClientEventsContext[Event],
-			Context
-		> {
-		(
-			value: ClientEventsContext[Event],
-			event: ClientEventsContext[Event],
-			context: Context
-		): ReturnValue | Promise<ReturnValue>;
-	}
-
-	interface Step<Event extends keyof ClientEventsContext, Value, NextValue>
-		extends TPipeline.Step<
 			Value,
-			NextValue,
+			Result,
 			ClientEventsContext[Event],
 			Context
 		> {
 		(value: Value, event: ClientEventsContext[Event], context: Context):
-			| NextValue
-			| Promise<NextValue>;
+			| Result
+			| Promise<Result>;
 	}
 
 	export namespace Command {
 		type Event = ClientEventsContext["message"];
 
-		type Pipeline<Value = Event, ReturnValue = void> = TPipeline.Pipeline<
+		type Pipeline<Value = Event, Result = void> = TPipeline.Pipeline<
 			Value,
-			ReturnValue,
-			Event,
-			Context
-		>;
-
-		type Step<Value, NextValue> = TPipeline.Step<
-			Value,
-			NextValue,
+			Result,
 			Event,
 			Context
 		>;

@@ -1,7 +1,7 @@
 import { Pipeline, tap } from "../../../../lib/pipeline";
 import { CommandModel, ICommand } from "../schemas/Command";
 
-export const deleteDBCommand: Pipeline.Step<
+export const deleteDBCommand: Pipeline.Pipeline<
 	ICommand,
 	ICommand,
 	unknown,

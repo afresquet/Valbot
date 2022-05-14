@@ -24,7 +24,7 @@ const editCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was edited!`
 					)
-					.step(),
+					.pipeline(),
 				({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)

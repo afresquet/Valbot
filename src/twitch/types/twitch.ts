@@ -22,7 +22,7 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: TwitchEventPipeline.Pipeline<T, void>;
+	execute: TwitchEventPipeline.Pipeline<T, ClientEventsContext[T], void>;
 }
 
 export interface Command {
