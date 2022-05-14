@@ -1,30 +1,15 @@
 export declare namespace Pipeline {
-	interface Pipeline<Value, ReturnValue, Context, GlobalContext> {
-		(value: Value, localContext: Context, globalContext: GlobalContext):
-			| ReturnValue
-			| Promise<ReturnValue>;
+	interface Pipeline<Value, Result, Context, Global> {
+		(value: Value, context: Context, global: Global): Result | Promise<Result>;
 	}
 
-	interface Step<Value, NextValue, Context, GlobalContext> {
-		(value: Value, localContext: Context, globalContext: GlobalContext):
-			| NextValue
-			| Promise<NextValue>;
-	}
+	interface PipelineBuilder<Input, Current, Context, Global> {
+		fns: Pipeline<any, any, Context, Global>[];
 
-	interface PipelineBuilder<InitialValue, Value, LocalContext, GlobalContext> {
-		fns: Step<
-			any | Promise<any>,
-			any | Promise<any>,
-			LocalContext,
-			GlobalContext
-		>[];
+		pipe<Next>(
+			pipeline: Pipeline<Current, Next, Context, Global>
+		): PipelineBuilder<Input, Next, Context, Global>;
 
-		pipe<NextValue>(
-			step: Step<Value, NextValue, LocalContext, GlobalContext>
-		): PipelineBuilder<InitialValue, NextValue, LocalContext, GlobalContext>;
-
-		pipeline(): Pipeline<InitialValue, Value, LocalContext, GlobalContext>;
-
-		step<NextValue>(): Step<Value, NextValue, LocalContext, GlobalContext>;
+		pipeline(): Pipeline<Input, Current, Context, Global>;
 	}
 }

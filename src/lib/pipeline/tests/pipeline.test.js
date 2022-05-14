@@ -36,12 +36,12 @@ describe("pipeline lib PipelineBuilder", () => {
 		expect(functions[2]).toHaveBeenCalledWith(4, localContext, globalContext);
 	});
 
-	test("step function works the same as build (only used for type checking)", () => {
+	test("can be nested", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
-			.pipe(functions[1])
+			.pipe(new PipelineBuilder().pipe(functions[1]).pipeline())
 			.pipe(functions[2])
-			.step();
+			.pipeline();
 
 		const result = pipeline(1, localContext, globalContext);
 
