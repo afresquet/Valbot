@@ -6,7 +6,7 @@ export function assert<Value, Context, Global>(
 ): Pipeline.Pipeline<Value, NonNullable<Value>, Context, Global> {
 	return tap<Value, Context, Global>((value, context, global) => {
 		if (value === undefined || value === null) {
-			throw throwable(value, context, global);
+			throw throwable(value as Value, context, global);
 		}
 	}) as unknown as Pipeline.Pipeline<
 		Value,

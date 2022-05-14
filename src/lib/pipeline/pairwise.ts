@@ -3,8 +3,8 @@ import type { Pipeline } from "./pipeline";
 
 export function pairwise<Value, Next, Context, Global>(
 	fn: Pipeline.Pipeline<Value, Next, Context, Global>
-): Pipeline.Pipeline<Value, [Value, Next], Context, Global> {
-	return (value: Value, context: Context, global: Global) => {
+) {
+	return ((value: Value, context: Context, global: Global) => {
 		const result = fn(value, context, global);
 
 		if (isPromise(result)) {
@@ -12,5 +12,5 @@ export function pairwise<Value, Next, Context, Global>(
 		}
 
 		return [value, result];
-	};
+	}) as Pipeline.Pipeline<Value, [Value, Next], Context, Global>;
 }
