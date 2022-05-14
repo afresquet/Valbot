@@ -17,19 +17,16 @@ export default class PipelineBuilder<Input, Current, Context, Global>
 
 	pipeline(): Pipeline.Pipeline<Input, Current, Context, Global> {
 		const composition: Pipeline.Pipeline<Input, Current, Context, Global> =
-			this.fns.reduce((fn1, fn2) => (value, localContext, globalContext) => {
-				const res = fn1(value, localContext, globalContext);
+			this.fns.reduce((fn1, fn2) => (value, context, global) => {
+				const res = fn1(value, context, global);
 
 				if (isPromise(res) || res instanceof Query) {
-					return (res as Promise<any>).then(r =>
-						fn2(r, localContext, globalContext)
-					);
+					return res.then(r => fn2(r, context, global));
 				}
 
-				return fn2(res, localContext, globalContext);
+				return fn2(res, context, global);
 			});
 
-		return (value, localContext, globalContext) =>
-			composition(value, localContext, globalContext);
+		return (value, context, global) => composition(value, context, global);
 	}
 }

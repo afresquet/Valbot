@@ -6,8 +6,8 @@ describe("pipeline lib PipelineBuilder", () => {
 		jest.fn(x => x * 2),
 		jest.fn(x => x.toString()),
 	];
-	const localContext = { foo: "bar" };
-	const globalContext = { bar: "foo" };
+	const context = { foo: "bar" };
+	const global = { bar: "foo" };
 
 	beforeEach(jest.clearAllMocks);
 
@@ -27,13 +27,13 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[2])
 			.pipeline();
 
-		const result = pipeline(1, localContext, globalContext);
+		const result = pipeline(1, context, global);
 
 		expect(result).toBe("4");
 
-		expect(functions[0]).toHaveBeenCalledWith(1, localContext, globalContext);
-		expect(functions[1]).toHaveBeenCalledWith(2, localContext, globalContext);
-		expect(functions[2]).toHaveBeenCalledWith(4, localContext, globalContext);
+		expect(functions[0]).toHaveBeenCalledWith(1, context, global);
+		expect(functions[1]).toHaveBeenCalledWith(2, context, global);
+		expect(functions[2]).toHaveBeenCalledWith(4, context, global);
 	});
 
 	test("can be nested", () => {
@@ -43,13 +43,13 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[2])
 			.pipeline();
 
-		const result = pipeline(1, localContext, globalContext);
+		const result = pipeline(1, context, global);
 
 		expect(result).toBe("4");
 
-		expect(functions[0]).toHaveBeenCalledWith(1, localContext, globalContext);
-		expect(functions[1]).toHaveBeenCalledWith(2, localContext, globalContext);
-		expect(functions[2]).toHaveBeenCalledWith(4, localContext, globalContext);
+		expect(functions[0]).toHaveBeenCalledWith(1, context, global);
+		expect(functions[1]).toHaveBeenCalledWith(2, context, global);
+		expect(functions[2]).toHaveBeenCalledWith(4, context, global);
 	});
 
 	test("works with promises", () => {
@@ -61,7 +61,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[2])
 			.pipeline();
 
-		const result = pipeline(1, localContext, globalContext);
+		const result = pipeline(1, context, global);
 
 		expect(result).resolves.toBe("4");
 	});
