@@ -15,7 +15,7 @@ export default class PipelineBuilder<Input, Current, Context, Global>
 		return this as unknown as PipelineBuilder<Input, Next, Context, Global>;
 	}
 
-	pipeline(): Pipeline.Pipeline<Input, Current, Context, Global> {
+	done(): Pipeline.Pipeline<Input, Current, Context, Global> {
 		const composition: Pipeline.Pipeline<Input, Current, Context, Global> =
 			this.fns.reduce((fn1, fn2) => (value, context, global) => {
 				const res = fn1(value, context, global);

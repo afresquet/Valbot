@@ -15,4 +15,4 @@ export const executeDBCommand: TwitchEventPipeline.Command.Pipeline<
 	.pipe(assert(() => new TwitchErrors.Exit()))
 	.pipe(dbCommand => dbCommand.message)
 	.pipe(say)
-	.pipeline();
+	.done();

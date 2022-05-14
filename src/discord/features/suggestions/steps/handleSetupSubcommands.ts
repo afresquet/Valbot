@@ -21,7 +21,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(createSuggestionsConfiguration)
 					.pipe(() => "Suggestions are now enabled on this server.")
-					.pipeline(),
+					.done(),
 				() => "Suggestions are already enabled on this server."
 			)
 		)
@@ -32,7 +32,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(editSuggestionsConfiguration)
 					.pipe(() => "Suggestions channel has been updated.")
-					.pipeline(),
+					.done(),
 				() => "Suggestions are not enabled on this server."
 			)
 		)
@@ -43,7 +43,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(disableSuggestionsConfiguration)
 					.pipe(() => "Suggestions have been disabled.")
-					.pipeline(),
+					.done(),
 				() => "Suggestions are not enabled on this server."
 			)
 		)

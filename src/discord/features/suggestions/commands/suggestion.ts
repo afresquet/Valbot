@@ -55,7 +55,7 @@ const suggestCommand: Command = {
 				fetchReply: true,
 			});
 		})
-		.pipeline(),
+		.done(),
 };
 
 export default suggestCommand;

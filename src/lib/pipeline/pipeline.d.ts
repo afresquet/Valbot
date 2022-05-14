@@ -10,6 +10,6 @@ export declare namespace Pipeline {
 			pipeline: Pipeline<Current, Next, Context, Global>
 		): PipelineBuilder<Input, Next, Context, Global>;
 
-		pipeline(): Pipeline<Input, Current, Context, Global>;
+		done(): Pipeline<Input, Current, Context, Global>;
 	}
 }

@@ -25,7 +25,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[0])
 			.pipe(functions[1])
 			.pipe(functions[2])
-			.pipeline();
+			.done();
 
 		const result = pipeline(1, context, global);
 
@@ -39,9 +39,9 @@ describe("pipeline lib PipelineBuilder", () => {
 	test("can be nested", () => {
 		const pipeline = new PipelineBuilder()
 			.pipe(functions[0])
-			.pipe(new PipelineBuilder().pipe(functions[1]).pipeline())
+			.pipe(new PipelineBuilder().pipe(functions[1]).done())
 			.pipe(functions[2])
-			.pipeline();
+			.done();
 
 		const result = pipeline(1, context, global);
 
@@ -59,7 +59,7 @@ describe("pipeline lib PipelineBuilder", () => {
 			.pipe(functions[0])
 			.pipe(fn)
 			.pipe(functions[2])
-			.pipeline();
+			.done();
 
 		const result = pipeline(1, context, global);
 

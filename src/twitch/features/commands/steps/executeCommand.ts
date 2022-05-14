@@ -14,4 +14,4 @@ export const executeCommand: TwitchEventPipeline.Command.Pipeline<
 	.pipe(async (command, event, context) => {
 		await command.execute(event, event, context);
 	})
-	.pipeline();
+	.done();

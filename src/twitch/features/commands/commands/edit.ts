@@ -24,13 +24,13 @@ const editCommand: Command = {
 						({ name }, { userstate }) =>
 							`@${userstate.username}, command "${name}" was edited!`
 					)
-					.pipeline(),
+					.done(),
 				({ name }, { userstate }) =>
 					`@${userstate.username}, command ${name} doesn't exist!`
 			)
 		)
 		.pipe(say)
-		.pipeline(),
+		.done(),
 };
 
 export default editCommand;

@@ -21,7 +21,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(createLiveRoleConfiguration)
 					.pipe(() => "Live role is now enabled on this server.")
-					.pipeline(),
+					.done(),
 				() => "Live role is already enabled on this server."
 			)
 		)
@@ -32,7 +32,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(editLiveRoleConfiguration)
 					.pipe(() => "Live role was edited.")
-					.pipeline(),
+					.done(),
 				() => "Live role is not enabled on this server."
 			)
 		)
@@ -43,7 +43,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
 					.pipe(disableLiveRoleConfiguration)
 					.pipe(() => "Live role was disabled.")
-					.pipeline(),
+					.done(),
 				() => "Live role is not enabled on this server."
 			)
 		)
