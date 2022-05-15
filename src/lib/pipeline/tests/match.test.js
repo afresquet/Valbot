@@ -57,18 +57,18 @@ describe("pipeline lib tap step", () => {
 		expect(otherwise).toHaveBeenCalledWith(value, context, global);
 	});
 
-	test("returns null if no condition matches and no 'otherwise' function was provided", () => {
+	test("throws an error if no condition matches and no 'otherwise' function was provided", () => {
 		const context = { run: 2 };
 		const global = { foo: "bar" };
 
 		const matcher = jest.fn((x, y) => y.run === 1);
 		const step = jest.fn(x => x * 2);
 
-		const fn = match(m => m.on(matcher, step));
+		const fn = () => match(m => m.on(matcher, step))(value, context, global);
 
-		const result = fn(value, context, global);
-
-		expect(result).toBeNull();
+		expect(fn).toThrowError(
+			"Condition didn't match and no 'otherwise' pipeline was provided"
+		);
 		expect(matcher).toHaveBeenCalledWith(value, context, global);
 		expect(step).not.toHaveBeenCalled();
 	});

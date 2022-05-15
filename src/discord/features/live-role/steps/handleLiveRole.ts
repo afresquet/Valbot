@@ -20,4 +20,5 @@ export const handleLiveRole: DiscordEventPipeline.Fn<
 				await newPresence.member!.roles.remove(role);
 			}
 		)
+		.otherwise(() => {})
 );

@@ -1,6 +1,7 @@
 import { ifelse, match } from "../../../../lib/pipeline";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
+import { DiscordErrors } from "../../../utils/DiscordErrors";
 import { matchSubcommandStep } from "../../../utils/matchSubcommand";
 import { ILiveRoleDocument } from "../schemas/LiveRole";
 import { createLiveRoleConfiguration } from "./createConfiguration";
@@ -47,4 +48,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 				() => "Live role is not enabled on this server."
 			)
 		)
+		.otherwise(() => {
+			throw new DiscordErrors.Exit();
+		})
 );
