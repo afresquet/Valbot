@@ -1,4 +1,4 @@
-import { ifelse } from "../../../../lib/pipeline";
+import { ifelse } from "typepipe/dist/steps";
 import TwitchEventPipelineBuilder from "../../../lib/twitch-event-pipeline";
 import { Command } from "../../../types/twitch";
 import { say } from "../../global/steps/say";

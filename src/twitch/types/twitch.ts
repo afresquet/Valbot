@@ -22,12 +22,12 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: TwitchEventPipeline.Fn<T, ClientEventsContext[T], void>;
+	execute: TwitchEventPipeline.Function<T, ClientEventsContext[T], void>;
 }
 
 export interface Command {
 	name: string;
 	subcommand?: string;
 	once?: boolean;
-	execute: TwitchEventPipeline.Command.Fn;
+	execute: TwitchEventPipeline.Command.Function;
 }

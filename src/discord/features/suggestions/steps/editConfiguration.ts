@@ -1,7 +1,7 @@
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import { SuggestionModel } from "../schemas/Suggestion";
 
-export const editSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Fn<
+export const editSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Function<
 	unknown,
 	Promise<void>
 > = async (_, { interaction }) => {

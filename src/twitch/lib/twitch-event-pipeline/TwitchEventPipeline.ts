@@ -1,4 +1,4 @@
-import Pipeline from "../../../lib/pipeline";
+import TypePipe from "typepipe";
 import { Context } from "../../../types/Context";
 import { ClientEventsContext } from "../../types/twitch";
 import { TwitchEventPipeline } from "./twitch-event-pipeline";
@@ -6,10 +6,10 @@ import { TwitchEventPipeline } from "./twitch-event-pipeline";
 export default class TwitchEventPipelineBuilder<
 	Event extends keyof ClientEventsContext,
 	Value = ClientEventsContext[Event]
-> extends Pipeline<Value, Value, ClientEventsContext[Event], Context> {
+> extends TypePipe<Value, Value, ClientEventsContext[Event], Context> {
 	static Command = class TwitchCommandPipelineBuilder<
 		Value = TwitchEventPipeline.Command.Event
-	> extends Pipeline<
+	> extends TypePipe<
 		Value,
 		Value,
 		TwitchEventPipeline.Command.Event,

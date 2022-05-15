@@ -1,4 +1,4 @@
-import { ifelse, match } from "../../../../lib/pipeline";
+import { ifelse, match } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
@@ -10,7 +10,7 @@ import { editLiveRoleConfiguration } from "./editConfiguration";
 
 type Value = ILiveRoleDocument | null;
 
-export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Fn<
+export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Function<
 	Value,
 	Promise<string>
 > = match(m =>

@@ -1,7 +1,7 @@
-import { Pipeline } from "../../../../lib/pipeline";
+import { TypePipe } from "typepipe";
 import { CommandModel, ICommand, ICommandDocument } from "../schemas/Command";
 
-export const createDBCommand: Pipeline.Fn<
+export const createDBCommand: TypePipe.Function<
 	ICommand,
 	Promise<ICommandDocument>,
 	unknown,

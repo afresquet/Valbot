@@ -1,11 +1,16 @@
 import type { CommandInteraction } from "discord.js";
-import { Pipeline as TPipeline } from "../../../lib/pipeline";
+import type { TypePipe } from "typepipe";
 import { Context } from "../../../types/Context";
 import { ClientEventsContext } from "../../types/discord";
 
 export declare namespace DiscordEventPipeline {
-	interface Fn<Event extends keyof ClientEventsContext, Value, Result>
-		extends TPipeline.Fn<Value, Result, ClientEventsContext[Event], Context> {
+	interface Function<Event extends keyof ClientEventsContext, Value, Result>
+		extends TypePipe.Function<
+			Value,
+			Result,
+			ClientEventsContext[Event],
+			Context
+		> {
 		(value: Value, event: ClientEventsContext[Event], context: Context):
 			| Result
 			| Promise<Result>;
@@ -14,7 +19,7 @@ export declare namespace DiscordEventPipeline {
 	export namespace CommandInteraction {
 		type Event = { interaction: CommandInteraction };
 
-		type Fn<Value = Event, Result = void> = TPipeline.Fn<
+		type Function<Value = Event, Result = void> = TypePipe.Function<
 			Value,
 			Result,
 			Event,

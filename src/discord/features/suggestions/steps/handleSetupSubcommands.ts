@@ -1,4 +1,4 @@
-import { ifelse, match } from "../../../../lib/pipeline";
+import { ifelse, match } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
@@ -10,7 +10,7 @@ import { editSuggestionsConfiguration } from "./editConfiguration";
 
 type Value = ISuggestionDocument | null;
 
-export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Fn<
+export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Function<
 	Value,
 	Promise<string>
 > = match(m =>

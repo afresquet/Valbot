@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { assert, pairwise, tap } from "../../../../lib/pipeline";
+import { assert, pairwise, tap } from "typepipe/dist/steps";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { Command } from "../../../types/discord";
 import { DiscordErrors } from "../../../utils/DiscordErrors";

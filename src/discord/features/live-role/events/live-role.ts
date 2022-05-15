@@ -1,4 +1,4 @@
-import { assert } from "../../../../lib/pipeline";
+import { assert } from "typepipe/dist/steps";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline";
 import { Event } from "../../../types/discord";
 import { DiscordErrors } from "../../../utils/DiscordErrors";

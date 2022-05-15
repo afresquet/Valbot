@@ -27,7 +27,7 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: DiscordEventPipeline.Fn<T, ClientEventsContext[T], void>;
+	execute: DiscordEventPipeline.Function<T, ClientEventsContext[T], void>;
 }
 
 export interface Command {
@@ -35,5 +35,5 @@ export interface Command {
 		| SlashCommandBuilder
 		| SlashCommandSubcommandsOnlyBuilder
 		| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-	execute: DiscordEventPipeline.CommandInteraction.Fn;
+	execute: DiscordEventPipeline.CommandInteraction.Function;
 }

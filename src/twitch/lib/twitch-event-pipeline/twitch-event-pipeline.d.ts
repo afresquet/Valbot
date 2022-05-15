@@ -1,10 +1,15 @@
-import { Pipeline as TPipeline } from "../../../lib/pipeline";
+import { TypePipe } from "typepipe";
 import { Context } from "../../../types/Context";
 import { ClientEventsContext } from "../../types/twitch";
 
 export declare namespace TwitchEventPipeline {
-	interface Fn<Event extends keyof ClientEventsContext, Value, Result>
-		extends TPipeline.Fn<Value, Result, ClientEventsContext[Event], Context> {
+	interface Function<Event extends keyof ClientEventsContext, Value, Result>
+		extends TypePipe.Function<
+			Value,
+			Result,
+			ClientEventsContext[Event],
+			Context
+		> {
 		(value: Value, event: ClientEventsContext[Event], context: Context):
 			| Result
 			| Promise<Result>;
@@ -13,7 +18,7 @@ export declare namespace TwitchEventPipeline {
 	export namespace Command {
 		type Event = ClientEventsContext["message"];
 
-		type Fn<Value = Event, Result = void> = TPipeline.Fn<
+		type Function<Value = Event, Result = void> = TypePipe.Function<
 			Value,
 			Result,
 			Event,

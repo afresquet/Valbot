@@ -1,11 +1,11 @@
-import { assert } from "../../../../lib/pipeline";
+import { assert } from "typepipe/dist/steps";
 import TwitchEventPipelineBuilder, {
 	TwitchEventPipeline,
 } from "../../../lib/twitch-event-pipeline";
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { getCommand } from "./getCommand";
 
-export const executeCommand: TwitchEventPipeline.Command.Fn<
+export const executeCommand: TwitchEventPipeline.Command.Function<
 	string[],
 	Promise<void>
 > = new TwitchEventPipelineBuilder.Command<string[]>()

@@ -5,7 +5,7 @@ import { ClientEventsContext } from "../../../types/discord";
 export const createAcceptDeclineButtons =
 	<Event extends keyof ClientEventsContext, Value>(
 		customId: string
-	): DiscordEventPipeline.Fn<Event, Value, MessageActionRow> =>
+	): DiscordEventPipeline.Function<Event, Value, MessageActionRow> =>
 	() => {
 		const buttons = new MessageActionRow();
 

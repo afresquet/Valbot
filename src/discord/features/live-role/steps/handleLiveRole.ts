@@ -1,8 +1,8 @@
 import { Role } from "discord.js";
-import { match } from "../../../../lib/pipeline";
+import { match } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 
-export const handleLiveRole: DiscordEventPipeline.Fn<
+export const handleLiveRole: DiscordEventPipeline.Function<
 	"presenceUpdate",
 	{ role: Role; hasLiveRole: boolean; isStreaming: boolean },
 	Promise<void>
