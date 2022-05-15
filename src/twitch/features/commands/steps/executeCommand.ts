@@ -1,4 +1,3 @@
-import { assert } from "typepipe/dist/steps";
 import TwitchEventPipelineBuilder, {
 	TwitchEventPipeline,
 } from "../../../lib/twitch-event-pipeline";
@@ -10,7 +9,7 @@ export const executeCommand: TwitchEventPipeline.Command.Function<
 	Promise<void>
 > = new TwitchEventPipelineBuilder.Command<string[]>()
 	.pipe(getCommand)
-	.pipe(assert(() => new TwitchErrors.Exit()))
+	.assert(() => new TwitchErrors.Exit())
 	.pipe(async (command, event, context) => {
 		await command.execute(event, event, context);
 	})

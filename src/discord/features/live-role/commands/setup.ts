@@ -36,7 +36,7 @@ const liveRoleSetupCommand: Command = {
 		),
 	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getLiveRoleConfiguration)
-		.pipe(handleLiveRoleSubcommands)
+		.match(handleLiveRoleSubcommands)
 		.pipe(interactionReplyEphemeral)
 		.compose(),
 };

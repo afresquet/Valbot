@@ -9,10 +9,5 @@ export default class TwitchEventPipelineBuilder<
 > extends TypePipe<Value, Value, ClientEventsContext[Event], Context> {
 	static Command = class TwitchCommandPipelineBuilder<
 		Value = TwitchEventPipeline.Command.Event
-	> extends TypePipe<
-		Value,
-		Value,
-		TwitchEventPipeline.Command.Event,
-		Context
-	> {};
+	> extends TypePipe<Value, TwitchEventPipeline.Command.Event, Context> {};
 }

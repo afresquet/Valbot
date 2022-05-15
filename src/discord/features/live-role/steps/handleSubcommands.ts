@@ -1,4 +1,4 @@
-import { ifelse, match } from "typepipe/dist/steps";
+import { ifelse } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
@@ -10,11 +10,11 @@ import { editLiveRoleConfiguration } from "./editConfiguration";
 
 type Value = ILiveRoleDocument | null;
 
-export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.Function<
+export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.MatchFunction<
 	Value,
 	Promise<string>
-> = match(m =>
-	m
+> = match =>
+	match
 		.on(
 			matchSubcommandStep("enable"),
 			ifelse(
@@ -50,5 +50,4 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 		)
 		.otherwise(() => {
 			throw new DiscordErrors.Exit();
-		})
-);
+		});

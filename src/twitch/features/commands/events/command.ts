@@ -1,4 +1,3 @@
-import { ifelse } from "typepipe/dist/steps";
 import TwitchEventPipelineBuilder from "../../../lib/twitch-event-pipeline";
 import { Event } from "../../../types/twitch";
 import { checkPrefix } from "../../global/steps/checkPrefix";
@@ -12,10 +11,10 @@ const messageEvent: Event<"message"> = {
 	name: "command",
 	event: "message",
 	execute: new TwitchEventPipelineBuilder.Command()
-		.pipe(ignoreSelf)
+		.tap(ignoreSelf)
 		.pipe(checkPrefix)
 		.pipe(splitString(2))
-		.pipe(ifelse(commandExists, executeCommand, executeDBCommand))
+		.ifelse(commandExists, executeCommand, executeDBCommand)
 		.compose(),
 };
 

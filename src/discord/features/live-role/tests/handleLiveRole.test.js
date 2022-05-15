@@ -1,3 +1,4 @@
+const { match } = require("typepipe/dist/steps");
 const { handleLiveRole } = require("../steps/handleLiveRole");
 
 describe("handleLiveRole step", () => {
@@ -20,7 +21,7 @@ describe("handleLiveRole step", () => {
 	beforeEach(jest.clearAllMocks);
 
 	test("applies the role if the member is streaming and doesn't have the role", async () => {
-		await handleLiveRole(
+		await match(handleLiveRole)(
 			{
 				...value,
 				hasLiveRole: false,
@@ -35,7 +36,7 @@ describe("handleLiveRole step", () => {
 	});
 
 	test("removes the role if the member isn't streaming and has the role", async () => {
-		await handleLiveRole(
+		await match(handleLiveRole)(
 			{
 				...value,
 				isStreaming: false,
@@ -50,14 +51,14 @@ describe("handleLiveRole step", () => {
 	});
 
 	test("does nothing if member is streaming and has the role", async () => {
-		await handleLiveRole(value, context);
+		await match(handleLiveRole)(value, context);
 
 		expect(context.newPresence.member.roles.add).not.toHaveBeenCalled();
 		expect(context.newPresence.member.roles.remove).not.toHaveBeenCalled();
 	});
 
 	test("does nothing if member is not streaming and doesn't have the role", async () => {
-		await handleLiveRole(
+		await match(handleLiveRole)(
 			{ ...value, hasLiveRole: false, isStreaming: false },
 			context
 		);

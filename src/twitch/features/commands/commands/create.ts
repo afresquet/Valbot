@@ -1,4 +1,3 @@
-import { ifelse } from "typepipe/dist/steps";
 import TwitchEventPipelineBuilder from "../../../lib/twitch-event-pipeline";
 import { Command } from "../../../types/twitch";
 import { say } from "../../global/steps/say";
@@ -15,19 +14,17 @@ const createCommand: Command = {
 		.pipe((_, { message }) => message)
 		.pipe(splitString(3))
 		.pipe(extractCommand)
-		.pipe(
-			ifelse(
-				dbCommandExists,
-				({ name }, { userstate }) =>
-					`@${userstate.username}, command ${name} already exists!`,
-				new TwitchEventPipelineBuilder.Command<ICommand>()
-					.pipe(createDBCommand)
-					.pipe(
-						({ name }, { userstate }) =>
-							`@${userstate.username}, command "${name}" was added!`
-					)
-					.compose()
-			)
+		.ifelse(
+			dbCommandExists,
+			({ name }, { userstate }) =>
+				`@${userstate.username}, command ${name} already exists!`,
+			new TwitchEventPipelineBuilder.Command<ICommand>()
+				.pipe(createDBCommand)
+				.pipe(
+					({ name }, { userstate }) =>
+						`@${userstate.username}, command "${name}" was added!`
+				)
+				.compose()
 		)
 		.pipe(say)
 		.compose(),

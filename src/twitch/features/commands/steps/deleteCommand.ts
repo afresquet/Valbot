@@ -1,7 +1,10 @@
-import { tap } from "typepipe/dist/steps";
+import { DiscordEventPipeline } from "../../../../discord/lib/discord-event-pipeline";
 import { CommandModel, ICommand } from "../schemas/Command";
 
-export const deleteDBCommand = tap<ICommand, Promise<void>, unknown, unknown>(
-	async ({ channel, name }) =>
-		CommandModel.findOneAndDelete({ channel, name }) as any
-);
+export const deleteDBCommand: DiscordEventPipeline.Function<
+	any,
+	ICommand,
+	Promise<void>
+> = async ({ channel, name }) => {
+	await CommandModel.findOneAndDelete({ channel, name });
+};

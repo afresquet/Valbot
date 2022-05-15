@@ -16,14 +16,41 @@ export declare namespace DiscordEventPipeline {
 			| Promise<Result>;
 	}
 
+	type MatchFunction<
+		Event extends keyof ClientEventsContext,
+		Value,
+		Result,
+		Async = Result extends Promise<unknown> ? true : false,
+		Expected = Awaited<Result>
+	> = TypePipe.MatchFunction<
+		Value,
+		Awaited<Result>,
+		ClientEventsContext[Event],
+		Context,
+		Async,
+		Expected
+	>;
+
 	export namespace CommandInteraction {
 		type Event = { interaction: CommandInteraction };
 
-		type Function<Value = Event, Result = void> = TypePipe.Function<
+		type Function<
+			Value = Event,
+			Result = void | Promise<void>
+		> = TypePipe.Function<Value, Result, Event, Context>;
+
+		type MatchFunction<
 			Value,
 			Result,
+			Async = Result extends Promise<unknown> ? true : false,
+			Expected = Awaited<Result>
+		> = TypePipe.MatchFunction<
+			Value,
+			Awaited<Result>,
 			Event,
-			Context
+			Context,
+			Async,
+			Expected
 		>;
 	}
 }

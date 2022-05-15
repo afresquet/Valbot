@@ -1,4 +1,3 @@
-import { assert } from "typepipe/dist/steps";
 import TwitchEventPipelineBuilder, {
 	TwitchEventPipeline,
 } from "../../../lib/twitch-event-pipeline";
@@ -12,7 +11,7 @@ export const executeDBCommand: TwitchEventPipeline.Command.Function<
 > = new TwitchEventPipelineBuilder.Command<string[]>()
 	.pipe(([name]) => name)
 	.pipe(getDBCommand)
-	.pipe(assert(() => new TwitchErrors.Exit()))
+	.assert(() => new TwitchErrors.Exit())
 	.pipe(dbCommand => dbCommand.message)
 	.pipe(say)
 	.compose();

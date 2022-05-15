@@ -1,13 +1,12 @@
 import { Role } from "discord.js";
-import { match } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 
-export const handleLiveRole: DiscordEventPipeline.Function<
+export const handleLiveRole: DiscordEventPipeline.MatchFunction<
 	"presenceUpdate",
 	{ role: Role; hasLiveRole: boolean; isStreaming: boolean },
 	Promise<void>
-> = match(m =>
-	m
+> = match =>
+	match
 		.on(
 			({ hasLiveRole, isStreaming }) => !hasLiveRole && isStreaming,
 			async ({ role }, { newPresence }) => {
@@ -20,5 +19,4 @@ export const handleLiveRole: DiscordEventPipeline.Function<
 				await newPresence.member!.roles.remove(role);
 			}
 		)
-		.otherwise(() => {})
-);
+		.otherwise(() => {});

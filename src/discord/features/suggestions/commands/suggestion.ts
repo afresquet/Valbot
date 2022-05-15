@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { assert, pairwise, tap } from "typepipe/dist/steps";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { Command } from "../../../types/discord";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
@@ -29,25 +28,22 @@ const suggestCommand: Command = {
 		),
 	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getSuggestionsConfiguration)
-		.pipe(
-			assert(
-				() =>
-					new DiscordErrors.CommandInteractionReplyEphemeral(
-						"Suggestions are not enabled on this server."
-					)
-			)
+		.assert(
+			() =>
+				new DiscordErrors.CommandInteractionReplyEphemeral(
+					"Suggestions are not enabled on this server."
+				)
 		)
-		.pipe(
-			tap((configuration, { interaction }) => {
-				if (configuration.channelId !== interaction.channel!.id) {
-					throw new DiscordErrors.CommandInteractionReplyEphemeral(
-						`You can't use this command here, go to <#${configuration.channelId}> instead.`
-					);
-				}
-			})
-		)
+		.tap((configuration, { interaction }) => {
+			if (configuration.channelId !== interaction.channel!.id) {
+				throw new DiscordErrors.CommandInteractionReplyEphemeral(
+					`You can't use this command here, go to <#${configuration.channelId}> instead.`
+				);
+			}
+		})
+
 		.pipe(createSuggestionEmbed)
-		.pipe(pairwise(createAcceptDeclineButtons("suggestion")))
+		.pairwise(createAcceptDeclineButtons("suggestion"))
 		.pipe(async ([embed, buttons], { interaction }) => {
 			await interaction.reply({
 				embeds: [embed],

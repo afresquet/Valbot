@@ -1,4 +1,4 @@
-import { ifelse, match } from "typepipe/dist/steps";
+import { ifelse } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
@@ -10,11 +10,11 @@ import { editSuggestionsConfiguration } from "./editConfiguration";
 
 type Value = ISuggestionDocument | null;
 
-export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.Function<
+export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.MatchFunction<
 	Value,
 	Promise<string>
-> = match(m =>
-	m
+> = match =>
+	match
 		.on(
 			matchSubcommandStep("enable"),
 			ifelse(
@@ -50,5 +50,4 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 		)
 		.otherwise(() => {
 			throw new DiscordErrors.Exit();
-		})
-);
+		});

@@ -39,7 +39,7 @@ const suggestionsSetupCommand: Command = {
 		),
 	execute: new DiscordEventPipelineBuilder.CommandInteraction()
 		.pipe(getSuggestionsConfiguration)
-		.pipe(handleSetupSuggestionsSubcommands)
+		.match(handleSetupSuggestionsSubcommands)
 		.pipe(interactionReplyEphemeral)
 		.compose(),
 };
