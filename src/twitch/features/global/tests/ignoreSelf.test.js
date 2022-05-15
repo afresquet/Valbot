@@ -1,4 +1,3 @@
-const { Errors } = require("../../../../utils/Errors");
 const { TwitchErrors } = require("../../../utils/TwitchErrors");
 const { ignoreSelf } = require("../steps/ignoreSelf");
 
@@ -15,8 +14,8 @@ describe("ignoreSelf step", () => {
 		const value = "value";
 		const event = { self: false };
 
-		const result = ignoreSelf(value, event, {});
+		const fn = () => ignoreSelf(value, event, {});
 
-		expect(result).toBe(value);
+		expect(fn).not.toThrow();
 	});
 });

@@ -1,6 +1,6 @@
-const { matchSubcommand, matchSubcommandStep } = require("../matchSubcommand");
+const { matchSubcommand } = require("../matchSubcommand");
 
-describe("matchSubcommand utils", () => {
+describe("matchSubcommand util", () => {
 	const subcommand = "subcommand";
 	const context = {
 		interaction: {
@@ -10,34 +10,15 @@ describe("matchSubcommand utils", () => {
 		},
 	};
 
-	describe("matchSubcommand", () => {
-		test("returns true if the subcommand matches", () => {
-			const result = matchSubcommand(subcommand)(context.interaction);
+	test("returns true if the subcommand matches", () => {
+		const result = matchSubcommand(subcommand, context.interaction);
 
-			expect(result).toBe(true);
-		});
-
-		test("returns false if the subcommand matches", () => {
-			const result = matchSubcommand("not_a_subcommand")(context.interaction);
-
-			expect(result).toBe(false);
-		});
+		expect(result).toBe(true);
 	});
 
-	describe("matchSubcommandStep", () => {
-		test("returns true if the subcommand matches", () => {
-			const result = matchSubcommandStep(subcommand)(undefined, context);
+	test("returns false if the subcommand matches", () => {
+		const result = matchSubcommand("not_a_subcommand", context.interaction);
 
-			expect(result).toBe(true);
-		});
-
-		test("returns false if the subcommand matches", () => {
-			const result = matchSubcommandStep("not_a_subcommand")(
-				undefined,
-				context
-			);
-
-			expect(result).toBe(false);
-		});
+		expect(result).toBe(false);
 	});
 });

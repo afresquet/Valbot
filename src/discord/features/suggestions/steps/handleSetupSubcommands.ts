@@ -1,8 +1,7 @@
-import { ifelse } from "typepipe/dist/steps";
 import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
 import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
-import { matchSubcommandStep } from "../../../utils/matchSubcommand";
+import { matchSubcommand } from "../../../utils/matchSubcommand";
 import { ISuggestionDocument } from "../schemas/Suggestion";
 import { createSuggestionsConfiguration } from "./createConfiguration";
 import { disableSuggestionsConfiguration } from "./disableConfiguration";
@@ -16,37 +15,43 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 > = match =>
 	match
 		.on(
-			matchSubcommandStep("enable"),
-			ifelse(
-				configuration => configuration === null,
-				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
-					.pipe(createSuggestionsConfiguration)
-					.pipe(() => "Suggestions are now enabled on this server.")
-					.compose(),
-				() => "Suggestions are already enabled on this server."
-			)
+			(configuration, { interaction }) =>
+				matchSubcommand("enable", interaction) && configuration === null,
+			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+				.pipe(createSuggestionsConfiguration)
+				.pipe(() => "Suggestions are now enabled on this server.")
+				.compose()
 		)
 		.on(
-			matchSubcommandStep("edit"),
-			ifelse(
-				configuration => configuration !== null,
-				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
-					.pipe(editSuggestionsConfiguration)
-					.pipe(() => "Suggestions channel has been updated.")
-					.compose(),
-				() => "Suggestions are not enabled on this server."
-			)
+			(configuration, { interaction }) =>
+				matchSubcommand("enable", interaction) && configuration !== null,
+			() => "Suggestions are already enabled on this server."
 		)
 		.on(
-			matchSubcommandStep("disable"),
-			ifelse(
-				configuration => configuration !== null,
-				new DiscordEventPipelineBuilder.CommandInteraction<Value>()
-					.pipe(disableSuggestionsConfiguration)
-					.pipe(() => "Suggestions have been disabled.")
-					.compose(),
-				() => "Suggestions are not enabled on this server."
-			)
+			(configuration, { interaction }) =>
+				matchSubcommand("edit", interaction) && configuration !== null,
+			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+				.pipe(editSuggestionsConfiguration)
+				.pipe(() => "Suggestions channel has been updated.")
+				.compose()
+		)
+		.on(
+			(configuration, { interaction }) =>
+				matchSubcommand("edit", interaction) && configuration !== null,
+			() => "Suggestions are not enabled on this server."
+		)
+		.on(
+			(configuration, { interaction }) =>
+				matchSubcommand("disable", interaction) && configuration !== null,
+			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+				.pipe(disableSuggestionsConfiguration)
+				.pipe(() => "Suggestions have been disabled.")
+				.compose()
+		)
+		.on(
+			(configuration, { interaction }) =>
+				matchSubcommand("disable", interaction) && configuration === null,
+			() => "Suggestions are not enabled on this server."
 		)
 		.otherwise(() => {
 			throw new DiscordErrors.Exit();
