@@ -2,11 +2,7 @@ const { match } = require("typepipe/dist/steps");
 const { handleLiveRole } = require("../steps/handleLiveRole");
 
 describe("handleLiveRole step", () => {
-	const value = {
-		role: { id: "roleId" },
-		hasLiveRole: true,
-		isStreaming: true,
-	};
+	const role = { id: "roleId" };
 	const context = {
 		newPresence: {
 			member: {
@@ -16,52 +12,45 @@ describe("handleLiveRole step", () => {
 				},
 			},
 		},
+		hasLiveRole: true,
+		isStreaming: true,
 	};
 
 	beforeEach(jest.clearAllMocks);
 
-	test("applies the role if the member is streaming and doesn't have the role", async () => {
-		await match(handleLiveRole)(
-			{
-				...value,
-				hasLiveRole: false,
-			},
-			context
-		);
+	test("applies the role if the member is streaming and doesn't have the role", () => {
+		match(handleLiveRole)(role, {
+			...context,
+			hasLiveRole: false,
+		});
 
-		expect(context.newPresence.member.roles.add).toHaveBeenCalledWith(
-			value.role
-		);
+		expect(context.newPresence.member.roles.add).toHaveBeenCalledWith(role);
 		expect(context.newPresence.member.roles.remove).not.toHaveBeenCalled();
 	});
 
-	test("removes the role if the member isn't streaming and has the role", async () => {
-		await match(handleLiveRole)(
-			{
-				...value,
-				isStreaming: false,
-			},
-			context
-		);
+	test("removes the role if the member isn't streaming and has the role", () => {
+		match(handleLiveRole)(role, {
+			...context,
+			isStreaming: false,
+		});
 
 		expect(context.newPresence.member.roles.add).not.toHaveBeenCalled();
-		expect(context.newPresence.member.roles.remove).toHaveBeenCalledWith(
-			value.role
-		);
+		expect(context.newPresence.member.roles.remove).toHaveBeenCalledWith(role);
 	});
 
-	test("does nothing if member is streaming and has the role", async () => {
-		await match(handleLiveRole)(value, context);
+	test("does nothing if member is streaming and has the role", () => {
+		match(handleLiveRole)(role, context);
 
 		expect(context.newPresence.member.roles.add).not.toHaveBeenCalled();
 		expect(context.newPresence.member.roles.remove).not.toHaveBeenCalled();
 	});
 
-	test("does nothing if member is not streaming and doesn't have the role", async () => {
-		await match(handleLiveRole)(
-			{ ...value, hasLiveRole: false, isStreaming: false },
-			context
-		);
+	test("does nothing if member is not streaming and doesn't have the role", () => {
+		match(handleLiveRole)(role, {
+			...context,
+			hasLiveRole: false,
+			isStreaming: false,
+		});
 
 		expect(context.newPresence.member.roles.add).not.toHaveBeenCalled();
 		expect(context.newPresence.member.roles.remove).not.toHaveBeenCalled();

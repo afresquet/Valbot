@@ -14,8 +14,9 @@ const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 	execute: new DiscordEventPipelineBuilder<"presenceUpdate">()
 		.pipe(getRole)
 		.assert(() => new DiscordErrors.Exit())
-		.pipe((role, { newPresence }) => ({
-			role,
+		.context((role, { newPresence, ...context }) => ({
+			...context,
+			newPresence,
 			hasLiveRole: guildMemberHasRole(newPresence.member!, role),
 			isStreaming: guildMemberHasActivity(newPresence.member!, "STREAMING"),
 		}))

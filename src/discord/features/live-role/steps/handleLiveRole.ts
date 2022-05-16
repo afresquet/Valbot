@@ -1,21 +1,27 @@
 import { Role } from "discord.js";
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { TypePipe } from "typepipe";
+import { Context } from "../../../../types/Context";
+import { ClientEventsContext } from "../../../types/discord";
 
-export const handleLiveRole: DiscordEventPipeline.MatchFunction<
-	"presenceUpdate",
-	{ role: Role; hasLiveRole: boolean; isStreaming: boolean },
-	Promise<void>
+export const handleLiveRole: TypePipe.MatchFunction<
+	Role,
+	void,
+	ClientEventsContext["presenceUpdate"] & {
+		hasLiveRole: boolean;
+		isStreaming: boolean;
+	},
+	Context
 > = match =>
 	match
 		.on(
-			({ hasLiveRole, isStreaming }) => !hasLiveRole && isStreaming,
-			async ({ role }, { newPresence }) => {
+			(_, { hasLiveRole, isStreaming }) => !hasLiveRole && isStreaming,
+			async (role, { newPresence }) => {
 				await newPresence.member!.roles.add(role);
 			}
 		)
 		.on(
-			({ hasLiveRole, isStreaming }) => hasLiveRole && !isStreaming,
-			async ({ role }, { newPresence }) => {
+			(_, { hasLiveRole, isStreaming }) => hasLiveRole && !isStreaming,
+			async (role, { newPresence }) => {
 				await newPresence.member!.roles.remove(role);
 			}
 		)
