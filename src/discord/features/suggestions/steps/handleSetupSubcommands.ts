@@ -1,5 +1,4 @@
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
-import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
+import DiscordPipeline, { DiscordTypePipe } from "../../../lib";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
 import { matchSubcommand } from "../../../utils/matchSubcommand";
 import { ISuggestionDocument } from "../schemas/Suggestion";
@@ -9,7 +8,7 @@ import { editSuggestionsConfiguration } from "./editConfiguration";
 
 type Value = ISuggestionDocument | null;
 
-export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInteraction.MatchFunction<
+export const handleSetupSuggestionsSubcommands: DiscordTypePipe.CommandInteraction.MatchFunction<
 	Value,
 	Promise<string>
 > = match =>
@@ -17,7 +16,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 		.on(
 			(configuration, { interaction }) =>
 				matchSubcommand("enable", interaction) && configuration === null,
-			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+			new DiscordPipeline.CommandInteraction<Value>()
 				.pipe(createSuggestionsConfiguration)
 				.pipe(() => "Suggestions are now enabled on this server.")
 				.compose()
@@ -30,7 +29,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 		.on(
 			(configuration, { interaction }) =>
 				matchSubcommand("edit", interaction) && configuration !== null,
-			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+			new DiscordPipeline.CommandInteraction<Value>()
 				.pipe(editSuggestionsConfiguration)
 				.pipe(() => "Suggestions channel has been updated.")
 				.compose()
@@ -43,7 +42,7 @@ export const handleSetupSuggestionsSubcommands: DiscordEventPipeline.CommandInte
 		.on(
 			(configuration, { interaction }) =>
 				matchSubcommand("disable", interaction) && configuration !== null,
-			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+			new DiscordPipeline.CommandInteraction<Value>()
 				.pipe(disableSuggestionsConfiguration)
 				.pipe(() => "Suggestions have been disabled.")
 				.compose()

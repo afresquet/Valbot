@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
+import DiscordPipeline from "../../../lib";
 import { Command } from "../../../types/discord";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
 import { createAcceptDeclineButtons } from "../../global/steps/createAcceptDeclineButtons";
@@ -26,7 +26,7 @@ const suggestCommand: Command = {
 				.setDescription("Describe your suggestion")
 				.setRequired(true)
 		),
-	execute: new DiscordEventPipelineBuilder.CommandInteraction()
+	execute: new DiscordPipeline.CommandInteraction()
 		.pipe(getSuggestionsConfiguration)
 		.assert(
 			() =>

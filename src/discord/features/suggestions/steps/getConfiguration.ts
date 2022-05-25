@@ -1,7 +1,7 @@
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../../../lib";
 import { ISuggestionDocument, SuggestionModel } from "../schemas/Suggestion";
 
-export const getSuggestionsConfiguration: DiscordEventPipeline.CommandInteraction.Function<
+export const getSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	unknown,
 	Promise<ISuggestionDocument | null>
 > = (_, { interaction }) => SuggestionModel.findByGuild(interaction.guild!);

@@ -1,5 +1,4 @@
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
-import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline/DiscordEventPipeline";
+import DiscordPipeline, { DiscordTypePipe } from "../../../lib";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
 import { matchSubcommand } from "../../../utils/matchSubcommand";
 import { ILiveRoleDocument } from "../schemas/LiveRole";
@@ -9,7 +8,7 @@ import { editLiveRoleConfiguration } from "./editConfiguration";
 
 type Value = ILiveRoleDocument | null;
 
-export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.MatchFunction<
+export const handleLiveRoleSubcommands: DiscordTypePipe.CommandInteraction.MatchFunction<
 	Value,
 	Promise<string>
 > = match =>
@@ -17,7 +16,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 		.on(
 			(configuration, { interaction }) =>
 				matchSubcommand("enable", interaction) && configuration === null,
-			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+			new DiscordPipeline.CommandInteraction<Value>()
 				.pipe(createLiveRoleConfiguration)
 				.pipe(() => "Live role is now enabled on this server.")
 				.compose()
@@ -30,7 +29,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 		.on(
 			(configuration, { interaction }) =>
 				matchSubcommand("edit", interaction) && configuration !== null,
-			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+			new DiscordPipeline.CommandInteraction<Value>()
 				.pipe(editLiveRoleConfiguration)
 				.pipe(() => "Live role was edited.")
 				.compose()
@@ -43,7 +42,7 @@ export const handleLiveRoleSubcommands: DiscordEventPipeline.CommandInteraction.
 		.on(
 			(configuration, { interaction }) =>
 				matchSubcommand("disable", interaction) && configuration !== null,
-			new DiscordEventPipelineBuilder.CommandInteraction<Value>()
+			new DiscordPipeline.CommandInteraction<Value>()
 				.pipe(disableLiveRoleConfiguration)
 				.pipe(() => "Live role was disabled.")
 				.compose()

@@ -4,7 +4,7 @@ import {
 } from "@discordjs/builders";
 import { ClientEvents } from "discord.js";
 import { Context } from "../../types/Context";
-import { DiscordEventPipeline } from "../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../lib";
 
 export type Handler = (context: Context) => void | Promise<void>;
 
@@ -27,7 +27,7 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: DiscordEventPipeline.Function<T, ClientEventsContext[T], void>;
+	execute: DiscordTypePipe.Function<T, ClientEventsContext[T], void>;
 }
 
 export interface Command {
@@ -35,5 +35,5 @@ export interface Command {
 		| SlashCommandBuilder
 		| SlashCommandSubcommandsOnlyBuilder
 		| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
-	execute: DiscordEventPipeline.CommandInteraction.Function;
+	execute: DiscordTypePipe.CommandInteraction.Function;
 }

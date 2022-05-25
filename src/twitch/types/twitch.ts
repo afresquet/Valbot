@@ -1,6 +1,6 @@
 import type { Events } from "tmi.js";
 import { Context } from "../../types/Context";
-import { TwitchEventPipeline } from "../lib/twitch-event-pipeline";
+import { TwitchEventPipeline } from "../lib";
 
 export type Handler = (context: Context) => void | Promise<void>;
 

@@ -1,4 +1,4 @@
-import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
+import { TwitchEventPipeline } from "../../../lib";
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 
 export const checkPrefix: TwitchEventPipeline.Function<

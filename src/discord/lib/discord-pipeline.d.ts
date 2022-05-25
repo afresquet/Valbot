@@ -1,9 +1,9 @@
 import type { CommandInteraction } from "discord.js";
 import type { TypePipe } from "typepipe";
-import { Context } from "../../../types/Context";
-import { ClientEventsContext } from "../../types/discord";
+import { Context } from "../../types/Context";
+import { ClientEventsContext } from "../types/discord";
 
-export declare namespace DiscordEventPipeline {
+export declare namespace DiscordTypePipe {
 	interface Function<Event extends keyof ClientEventsContext, Value, Result>
 		extends TypePipe.Function<
 			Value,

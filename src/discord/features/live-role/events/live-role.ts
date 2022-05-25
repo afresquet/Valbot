@@ -1,4 +1,4 @@
-import DiscordEventPipelineBuilder from "../../../lib/discord-event-pipeline";
+import DiscordPipeline from "../../../lib";
 import { Event } from "../../../types/discord";
 import { DiscordErrors } from "../../../utils/DiscordErrors";
 import {
@@ -11,7 +11,7 @@ import { handleLiveRole } from "../steps/handleLiveRole";
 const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 	name: "live-role",
 	event: "presenceUpdate",
-	execute: new DiscordEventPipelineBuilder<"presenceUpdate">()
+	execute: new DiscordPipeline<"presenceUpdate">()
 		.pipe(getRole)
 		.assert(() => new DiscordErrors.Exit())
 		.context((role, { newPresence, ...context }) => ({

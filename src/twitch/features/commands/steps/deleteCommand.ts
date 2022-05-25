@@ -1,7 +1,7 @@
-import { DiscordEventPipeline } from "../../../../discord/lib/discord-event-pipeline";
+import { TwitchEventPipeline } from "../../../lib";
 import { CommandModel, ICommand } from "../schemas/Command";
 
-export const deleteDBCommand: DiscordEventPipeline.Function<
+export const deleteDBCommand: TwitchEventPipeline.Function<
 	any,
 	ICommand,
 	Promise<void>

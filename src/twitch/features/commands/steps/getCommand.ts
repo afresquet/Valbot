@@ -1,4 +1,4 @@
-import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
+import { TwitchEventPipeline } from "../../../lib";
 import { Command } from "../../../types/twitch";
 
 export const getCommand: TwitchEventPipeline.Command.Function<

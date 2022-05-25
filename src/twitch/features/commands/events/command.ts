@@ -1,4 +1,4 @@
-import TwitchEventPipelineBuilder from "../../../lib/twitch-event-pipeline";
+import TwitchPipeline from "../../../lib";
 import { Event } from "../../../types/twitch";
 import { checkPrefix } from "../../global/steps/checkPrefix";
 import { ignoreSelf } from "../../global/steps/ignoreSelf";
@@ -10,7 +10,7 @@ import { executeDBCommand } from "../steps/executeDBCommand";
 const messageEvent: Event<"message"> = {
 	name: "command",
 	event: "message",
-	execute: new TwitchEventPipelineBuilder.Command()
+	execute: new TwitchPipeline.Command()
 		.tap(ignoreSelf)
 		.pipe(checkPrefix)
 		.pipe(splitString(2))

@@ -1,8 +1,8 @@
 import { Role } from "discord.js";
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../../../lib";
 import { LiveRoleModel } from "../schemas/LiveRole";
 
-export const getRole: DiscordEventPipeline.Function<
+export const getRole: DiscordTypePipe.Function<
 	"presenceUpdate",
 	unknown,
 	Promise<Role | undefined>

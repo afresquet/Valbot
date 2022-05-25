@@ -1,5 +1,5 @@
 import { Context } from "../../types/Context";
-import { DiscordEventPipeline } from "../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../lib";
 import { ClientEventsContext } from "../types/discord";
 import { DiscordErrors } from "./DiscordErrors";
 
@@ -14,8 +14,7 @@ export const errorHandler: <
 	if (error instanceof DiscordErrors.Exit) return;
 
 	if (error instanceof DiscordErrors.CommandInteractionReplyEphemeral) {
-		const { interaction } =
-			event as DiscordEventPipeline.CommandInteraction.Event;
+		const { interaction } = event as DiscordTypePipe.CommandInteraction.Event;
 
 		await interaction.reply({
 			content: error.message,

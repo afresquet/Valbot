@@ -1,6 +1,4 @@
-import TwitchEventPipelineBuilder, {
-	TwitchEventPipeline,
-} from "../../../lib/twitch-event-pipeline";
+import TwitchPipeline, { TwitchEventPipeline } from "../../../lib";
 import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { say } from "../../global/steps/say";
 import { getDBCommand } from "./getDBCommand";
@@ -8,7 +6,7 @@ import { getDBCommand } from "./getDBCommand";
 export const executeDBCommand: TwitchEventPipeline.Command.Function<
 	string[],
 	Promise<void>
-> = new TwitchEventPipelineBuilder.Command<string[]>()
+> = new TwitchPipeline.Command<string[]>()
 	.pipe(([name]) => name)
 	.pipe(getDBCommand)
 	.assert(() => new TwitchErrors.Exit())

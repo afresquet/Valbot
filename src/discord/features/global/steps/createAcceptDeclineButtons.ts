@@ -1,11 +1,11 @@
 import { MessageActionRow, MessageButton } from "discord.js";
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../../../lib";
 import { ClientEventsContext } from "../../../types/discord";
 
 export const createAcceptDeclineButtons =
 	<Event extends keyof ClientEventsContext, Value>(
 		customId: string
-	): DiscordEventPipeline.Function<Event, Value, MessageActionRow> =>
+	): DiscordTypePipe.Function<Event, Value, MessageActionRow> =>
 	() => {
 		const buttons = new MessageActionRow();
 

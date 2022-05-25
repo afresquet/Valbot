@@ -1,4 +1,4 @@
-import { TwitchEventPipeline } from "../../../lib/twitch-event-pipeline";
+import { TwitchEventPipeline } from "../../../lib";
 import { CommandModel, ICommand } from "../schemas/Command";
 
 export const dbCommandExists: TwitchEventPipeline.Command.Function<

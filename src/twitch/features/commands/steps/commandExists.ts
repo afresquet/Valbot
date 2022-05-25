@@ -1,12 +1,10 @@
-import TwitchEventPipelineBuilder, {
-	TwitchEventPipeline,
-} from "../../../lib/twitch-event-pipeline";
+import TwitchPipeline, { TwitchEventPipeline } from "../../../lib";
 import { getCommand } from "./getCommand";
 
 export const commandExists: TwitchEventPipeline.Command.Function<
 	string[],
 	boolean
-> = new TwitchEventPipelineBuilder.Command<string[]>()
+> = new TwitchPipeline.Command<string[]>()
 	.pipe(getCommand)
 	.pipe(command => command !== undefined)
 	.compose();

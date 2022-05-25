@@ -1,5 +1,5 @@
 import { MessageEmbed } from "discord.js";
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../../../lib";
 import { Event } from "../../../types/discord";
 
 const commandEvent: Event<"interactionCreate"> = {
@@ -25,8 +25,8 @@ const commandEvent: Event<"interactionCreate"> = {
 		}
 
 		await command.execute(
-			event as DiscordEventPipeline.CommandInteraction.Event,
-			event as DiscordEventPipeline.CommandInteraction.Event,
+			event as DiscordTypePipe.CommandInteraction.Event,
+			event as DiscordTypePipe.CommandInteraction.Event,
 			context
 		);
 	},

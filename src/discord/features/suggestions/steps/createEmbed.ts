@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../../../lib";
 
-export const createSuggestionEmbed: DiscordEventPipeline.CommandInteraction.Function<
+export const createSuggestionEmbed: DiscordTypePipe.CommandInteraction.Function<
 	unknown,
 	MessageEmbed
 > = (_, { interaction }) => {

@@ -1,8 +1,8 @@
 import { TypePipe } from "typepipe";
-import { Context } from "../../../types/Context";
-import { ClientEventsContext } from "../../types/twitch";
+import { Context } from "../../types/Context";
+import { ClientEventsContext } from "../types/twitch";
 
-export declare namespace TwitchEventPipeline {
+export declare namespace TwitchTypePipe {
 	interface Function<Event extends keyof ClientEventsContext, Value, Result>
 		extends TypePipe.Function<
 			Value,

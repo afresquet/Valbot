@@ -1,7 +1,7 @@
-import { DiscordEventPipeline } from "../../../lib/discord-event-pipeline";
+import { DiscordTypePipe } from "../../../lib";
 import { ILiveRoleDocument, LiveRoleModel } from "../schemas/LiveRole";
 
-export const getLiveRoleConfiguration: DiscordEventPipeline.CommandInteraction.Function<
+export const getLiveRoleConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	unknown,
 	Promise<ILiveRoleDocument | null>
 > = (_, { interaction }) => LiveRoleModel.findByGuild(interaction.guild!);

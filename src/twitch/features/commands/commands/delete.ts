@@ -1,4 +1,4 @@
-import TwitchEventPipelineBuilder from "../../../lib/twitch-event-pipeline";
+import TwitchPipeline from "../../../lib";
 import { Command } from "../../../types/twitch";
 import { say } from "../../global/steps/say";
 import { splitString } from "../../global/steps/splitString";
@@ -10,13 +10,13 @@ import { extractCommand } from "../steps/extractCommand";
 const deleteCommand: Command = {
 	name: "command",
 	subcommand: "delete",
-	execute: new TwitchEventPipelineBuilder.Command()
+	execute: new TwitchPipeline.Command()
 		.pipe((_, { message }) => message)
 		.pipe(splitString(3))
 		.pipe(extractCommand)
 		.ifelse(
 			dbCommandExists,
-			new TwitchEventPipelineBuilder.Command<ICommand>()
+			new TwitchPipeline.Command<ICommand>()
 				.tap(deleteDBCommand)
 				.pipe(
 					({ name }, { userstate }) =>

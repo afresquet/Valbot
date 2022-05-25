@@ -1,4 +1,4 @@
-import TwitchEventPipelineBuilder from "../../../lib/twitch-event-pipeline";
+import TwitchPipeline from "../../../lib";
 import { Command } from "../../../types/twitch";
 import { say } from "../../global/steps/say";
 import { splitString } from "../../global/steps/splitString";
@@ -10,7 +10,7 @@ import { extractCommand } from "../steps/extractCommand";
 const createCommand: Command = {
 	name: "command",
 	subcommand: "add",
-	execute: new TwitchEventPipelineBuilder.Command()
+	execute: new TwitchPipeline.Command()
 		.pipe((_, { message }) => message)
 		.pipe(splitString(3))
 		.pipe(extractCommand)
@@ -18,7 +18,7 @@ const createCommand: Command = {
 			dbCommandExists,
 			({ name }, { userstate }) =>
 				`@${userstate.username}, command ${name} already exists!`,
-			new TwitchEventPipelineBuilder.Command<ICommand>()
+			new TwitchPipeline.Command<ICommand>()
 				.pipe(createDBCommand)
 				.pipe(
 					({ name }, { userstate }) =>
