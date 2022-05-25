@@ -28,7 +28,7 @@
 		"dotenv": "^16.0.0",
 		"mongoose": "^6.2.10",
 		"tmi.js": "^1.8.5",
-		"typepipe": "file:../typepipe"
+		"typepipe": "^1.0.1"
 	},
 	"devDependencies": {
 		"@discordjs/rest": "^0.3.0",

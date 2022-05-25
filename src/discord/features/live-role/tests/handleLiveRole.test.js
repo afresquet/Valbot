@@ -1,4 +1,4 @@
-const { match } = require("typepipe/dist/steps");
+const { match } = require("typepipe");
 const { handleLiveRole } = require("../steps/handleLiveRole");
 
 describe("handleLiveRole step", () => {
