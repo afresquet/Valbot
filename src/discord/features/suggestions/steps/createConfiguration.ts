@@ -1,16 +1,20 @@
+import { GuildBasedChannel } from "discord.js";
+import { Errors } from "../../../../utils/Errors";
 import { DiscordTypePipe } from "../../../lib";
-import { ISuggestionDocument, SuggestionModel } from "../schemas/Suggestion";
+import { SuggestionModel } from "../schemas/Suggestion";
 
 export const createSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Function<
-	unknown,
-	Promise<ISuggestionDocument>
-> = (_, { interaction }) => {
-	const { options, guild } = interaction;
+	GuildBasedChannel | null,
+	Promise<string>
+> = async (channel, { interaction }) => {
+	if (channel === null) {
+		throw new Errors.Exit();
+	}
 
-	const channelId = options.getChannel("channel");
-
-	return SuggestionModel.create({
-		guildId: guild!.id,
-		channelId: channelId!.id,
+	await SuggestionModel.create({
+		guildId: interaction.guild!.id,
+		channelId: channel.id,
 	});
+
+	return "Suggestions are now enabled on this server.";
 };

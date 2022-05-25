@@ -1,41 +1,24 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
+import { Role } from "discord.js";
 import DiscordPipeline from "../../../lib";
-import { Command } from "../../../types/discord";
+import { SetupCommand } from "../../../types/discord";
+import { getOptions } from "../../global/steps/getOptions";
 import { interactionReplyEphemeral } from "../../global/steps/interactionReplyEphemeral";
 import { getLiveRoleConfiguration } from "../steps/getConfiguration";
 import { handleLiveRoleSubcommands } from "../steps/handleSubcommands";
 
-const liveRoleSetupCommand: Command = {
-	data: new SlashCommandBuilder()
-		.setName("setup-live-role")
-		.setDescription("Setup a live role when your members that go live")
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName("enable")
-				.setDescription("Enable live role")
-				.addRoleOption(option =>
-					option
-						.setName("role")
-						.setDescription("Role to enable")
-						.setRequired(true)
-				)
+const liveRoleSetupCommand: SetupCommand = {
+	data: new SlashCommandSubcommandBuilder()
+		.setName("live-role")
+		.setDescription(
+			"Setup a live role when your members that go live, leave empty to disable."
 		)
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName("edit")
-				.setDescription("Edit live role")
-				.addRoleOption(option =>
-					option
-						.setName("role")
-						.setDescription("Role to edit")
-						.setRequired(true)
-				)
-		)
-		.addSubcommand(subcommand =>
-			subcommand.setName("disable").setDescription("Disable live role")
+		.addRoleOption(option =>
+			option.setName("role").setDescription("Role to enable")
 		),
 	execute: new DiscordPipeline.CommandInteraction()
-		.pipe(getLiveRoleConfiguration)
+		.context(getLiveRoleConfiguration)
+		.pipe(getOptions(option => option.getRole("role") as Role | null))
 		.match(handleLiveRoleSubcommands)
 		.pipe(interactionReplyEphemeral)
 		.compose(),

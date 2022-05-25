@@ -15,7 +15,7 @@ describe("suggestions setup command getConfiguration step", () => {
 			interaction,
 		});
 
-		expect(result).toBe(value);
+		expect(result).toStrictEqual({ interaction, configuration: value });
 		expect(SuggestionModel.findByGuild).toHaveBeenCalledWith(interaction.guild);
 	});
 });

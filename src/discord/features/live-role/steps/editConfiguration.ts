@@ -1,13 +1,20 @@
+import { Role } from "discord.js";
+import { Errors } from "../../../../utils/Errors";
 import { DiscordTypePipe } from "../../../lib";
 import { LiveRoleModel } from "../schemas/LiveRole";
 
 export const editLiveRoleConfiguration: DiscordTypePipe.CommandInteraction.Function<
-	unknown,
-	Promise<void>
-> = async (_, { interaction }) => {
-	const { options, guild } = interaction;
+	Role | null,
+	Promise<string>
+> = async (role, { interaction }) => {
+	if (!role) {
+		throw new Errors.Exit();
+	}
 
-	const role = options.getRole("role");
+	await LiveRoleModel.updateOne(
+		{ guildId: interaction.guild!.id },
+		{ roleId: role.id }
+	);
 
-	await LiveRoleModel.updateOne({ guildId: guild!.id }, { roleId: role!.id });
+	return "Live role was edited.";
 };

@@ -3,5 +3,13 @@ import { ISuggestionDocument, SuggestionModel } from "../schemas/Suggestion";
 
 export const getSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	unknown,
-	Promise<ISuggestionDocument | null>
-> = (_, { interaction }) => SuggestionModel.findByGuild(interaction.guild!);
+	Promise<
+		DiscordTypePipe.CommandInteraction.Event & {
+			configuration: ISuggestionDocument | null;
+		}
+	>
+> = async (_, { interaction, ...context }) => ({
+	...context,
+	interaction,
+	configuration: await SuggestionModel.findByGuild(interaction.guild!),
+});

@@ -9,13 +9,16 @@ describe("live-role setup command getConfiguration step", () => {
 	};
 
 	test("returns the value of the guild's configuration", async () => {
-		const value = "value";
+		const value = { foo: "bar" };
 
 		jest.spyOn(LiveRoleModel, "findByGuild").mockReturnValueOnce(value);
 
 		const result = await getLiveRoleConfiguration(undefined, context);
 
-		expect(result).toBe(value);
+		expect(result).toStrictEqual({
+			...context,
+			configuration: value,
+		});
 		expect(LiveRoleModel.findByGuild).toHaveBeenCalledWith(
 			context.interaction.guild
 		);

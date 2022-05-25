@@ -5,17 +5,14 @@ describe("live-role setup command editConfiguration step", () => {
 	const role = { id: "roleId" };
 	const interaction = {
 		guild: { id: "guildId" },
-		options: {
-			getRole: jest.fn(() => role),
-		},
 	};
 
 	test("modifies the configuration for the guild", async () => {
 		jest.spyOn(LiveRoleModel, "updateOne").mockReturnValueOnce();
 
-		await editLiveRoleConfiguration(undefined, { interaction });
+		const result = await editLiveRoleConfiguration(role, { interaction });
 
-		expect(interaction.options.getRole).toHaveBeenCalledWith("role");
+		expect(result).toBe("Live role was edited.");
 		expect(LiveRoleModel.updateOne).toHaveBeenCalledWith(
 			{
 				guildId: interaction.guild.id,

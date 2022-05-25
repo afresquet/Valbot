@@ -5,17 +5,14 @@ describe("live-role setup command editConfiguration step", () => {
 	const channel = { id: "channelId" };
 	const interaction = {
 		guild: { id: "guildId" },
-		options: {
-			getChannel: jest.fn(() => channel),
-		},
 	};
 
 	test("modifies the configuration for the guild", async () => {
 		jest.spyOn(SuggestionModel, "updateOne").mockReturnValueOnce();
 
-		await editSuggestionsConfiguration(undefined, { interaction });
+		const result = await editSuggestionsConfiguration(channel, { interaction });
 
-		expect(interaction.options.getChannel).toHaveBeenCalledWith("channel");
+		expect(result).toBe("Suggestions channel has been updated.");
 		expect(SuggestionModel.updateOne).toHaveBeenCalledWith(
 			{
 				guildId: interaction.guild.id,

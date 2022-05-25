@@ -1,5 +1,6 @@
 import {
 	SlashCommandBuilder,
+	SlashCommandSubcommandBuilder,
 	SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
 import { ClientEvents } from "discord.js";
@@ -35,5 +36,10 @@ export interface Command {
 		| SlashCommandBuilder
 		| SlashCommandSubcommandsOnlyBuilder
 		| Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+	execute: DiscordTypePipe.CommandInteraction.Function;
+}
+
+export interface SetupCommand {
+	data: SlashCommandSubcommandBuilder;
 	execute: DiscordTypePipe.CommandInteraction.Function;
 }

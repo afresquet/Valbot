@@ -36,18 +36,20 @@ export declare namespace DiscordTypePipe {
 
 		type Function<
 			Value = Event,
-			Result = void | Promise<void>
-		> = TypePipe.Function<Value, Result, Event, Context>;
+			Result = void | Promise<void>,
+			ExtraContext = {}
+		> = TypePipe.Function<Value, Result, Event & ExtraContext, Context>;
 
 		type MatchFunction<
 			Value,
 			Result,
+			ExtraContext = {},
 			Async = Result extends Promise<unknown> ? true : false,
 			Expected = Awaited<Result>
 		> = TypePipe.MatchFunction<
 			Value,
 			Awaited<Result>,
-			Event,
+			Event & ExtraContext,
 			Context,
 			Async,
 			Expected

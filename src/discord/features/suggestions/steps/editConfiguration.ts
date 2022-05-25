@@ -1,16 +1,20 @@
+import { GuildBasedChannel } from "discord.js";
+import { Errors } from "../../../../utils/Errors";
 import { DiscordTypePipe } from "../../../lib";
 import { SuggestionModel } from "../schemas/Suggestion";
 
 export const editSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Function<
-	unknown,
-	Promise<void>
-> = async (_, { interaction }) => {
-	const { options, guild } = interaction;
-
-	const channelId = options.getChannel("channel");
+	GuildBasedChannel | null,
+	Promise<string>
+> = async (channel, { interaction }) => {
+	if (!channel) {
+		throw new Errors.Exit();
+	}
 
 	await SuggestionModel.updateOne(
-		{ guildId: guild!.id },
-		{ channelId: channelId!.id }
+		{ guildId: interaction.guild!.id },
+		{ channelId: channel.id }
 	);
+
+	return "Suggestions channel has been updated.";
 };

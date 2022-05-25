@@ -11,8 +11,11 @@ describe("live-role setup command disableConfiguration step", () => {
 	test("deletes the configuration for the guild", async () => {
 		jest.spyOn(SuggestionModel, "findOneAndDelete").mockReturnValueOnce();
 
-		await disableSuggestionsConfiguration(undefined, { interaction });
+		const result = await disableSuggestionsConfiguration(undefined, {
+			interaction,
+		});
 
+		expect(result).toBe("Suggestions have been disabled.");
 		expect(SuggestionModel.findOneAndDelete).toHaveBeenCalledWith({
 			guildId: interaction.guild.id,
 		});

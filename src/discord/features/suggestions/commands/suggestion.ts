@@ -27,21 +27,20 @@ const suggestCommand: Command = {
 				.setRequired(true)
 		),
 	execute: new DiscordPipeline.CommandInteraction()
-		.pipe(getSuggestionsConfiguration)
-		.assert(
-			() =>
-				new DiscordErrors.CommandInteractionReplyEphemeral(
+		.context(getSuggestionsConfiguration)
+		.tap((_, { interaction, configuration }) => {
+			if (configuration === null) {
+				throw new DiscordErrors.CommandInteractionReplyEphemeral(
 					"Suggestions are not enabled on this server."
-				)
-		)
-		.tap((configuration, { interaction }) => {
+				);
+			}
+
 			if (configuration.channelId !== interaction.channel!.id) {
 				throw new DiscordErrors.CommandInteractionReplyEphemeral(
 					`You can't use this command here, go to <#${configuration.channelId}> instead.`
 				);
 			}
 		})
-
 		.pipe(createSuggestionEmbed)
 		.pairwise(createAcceptDeclineButtons("suggestion"))
 		.pipe(async ([embed, buttons], { interaction }) => {

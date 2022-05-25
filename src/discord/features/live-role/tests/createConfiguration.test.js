@@ -5,9 +5,6 @@ describe("live-role setup command createConfiguration step", () => {
 	const role = { id: "roleId" };
 	const interaction = {
 		guild: { id: "guildId" },
-		options: {
-			getRole: jest.fn(() => role),
-		},
 	};
 
 	test("creates a configuration for the guild", async () => {
@@ -15,12 +12,12 @@ describe("live-role setup command createConfiguration step", () => {
 
 		jest.spyOn(LiveRoleModel, "create").mockReturnValueOnce(configuration);
 
-		const result = await createLiveRoleConfiguration(undefined, {
+		const result = await createLiveRoleConfiguration(role, {
 			interaction,
+			configuration,
 		});
 
-		expect(result).toBe(configuration);
-		expect(interaction.options.getRole).toHaveBeenCalledWith("role");
+		expect(result).toBe("Live role is now enabled on this server.");
 		expect(LiveRoleModel.create).toHaveBeenCalledWith({
 			guildId: interaction.guild.id,
 			roleId: role.id,
