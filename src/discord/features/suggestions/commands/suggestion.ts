@@ -29,15 +29,15 @@ const suggestCommand: Command = {
 		.context(getSuggestionsConfiguration)
 		.tap((_, { interaction, configuration }, { Errors }) => {
 			if (configuration === null) {
-				throw new Errors.CommandInteractionReplyEphemeral(
-					"Suggestions are not enabled on this server."
-				);
+				throw new Errors.InteractionReplyEphemeral({
+					content: "Suggestions are not enabled on this server.",
+				});
 			}
 
 			if (configuration.channelId !== interaction.channel!.id) {
-				throw new Errors.CommandInteractionReplyEphemeral(
-					`You can't use this command here, go to <#${configuration.channelId}> instead.`
-				);
+				throw new Errors.InteractionReplyEphemeral({
+					content: `You can't use this command here, go to <#${configuration.channelId}> instead.`,
+				});
 			}
 		})
 		.pipe(createSuggestionEmbed)

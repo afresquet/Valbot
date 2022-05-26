@@ -28,7 +28,7 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: DiscordTypePipe.Function<T, ClientEventsContext[T], void>;
+	execute: DiscordTypePipe.Function<T, unknown, any>;
 }
 
 export interface Command {

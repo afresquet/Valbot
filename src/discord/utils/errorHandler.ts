@@ -12,12 +12,17 @@ export const errorHandler: <
 ) => Promise<void> = async (error, event, { Errors }) => {
 	if (error instanceof Errors.Exit) return;
 
-	if (error instanceof Errors.CommandInteractionReplyEphemeral) {
+	if (
+		error instanceof Errors.InteractionReply ||
+		error instanceof Errors.InteractionReplyEphemeral
+	) {
 		const { interaction } = event as DiscordTypePipe.CommandInteraction.Event;
 
 		await interaction.reply({
-			content: error.message,
-			ephemeral: true,
+			...error.content,
+			ephemeral:
+				error instanceof Errors.InteractionReplyEphemeral ||
+				error.content.ephemeral,
 		});
 
 		return;

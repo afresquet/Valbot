@@ -10,7 +10,7 @@ describe("ready client event", () => {
 	test("logs the client tag to the console", () => {
 		jest.spyOn(console, "log").mockImplementation();
 
-		readyEvent.execute({ client });
+		readyEvent.execute(undefined, { client });
 
 		expect(console.log).toHaveBeenCalledWith(
 			`Connected to Discord as ${client.user.tag}`

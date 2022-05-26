@@ -1,38 +1,37 @@
-import { MessageEmbed } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
+import DiscordPipeline from "../../../lib";
 import { Event } from "../../../types/discord";
+import { interactionType } from "../steps/interactionType";
+
+const getCommandName = (interaction: CommandInteraction): string =>
+	interaction.commandName === "setup"
+		? `setup-${interaction.options.getSubcommand(true)}`
+		: interaction.commandName;
 
 const commandEvent: Event<"interactionCreate"> = {
 	name: "command",
 	event: "interactionCreate",
-	execute: async (_, { interaction }, context) => {
-		if (!interaction.isCommand()) return;
+	execute: new DiscordPipeline<"interactionCreate">()
+		.context(interactionType.COMMAND)
+		.pipe((_, { interaction }) => getCommandName(interaction))
+		.pipe((name, { interaction }) => interaction.client.commands.get(name))
+		.assert((_, { interaction }, { Errors }) => {
+			interaction.client.commands.delete(getCommandName(interaction));
 
-		let name = interaction.commandName;
-
-		if (name === "setup") {
-			const subcommand = interaction.options.getSubcommand(true);
-
-			name = `setup-${subcommand}`;
-		}
-
-		const command = interaction.client.commands.get(name);
-
-		if (!command) {
-			await interaction.reply({
+			return new Errors.InteractionReplyEphemeral({
 				embeds: [
 					new MessageEmbed()
 						.setColor("RED")
-						.setDescription("An error occurred while running this command."),
+						.setDescription(
+							"The command doesn't exist, try reloading your Discord client."
+						),
 				],
 			});
-
-			interaction.client.commands.delete(interaction.commandName);
-
-			return;
-		}
-
-		await command.execute({ interaction }, { interaction }, context);
-	},
+		})
+		.tap(async (command, event, context) => {
+			await command.execute(event, event, context);
+		})
+		.compose(),
 };
 
 export default commandEvent;

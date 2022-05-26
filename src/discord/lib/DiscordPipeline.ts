@@ -5,7 +5,7 @@ import { DiscordTypePipe } from "./discord-pipeline";
 
 export default class DiscordPipeline<
 	Event extends keyof ClientEventsContext,
-	Value = ClientEventsContext[Event]
+	Value = unknown
 > extends Pipeline<Value, ClientEventsContext[Event], Context> {
 	static CommandInteraction = class CommandInteraction<
 		Value = DiscordTypePipe.CommandInteraction.Event
