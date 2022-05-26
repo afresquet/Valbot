@@ -1,7 +1,6 @@
 import { Context } from "../../types/Context";
 import { DiscordTypePipe } from "../lib";
 import { ClientEventsContext } from "../types/discord";
-import { DiscordErrors } from "./DiscordErrors";
 
 export const errorHandler: <
 	E extends Error,
@@ -10,10 +9,10 @@ export const errorHandler: <
 	error: E,
 	event: ClientEventsContext[Event],
 	context: Context
-) => Promise<void> = async (error, event) => {
-	if (error instanceof DiscordErrors.Exit) return;
+) => Promise<void> = async (error, event, { Errors }) => {
+	if (error instanceof Errors.Exit) return;
 
-	if (error instanceof DiscordErrors.CommandInteractionReplyEphemeral) {
+	if (error instanceof Errors.CommandInteractionReplyEphemeral) {
 		const { interaction } = event as DiscordTypePipe.CommandInteraction.Event;
 
 		await interaction.reply({

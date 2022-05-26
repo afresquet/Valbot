@@ -1,12 +1,11 @@
 import { Role } from "discord.js";
-import { Errors } from "../../../../utils/Errors";
 import { DiscordTypePipe } from "../../../lib";
 import { LiveRoleModel } from "../schemas/LiveRole";
 
 export const createLiveRoleConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	Role | null,
 	Promise<string>
-> = async (role, { interaction }) => {
+> = async (role, { interaction }, { Errors }) => {
 	if (!role) {
 		throw new Errors.Exit();
 	}

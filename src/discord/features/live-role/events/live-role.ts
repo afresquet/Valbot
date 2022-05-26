@@ -1,6 +1,5 @@
 import DiscordPipeline from "../../../lib";
 import { Event } from "../../../types/discord";
-import { DiscordErrors } from "../../../utils/DiscordErrors";
 import {
 	guildMemberHasActivity,
 	guildMemberHasRole,
@@ -13,7 +12,7 @@ const liveRoleUpdateEvent: Event<"presenceUpdate"> = {
 	event: "presenceUpdate",
 	execute: new DiscordPipeline<"presenceUpdate">()
 		.pipe(getRole)
-		.assert(() => new DiscordErrors.Exit())
+		.assert((_, __, { Errors }) => new Errors.Exit())
 		.context((role, { newPresence, ...context }) => ({
 			...context,
 			newPresence,

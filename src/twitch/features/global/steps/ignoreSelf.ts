@@ -1,13 +1,12 @@
 import { TwitchEventPipeline } from "../../../lib";
 import { ClientEventsContext } from "../../../types/twitch";
-import { TwitchErrors } from "../../../utils/TwitchErrors";
 
 export const ignoreSelf: TwitchEventPipeline.Function<
 	"message",
 	ClientEventsContext["message"],
 	void
-> = (_, { self }) => {
+> = (_, { self }, { Errors }) => {
 	if (self) {
-		throw new TwitchErrors.Exit();
+		throw new Errors.Exit();
 	}
 };

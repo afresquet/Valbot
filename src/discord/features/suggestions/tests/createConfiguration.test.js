@@ -14,9 +14,11 @@ describe("live-role setup command createConfiguration step", () => {
 
 		jest.spyOn(SuggestionModel, "create").mockReturnValueOnce(configuration);
 
-		const result = await createSuggestionsConfiguration(channel, {
-			interaction,
-		});
+		const result = await createSuggestionsConfiguration(
+			channel,
+			{ interaction },
+			{}
+		);
 
 		expect(result).toBe("Suggestions are now enabled on this server.");
 		expect(SuggestionModel.create).toHaveBeenCalledWith({

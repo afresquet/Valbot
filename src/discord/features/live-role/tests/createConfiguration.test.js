@@ -1,5 +1,6 @@
 const { createLiveRoleConfiguration } = require("../steps/createConfiguration");
 const { LiveRoleModel } = require("../schemas/LiveRole");
+const { Errors } = require("../../../../utils/Errors");
 
 describe("live-role setup command createConfiguration step", () => {
 	const role = { id: "roleId" };
@@ -12,10 +13,11 @@ describe("live-role setup command createConfiguration step", () => {
 
 		jest.spyOn(LiveRoleModel, "create").mockReturnValueOnce(configuration);
 
-		const result = await createLiveRoleConfiguration(role, {
-			interaction,
-			configuration,
-		});
+		const result = await createLiveRoleConfiguration(
+			role,
+			{ interaction, configuration },
+			{}
+		);
 
 		expect(result).toBe("Live role is now enabled on this server.");
 		expect(LiveRoleModel.create).toHaveBeenCalledWith({

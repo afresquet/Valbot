@@ -10,7 +10,11 @@ describe("live-role setup command editConfiguration step", () => {
 	test("modifies the configuration for the guild", async () => {
 		jest.spyOn(SuggestionModel, "updateOne").mockReturnValueOnce();
 
-		const result = await editSuggestionsConfiguration(channel, { interaction });
+		const result = await editSuggestionsConfiguration(
+			channel,
+			{ interaction },
+			{}
+		);
 
 		expect(result).toBe("Suggestions channel has been updated.");
 		expect(SuggestionModel.updateOne).toHaveBeenCalledWith(

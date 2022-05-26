@@ -1,13 +1,12 @@
 import { TwitchEventPipeline } from "../../../lib";
-import { TwitchErrors } from "../../../utils/TwitchErrors";
 
 export const checkPrefix: TwitchEventPipeline.Function<
 	"message",
 	unknown,
 	string
-> = (_, { message }) => {
+> = (_, { message }, { Errors }) => {
 	if (!message.startsWith("!")) {
-		throw new TwitchErrors.Exit();
+		throw new Errors.Exit();
 	}
 
 	return message.substring(1);

@@ -1,12 +1,11 @@
 import { GuildBasedChannel } from "discord.js";
-import { Errors } from "../../../../utils/Errors";
 import { DiscordTypePipe } from "../../../lib";
 import { SuggestionModel } from "../schemas/Suggestion";
 
 export const editSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	GuildBasedChannel | null,
 	Promise<string>
-> = async (channel, { interaction }) => {
+> = async (channel, { interaction }, { Errors }) => {
 	if (!channel) {
 		throw new Errors.Exit();
 	}

@@ -1,5 +1,4 @@
 import TwitchPipeline, { TwitchEventPipeline } from "../../../lib";
-import { TwitchErrors } from "../../../utils/TwitchErrors";
 import { getCommand } from "./getCommand";
 
 export const executeCommand: TwitchEventPipeline.Command.Function<
@@ -7,7 +6,7 @@ export const executeCommand: TwitchEventPipeline.Command.Function<
 	Promise<void>
 > = new TwitchPipeline.Command<string[]>()
 	.pipe(getCommand)
-	.assert(() => new TwitchErrors.Exit())
+	.assert((_, __, { Errors }) => new Errors.Exit())
 	.pipe(async (command, event, context) => {
 		await command.execute(event, event, context);
 	})

@@ -3,6 +3,7 @@ import { connectDB } from "./db";
 import discord from "./discord";
 import twitch from "./twitch";
 import { Context } from "./types/Context";
+import { Errors } from "./utils/Errors";
 import { setupHandlers } from "./utils/setupHandlers";
 import { startClients } from "./utils/startClients";
 
@@ -10,7 +11,7 @@ async function run() {
 	try {
 		const db = await connectDB();
 
-		const context: Context = { discord, twitch, db };
+		const context: Context = { discord, twitch, db, Errors };
 
 		await setupHandlers(context, discord, twitch);
 
