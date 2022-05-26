@@ -1,10 +1,10 @@
-import { TwitchEventPipeline } from "../../../lib";
-import { CommandModel, ICommand } from "../schemas/Command";
+import { TwitchTypePipe } from "../../../lib";
+import { ICommand } from "../schemas/Command";
 
-export const deleteDBCommand: TwitchEventPipeline.Function<
+export const deleteDBCommand: TwitchTypePipe.Function<
 	any,
 	ICommand,
 	Promise<void>
-> = async ({ channel, name }) => {
+> = async ({ channel, name }, _, { models: { CommandModel } }) => {
 	await CommandModel.findOneAndDelete({ channel, name });
 };

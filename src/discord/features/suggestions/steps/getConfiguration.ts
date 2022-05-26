@@ -1,5 +1,5 @@
 import { DiscordTypePipe } from "../../../lib";
-import { ISuggestionDocument, SuggestionModel } from "../schemas/Suggestion";
+import { ISuggestionDocument } from "../schemas/Suggestion";
 
 export const getSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	unknown,
@@ -8,7 +8,11 @@ export const getSuggestionsConfiguration: DiscordTypePipe.CommandInteraction.Fun
 			configuration: ISuggestionDocument | null;
 		}
 	>
-> = async (_, { interaction, ...context }) => ({
+> = async (
+	_,
+	{ interaction, ...context },
+	{ models: { SuggestionModel } }
+) => ({
 	...context,
 	interaction,
 	configuration: await SuggestionModel.findByGuild(interaction.guild!),

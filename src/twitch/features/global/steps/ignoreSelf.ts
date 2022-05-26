@@ -1,7 +1,7 @@
-import { TwitchEventPipeline } from "../../../lib";
+import { TwitchTypePipe } from "../../../lib";
 import { ClientEventsContext } from "../../../types/twitch";
 
-export const ignoreSelf: TwitchEventPipeline.Function<
+export const ignoreSelf: TwitchTypePipe.Function<
 	"message",
 	ClientEventsContext["message"],
 	void

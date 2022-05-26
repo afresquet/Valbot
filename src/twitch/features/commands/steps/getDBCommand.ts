@@ -1,10 +1,10 @@
-import { TwitchEventPipeline } from "../../../lib";
-import { CommandModel, ICommandDocument } from "../schemas/Command";
+import { TwitchTypePipe } from "../../../lib";
+import { ICommandDocument } from "../schemas/Command";
 
-export const getDBCommand: TwitchEventPipeline.Command.Function<
+export const getDBCommand: TwitchTypePipe.Command.Function<
 	string,
 	Promise<ICommandDocument | null>
-> = (name, { channel }) =>
+> = (name, { channel }, { models: { CommandModel } }) =>
 	CommandModel.findOne({
 		channel,
 		name,

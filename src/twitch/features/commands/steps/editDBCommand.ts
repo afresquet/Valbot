@@ -1,10 +1,9 @@
-import { TypePipe } from "typepipe";
-import { CommandModel, ICommand, ICommandDocument } from "../schemas/Command";
+import { TwitchTypePipe } from "../../../lib/twitch-pipeline";
+import { ICommand, ICommandDocument } from "../schemas/Command";
 
-export const editDBCommand: TypePipe.Function<
+export const editDBCommand: TwitchTypePipe.Function<
+	any,
 	ICommand,
-	Promise<ICommandDocument>,
-	unknown,
-	unknown
-> = ({ channel, name, message }) =>
+	Promise<ICommandDocument>
+> = ({ channel, name, message }, _, { models: { CommandModel } }) =>
 	CommandModel.findOneAndUpdate({ channel, name }, { message }) as any;

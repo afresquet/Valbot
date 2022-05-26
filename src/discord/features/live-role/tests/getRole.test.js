@@ -1,19 +1,23 @@
-const { LiveRoleModel } = require("../schemas/LiveRole");
 const { getRole } = require("../steps/getRole");
 
 describe("getRole step", () => {
-	const context = {
+	const event = {
 		newPresence: {
 			guild: { id: "guildId" },
 		},
 	};
 	const role = { id: "roleId" };
+	const context = {
+		models: {
+			LiveRoleModel: {
+				findRoleByGuild: jest.fn(async () => role),
+			},
+		},
+	};
 
 	test("returns the role", () => {
-		jest.spyOn(LiveRoleModel, "findRoleByGuild").mockReturnValue(role);
+		const result = getRole(undefined, event, context);
 
-		const result = getRole(undefined, context);
-
-		expect(result).toBe(role);
+		expect(result).resolves.toBe(role);
 	});
 });

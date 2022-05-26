@@ -1,6 +1,6 @@
 import type { Events } from "tmi.js";
 import { Context } from "../../types/Context";
-import { TwitchEventPipeline } from "../lib";
+import { TwitchTypePipe } from "../lib";
 
 export type Handler = (context: Context) => void | Promise<void>;
 
@@ -22,12 +22,12 @@ export interface Event<T extends keyof ClientEventsContext> {
 	name: string;
 	event: T;
 	once?: boolean;
-	execute: TwitchEventPipeline.Function<T, ClientEventsContext[T], void>;
+	execute: TwitchTypePipe.Function<T, ClientEventsContext[T], void>;
 }
 
 export interface Command {
 	name: string;
 	subcommand?: string;
 	once?: boolean;
-	execute: TwitchEventPipeline.Command.Function;
+	execute: TwitchTypePipe.Command.Function;
 }

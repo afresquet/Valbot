@@ -1,21 +1,30 @@
 const { getSuggestionsConfiguration } = require("../steps/getConfiguration");
-const { SuggestionModel } = require("../schemas/Suggestion");
 
 describe("suggestions setup command getConfiguration step", () => {
 	const interaction = {
 		guild: { id: "guildId" },
 	};
+	const value = "value";
+	const context = {
+		models: {
+			SuggestionModel: {
+				findByGuild: jest.fn(async () => value),
+			},
+		},
+	};
 
 	test("returns the value of the guild's suggestions configuration", async () => {
-		const value = "value";
-
-		jest.spyOn(SuggestionModel, "findByGuild").mockReturnValueOnce(value);
-
-		const result = await getSuggestionsConfiguration(undefined, {
-			interaction,
-		});
+		const result = await getSuggestionsConfiguration(
+			undefined,
+			{
+				interaction,
+			},
+			context
+		);
 
 		expect(result).toStrictEqual({ interaction, configuration: value });
-		expect(SuggestionModel.findByGuild).toHaveBeenCalledWith(interaction.guild);
+		expect(context.models.SuggestionModel.findByGuild).toHaveBeenCalledWith(
+			interaction.guild
+		);
 	});
 });

@@ -1,23 +1,27 @@
 const { editSuggestionsConfiguration } = require("../steps/editConfiguration");
-const { SuggestionModel } = require("../schemas/Suggestion");
 
 describe("live-role setup command editConfiguration step", () => {
 	const channel = { id: "channelId" };
 	const interaction = {
 		guild: { id: "guildId" },
 	};
+	const context = {
+		models: {
+			SuggestionModel: {
+				updateOne: jest.fn(async () => {}),
+			},
+		},
+	};
 
 	test("modifies the configuration for the guild", async () => {
-		jest.spyOn(SuggestionModel, "updateOne").mockReturnValueOnce();
-
 		const result = await editSuggestionsConfiguration(
 			channel,
 			{ interaction },
-			{}
+			context
 		);
 
 		expect(result).toBe("Suggestions channel has been updated.");
-		expect(SuggestionModel.updateOne).toHaveBeenCalledWith(
+		expect(context.models.SuggestionModel.updateOne).toHaveBeenCalledWith(
 			{
 				guildId: interaction.guild.id,
 			},

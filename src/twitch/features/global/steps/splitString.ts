@@ -1,9 +1,7 @@
-import { TwitchEventPipeline } from "../../../lib";
+import { TwitchTypePipe } from "../../../lib";
 
 export const splitString =
-	(
-		amount?: number
-	): TwitchEventPipeline.Function<"message", string, string[]> =>
+	(amount?: number): TwitchTypePipe.Function<"message", string, string[]> =>
 	string => {
 		const words = string.split(/\s+/g);
 

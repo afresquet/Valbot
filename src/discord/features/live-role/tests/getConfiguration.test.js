@@ -1,26 +1,30 @@
 const { getLiveRoleConfiguration } = require("../steps/getConfiguration");
-const { LiveRoleModel } = require("../schemas/LiveRole");
 
 describe("live-role setup command getConfiguration step", () => {
-	const context = {
+	const value = { foo: "bar" };
+
+	const event = {
 		interaction: {
 			guild: { id: "guildId" },
 		},
 	};
+	const context = {
+		models: {
+			LiveRoleModel: {
+				findByGuild: jest.fn(async () => value),
+			},
+		},
+	};
 
 	test("returns the value of the guild's configuration", async () => {
-		const value = { foo: "bar" };
-
-		jest.spyOn(LiveRoleModel, "findByGuild").mockReturnValueOnce(value);
-
-		const result = await getLiveRoleConfiguration(undefined, context);
+		const result = await getLiveRoleConfiguration(undefined, event, context);
 
 		expect(result).toStrictEqual({
-			...context,
+			...event,
 			configuration: value,
 		});
-		expect(LiveRoleModel.findByGuild).toHaveBeenCalledWith(
-			context.interaction.guild
+		expect(context.models.LiveRoleModel.findByGuild).toHaveBeenCalledWith(
+			event.interaction.guild
 		);
 	});
 });

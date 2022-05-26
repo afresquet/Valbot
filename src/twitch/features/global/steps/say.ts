@@ -1,6 +1,6 @@
-import { TwitchEventPipeline } from "../../../lib";
+import { TwitchTypePipe } from "../../../lib";
 
-export const say: TwitchEventPipeline.Function<
+export const say: TwitchTypePipe.Function<
 	"message",
 	string,
 	Promise<void>

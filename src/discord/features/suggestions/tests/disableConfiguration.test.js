@@ -1,22 +1,32 @@
 const {
 	disableSuggestionsConfiguration,
 } = require("../steps/disableConfiguration");
-const { SuggestionModel } = require("../schemas/Suggestion");
 
 describe("live-role setup command disableConfiguration step", () => {
 	const interaction = {
 		guild: { id: "guildId" },
 	};
+	const context = {
+		models: {
+			SuggestionModel: {
+				findOneAndDelete: jest.fn(async () => {}),
+			},
+		},
+	};
 
 	test("deletes the configuration for the guild", async () => {
-		jest.spyOn(SuggestionModel, "findOneAndDelete").mockReturnValueOnce();
-
-		const result = await disableSuggestionsConfiguration(undefined, {
-			interaction,
-		});
+		const result = await disableSuggestionsConfiguration(
+			undefined,
+			{
+				interaction,
+			},
+			context
+		);
 
 		expect(result).toBe("Suggestions have been disabled.");
-		expect(SuggestionModel.findOneAndDelete).toHaveBeenCalledWith({
+		expect(
+			context.models.SuggestionModel.findOneAndDelete
+		).toHaveBeenCalledWith({
 			guildId: interaction.guild.id,
 		});
 	});

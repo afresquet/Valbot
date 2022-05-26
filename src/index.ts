@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { connectDB } from "./db";
+import { connectDB, models } from "./db";
 import discord from "./discord";
 import twitch from "./twitch";
 import { Context } from "./types/Context";
@@ -11,7 +11,7 @@ async function run() {
 	try {
 		const db = await connectDB();
 
-		const context: Context = { discord, twitch, db, Errors };
+		const context: Context = { discord, twitch, db, models, Errors };
 
 		await setupHandlers(context, discord, twitch);
 

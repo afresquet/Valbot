@@ -1,7 +1,7 @@
-import TwitchPipeline, { TwitchEventPipeline } from "../../../lib";
+import TwitchPipeline, { TwitchTypePipe } from "../../../lib";
 import { getCommand } from "./getCommand";
 
-export const executeCommand: TwitchEventPipeline.Command.Function<
+export const executeCommand: TwitchTypePipe.Command.Function<
 	string[],
 	Promise<void>
 > = new TwitchPipeline.Command<string[]>()

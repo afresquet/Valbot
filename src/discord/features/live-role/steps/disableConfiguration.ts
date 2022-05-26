@@ -1,10 +1,9 @@
 import { DiscordTypePipe } from "../../../lib";
-import { LiveRoleModel } from "../schemas/LiveRole";
 
 export const disableLiveRoleConfiguration: DiscordTypePipe.CommandInteraction.Function<
 	unknown,
 	Promise<string>
-> = async (_, { interaction }) => {
+> = async (_, { interaction }, { models: { LiveRoleModel } }) => {
 	await LiveRoleModel.findOneAndDelete({
 		guildId: interaction.guild!.id,
 	});
