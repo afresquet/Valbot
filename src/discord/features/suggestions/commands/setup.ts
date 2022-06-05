@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders";
+import { ChannelType } from "discord-api-types/v9";
 import { GuildBasedChannel } from "discord.js";
-import { ChannelType } from "discord.js/node_modules/discord-api-types/v9";
 import DiscordPipeline from "../../../lib";
 import { SetupCommand } from "../../../types/discord";
 import { getOptions } from "../../global/steps/getOptions";
@@ -16,7 +16,7 @@ const suggestionsSetupCommand: SetupCommand = {
 			option
 				.setName("channel")
 				.setDescription("The channel to post suggestions to")
-				.addChannelType(ChannelType.GuildText)
+				.addChannelTypes(ChannelType.GuildText)
 		),
 	execute: new DiscordPipeline.CommandInteraction()
 		.context(getSuggestionsConfiguration)

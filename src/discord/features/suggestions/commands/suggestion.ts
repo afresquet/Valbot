@@ -14,10 +14,12 @@ const suggestCommand: Command = {
 				.setName("type")
 				.setDescription("Select an option")
 				.setRequired(true)
-				.addChoice("Command", "Command")
-				.addChoice("Channel", "Channel")
-				.addChoice("Event", "Event")
-				.addChoice("Other", "Other")
+				.addChoices(
+					{ name: "Command", value: "Command" },
+					{ name: "Channel", value: "Channel" },
+					{ name: "Event", value: "Event" },
+					{ name: "Other", value: "Other" }
+				)
 		)
 		.addStringOption(option =>
 			option
